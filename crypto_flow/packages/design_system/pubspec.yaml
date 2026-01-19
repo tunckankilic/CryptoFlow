@@ -1,0 +1,22 @@
+name: design_system
+description: Design system and UI components for CryptoFlow
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Local packages
+  core:
+    path: ../core
+  
+  # Charts
+  fl_chart: ^0.65.0
+  
+  # Fonts
+  google_fonts: ^6.1.0
+  
+  # Utils
+  equatable: ^2.0.5

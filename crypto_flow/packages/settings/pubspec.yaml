@@ -1,0 +1,25 @@
+name: settings
+description: User settings for CryptoFlow
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Local packages
+  core:
+    path: ../core
+  design_system:
+    path: ../design_system
+  
+  # State management
+  flutter_bloc: ^8.1.0
+  
+  # Local storage
+  hive_flutter: ^1.1.0
+  
+  # Utils
+  equatable: ^2.0.5
+  dartz: ^0.10.1

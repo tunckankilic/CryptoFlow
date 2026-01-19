@@ -45,7 +45,8 @@ export 'presentation/bloc/ticker_list/ticker_list_event.dart';
 export 'presentation/bloc/ticker_list/ticker_list_state.dart';
 
 export 'presentation/bloc/ticker_detail/ticker_detail_bloc.dart';
-export 'presentation/bloc/ticker_detail/ticker_detail_event.dart';
+export 'presentation/bloc/ticker_detail/ticker_detail_event.dart'
+    hide LoadOrderBook, SubscribeToOrderBook;
 export 'presentation/bloc/ticker_detail/ticker_detail_state.dart';
 
 export 'presentation/bloc/candle/candle_bloc.dart';

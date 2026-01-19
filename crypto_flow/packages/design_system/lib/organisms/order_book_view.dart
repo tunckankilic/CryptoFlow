@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../atoms/app_colors.dart';
 import '../atoms/app_typography.dart';
 import '../atoms/app_spacing.dart';

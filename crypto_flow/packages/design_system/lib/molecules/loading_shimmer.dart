@@ -37,6 +37,69 @@ class LoadingShimmer extends StatefulWidget {
     this.highlightColor,
   }) : shape = ShimmerShape.roundedRectangle;
 
+  /// Create a small avatar shimmer (32x32)
+  const LoadingShimmer.avatarSmall({
+    super.key,
+    this.baseColor,
+    this.highlightColor,
+  })  : width = 32,
+        height = 32,
+        shape = ShimmerShape.circle;
+
+  /// Create a medium avatar shimmer (48x48)
+  const LoadingShimmer.avatarMedium({
+    super.key,
+    this.baseColor,
+    this.highlightColor,
+  })  : width = 48,
+        height = 48,
+        shape = ShimmerShape.circle;
+
+  /// Create a large avatar shimmer (64x64)
+  const LoadingShimmer.avatarLarge({
+    super.key,
+    this.baseColor,
+    this.highlightColor,
+  })  : width = 64,
+        height = 64,
+        shape = ShimmerShape.circle;
+
+  /// Create a card shimmer placeholder
+  const LoadingShimmer.card({
+    super.key,
+    this.width = double.infinity,
+    this.height = 120,
+    this.baseColor,
+    this.highlightColor,
+  }) : shape = ShimmerShape.roundedRectangle;
+
+  /// Create a list item shimmer placeholder
+  const LoadingShimmer.listItem({
+    super.key,
+    this.width = double.infinity,
+    this.height = 72,
+    this.baseColor,
+    this.highlightColor,
+  }) : shape = ShimmerShape.roundedRectangle;
+
+  /// Create a button shimmer placeholder
+  const LoadingShimmer.button({
+    super.key,
+    this.width = 120,
+    this.height = 44,
+    this.baseColor,
+    this.highlightColor,
+  }) : shape = ShimmerShape.roundedRectangle;
+
+  /// Create an icon shimmer placeholder
+  const LoadingShimmer.icon({
+    super.key,
+    this.width = 24,
+    this.height = 24,
+    this.baseColor,
+    this.highlightColor,
+  }) : shape = ShimmerShape.roundedRectangle;
+
   @override
   State<LoadingShimmer> createState() => _LoadingShimmerState();
 }

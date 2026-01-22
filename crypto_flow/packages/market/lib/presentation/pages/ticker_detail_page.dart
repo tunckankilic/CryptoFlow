@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:design_system/design_system.dart';
+import 'package:watchlist/watchlist.dart';
+import 'package:alerts/alerts.dart';
 import '../../domain/entities/ticker.dart';
 import '../bloc/ticker_detail/ticker_detail_bloc.dart';
 import '../bloc/ticker_detail/ticker_detail_event.dart';
@@ -85,16 +87,51 @@ class _TickerDetailPageState extends State<TickerDetailPage>
             appBar: AppBar(
               title: _buildTitle(state.ticker),
               actions: [
-                IconButton(
-                  icon: const Icon(Icons.star_border),
-                  onPressed: () {
-                    // TODO: Add to watchlist
+                // Watchlist toggle button
+                BlocBuilder<WatchlistBloc, WatchlistState>(
+                  builder: (context, watchlistState) {
+                    final isInWatchlist = watchlistState is WatchlistLoaded &&
+                        (watchlistState.inWatchlistCache[widget.symbol] ??
+                            false);
+
+                    return IconButton(
+                      icon: Icon(
+                        isInWatchlist ? Icons.star : Icons.star_border,
+                      ),
+                      onPressed: () {
+                        if (isInWatchlist) {
+                          // Remove from watchlist
+                          context
+                              .read<WatchlistBloc>()
+                              .add(RemoveFromWatchlistEvent(widget.symbol));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Removed ${widget.symbol} from watchlist'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          // Add to watchlist
+                          context
+                              .read<WatchlistBloc>()
+                              .add(AddToWatchlistEvent(widget.symbol));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                                  Text('Added ${widget.symbol} to watchlist'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
+                    );
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.notifications_none),
                   onPressed: () {
-                    // TODO: Create alert
+                    _showCreateAlertSheet(context, widget.symbol);
                   },
                 ),
               ],
@@ -167,6 +204,14 @@ class _TickerDetailPageState extends State<TickerDetailPage>
           ),
         ),
       ],
+    );
+  }
+
+  void _showCreateAlertSheet(BuildContext context, String symbol) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => const CreateAlertSheet(),
     );
   }
 }

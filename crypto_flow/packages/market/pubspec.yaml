@@ -13,6 +13,10 @@ dependencies:
     path: ../core
   design_system:
     path: ../design_system
+  watchlist:
+    path: ../watchlist
+  alerts:
+    path: ../alerts
   
   # State management
   flutter_bloc: ^8.1.0

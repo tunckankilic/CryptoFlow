@@ -19,6 +19,9 @@ dependencies:
   # State management
   flutter_bloc: ^8.1.0
   
+  # Navigation
+  go_router: ^14.6.2
+  
   # Local storage
   hive_flutter: ^1.1.0
   

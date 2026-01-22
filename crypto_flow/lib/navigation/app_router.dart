@@ -79,5 +79,13 @@ final appRouter = GoRouter(
       name: 'add-transaction',
       builder: (context, state) => const AddTransactionPage(),
     ),
+    GoRoute(
+      path: '/search',
+      name: 'search',
+      builder: (context, state) => BlocProvider(
+        create: (_) => getIt<TickerListBloc>()..add(const LoadTickers()),
+        child: const SearchPage(),
+      ),
+    ),
   ],
 );

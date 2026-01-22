@@ -17,7 +17,7 @@ export 'domain/usecases/get_holdings.dart';
 export 'domain/usecases/add_transaction.dart';
 export 'domain/usecases/get_portfolio_value.dart';
 export 'domain/usecases/get_pnl.dart';
-export 'domain/usecases/watch_portfolio_value.dart';
+export 'domain/usecases/get_allocation.dart';
 
 // Data layer
 export 'data/models/holding_model.dart';

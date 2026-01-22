@@ -141,7 +141,8 @@ class RateLimitFailure extends Failure {
 class ValidationFailure extends Failure {
   final Map<String, String>? fieldErrors;
 
-  const ValidationFailure({
+  const ValidationFailure(
+    String s, {
     super.message = 'Validation failed. Please check your input.',
     this.fieldErrors,
     super.code,

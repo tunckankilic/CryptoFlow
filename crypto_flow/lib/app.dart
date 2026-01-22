@@ -1,56 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:design_system/design_system.dart';
 
+// BLoCs
+import 'package:portfolio/portfolio.dart';
+import 'package:alerts/alerts.dart';
+import 'package:watchlist/watchlist.dart';
+import 'package:settings/settings.dart';
+
+import 'di/injection_container.dart';
+import 'navigation/app_router.dart';
+
+/// Main CryptoFlow application
 class CryptoFlowApp extends StatelessWidget {
   const CryptoFlowApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CryptoFlow',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2196F3),
-          brightness: Brightness.dark,
+    return MultiBlocProvider(
+      providers: [
+        // Global BLoCs (shared across pages)
+        BlocProvider<WatchlistBloc>(
+          create: (_) => getIt<WatchlistBloc>()..add(const LoadWatchlist()),
         ),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.currency_bitcoin,
-                size: 64,
-                color: Color(0xFF00C853),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'CryptoFlow',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Real-time Cryptocurrency Tracker',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-              ),
-              SizedBox(height: 32),
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text(
-                'Initializing...',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
+        BlocProvider<PortfolioBloc>(
+          create: (_) => getIt<PortfolioBloc>()..add(const LoadPortfolio()),
         ),
+        BlocProvider<AlertBloc>(
+          create: (_) => getIt<AlertBloc>()..add(const LoadAlerts()),
+        ),
+        BlocProvider<SettingsBloc>(
+          create: (_) => getIt<SettingsBloc>()..add(const LoadSettings()),
+        ),
+      ],
+      child: BlocBuilder<SettingsBloc, SettingsState>(
+        buildWhen: (prev, curr) => prev.themeMode != curr.themeMode,
+        builder: (context, settingsState) {
+          return MaterialApp.router(
+            title: 'CryptoFlow',
+            debugShowCheckedModeBanner: false,
+
+            // Theming
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: settingsState.themeMode,
+
+            // Navigation
+            routerConfig: appRouter,
+          );
+        },
       ),
     );
   }

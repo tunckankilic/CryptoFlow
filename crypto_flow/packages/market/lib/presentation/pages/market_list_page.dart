@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:design_system/design_system.dart';
 import '../bloc/ticker_list/ticker_list_bloc.dart';
 import '../bloc/ticker_list/ticker_list_event.dart';
 import '../bloc/ticker_list/ticker_list_state.dart';
@@ -98,32 +97,7 @@ class _MarketListPageState extends State<MarketListPage> {
                 }
 
                 if (state is TickerListLoaded) {
-                  if (state.filteredTickers.isEmpty) {
-                    return const Center(
-                      child: Text('No tickers found'),
-                    );
-                  }
-
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      context.read<TickerListBloc>().add(const LoadTickers());
-                    },
-                    child: ListView.builder(
-                      itemCount: state.filteredTickers.length,
-                      itemBuilder: (context, index) {
-                        final ticker = state.filteredTickers[index];
-                        return TickerListTile(
-                          ticker: ticker,
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/ticker/${ticker.symbol}',
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  );
+                  return _TickerListView(tickers: state.filteredTickers);
                 }
 
                 return const SizedBox.shrink();
@@ -349,6 +323,47 @@ class _SortOption extends StatelessWidget {
     return ListTile(
       title: Text(title),
       onTap: onTap,
+    );
+  }
+}
+
+class _TickerListView extends StatelessWidget {
+  final List<dynamic> tickers;
+
+  const _TickerListView({required this.tickers});
+
+  @override
+  Widget build(BuildContext context) {
+    if (tickers.isEmpty) {
+      return const Center(
+        child: Text('No tickers found'),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<TickerListBloc>().add(const LoadTickers());
+      },
+      child: ListView.builder(
+        itemCount: tickers.length,
+        itemBuilder: (context, index) {
+          final ticker = tickers[index];
+          // Performance: RepaintBoundary prevents unnecessary repaints
+          // ValueKey enables efficient widget recycling
+          return RepaintBoundary(
+            child: TickerListTile(
+              key: ValueKey(ticker.symbol),
+              ticker: ticker,
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/ticker/${ticker.symbol}',
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -20,6 +20,10 @@ class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
   bool _ascending = false;
   String? _searchQuery;
 
+  // Performance: Batch WebSocket updates to reduce state emissions
+  final _pendingUpdates = <String, Ticker>{};
+  Timer? _batchTimer;
+
   TickerListBloc({
     required MarketRepository marketRepository,
     required WebSocketRepository wsRepository,
@@ -34,6 +38,7 @@ class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
     on<FilterTickers>(_onFilterTickers);
     on<SearchTickers>(_onSearchTickers);
     on<ClearSearch>(_onClearSearch);
+    on<FlushBatchedUpdatesEvent>(_onFlushBatchedUpdates);
   }
 
   /// Load initial tickers from REST API
@@ -102,18 +107,49 @@ class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
     TickersUpdated event,
     Emitter<TickerListState> emit,
   ) {
-    // Merge updates with existing tickers
-    final updatedMap = {for (var t in event.tickers) t.symbol: t};
+    // Performance: Batch updates instead of emitting for each message
+    // Collect updates in a map
+    for (final ticker in event.tickers) {
+      _pendingUpdates[ticker.symbol] = ticker;
+    }
 
+    // Start timer if not already running
+    // This batches multiple rapid updates into a single state emission
+    _batchTimer ??= Timer(const Duration(milliseconds: 100), () {
+      // Use add() instead of emit() since emit is not safe in Timer callback
+      if (_pendingUpdates.isNotEmpty) {
+        add(const FlushBatchedUpdatesEvent());
+      }
+      _batchTimer = null;
+    });
+  }
+
+  /// Flush batched updates and emit new state
+  void _onFlushBatchedUpdates(
+    FlushBatchedUpdatesEvent event,
+    Emitter<TickerListState> emit,
+  ) {
+    if (_pendingUpdates.isEmpty) {
+      return;
+    }
+
+    // Convert pending updates to list
+    final updatedTickers = _pendingUpdates.values.toList();
+    final updatedMap = Map<String, Ticker>.from(_pendingUpdates);
+
+    // Clear pending updates
+    _pendingUpdates.clear();
+
+    // Merge with existing tickers
     if (_allTickers.isEmpty) {
       // First load from WebSocket
-      _allTickers = event.tickers;
+      _allTickers = updatedTickers;
     } else {
       // Merge updates
       _allTickers = _allTickers.map((t) => updatedMap[t.symbol] ?? t).toList();
 
       // Add any new tickers
-      for (final ticker in event.tickers) {
+      for (final ticker in updatedTickers) {
         if (!_allTickers.any((t) => t.symbol == ticker.symbol)) {
           _allTickers.add(ticker);
         }
@@ -234,6 +270,7 @@ class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
   Future<void> close() {
     _tickerSubscription?.cancel();
     _statusSubscription?.cancel();
+    _batchTimer?.cancel(); // Cancel batch timer
     return super.close();
   }
 }

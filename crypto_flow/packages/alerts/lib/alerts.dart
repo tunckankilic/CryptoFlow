@@ -14,6 +14,7 @@ export 'domain/usecases/create_alert.dart';
 export 'domain/usecases/delete_alert.dart';
 export 'domain/usecases/get_alerts.dart';
 export 'domain/usecases/check_alerts.dart';
+export 'domain/usecases/toggle_alert.dart';
 
 // Data layer
 export 'data/models/price_alert_model.dart';

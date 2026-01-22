@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../atoms/app_colors.dart';
 import '../atoms/app_typography.dart';
 import '../atoms/app_spacing.dart';
@@ -81,18 +82,13 @@ class CoinTile extends StatelessWidget {
       ),
       child: iconUrl != null
           ? ClipOval(
-              child: Image.network(
-                iconUrl!,
+              child: CachedNetworkImage(
+                imageUrl: iconUrl!,
                 width: AppSpacing.coinIconSize,
                 height: AppSpacing.coinIconSize,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildPlaceholderIcon();
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return _buildPlaceholderIcon();
-                },
+                placeholder: (context, url) => _buildPlaceholderIcon(),
+                errorWidget: (context, url, error) => _buildPlaceholderIcon(),
               ),
             )
           : _buildPlaceholderIcon(),

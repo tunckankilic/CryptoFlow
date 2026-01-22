@@ -80,6 +80,12 @@ class ClearSearch extends TickerListEvent {
   const ClearSearch();
 }
 
+/// Internal event to flush batched WebSocket updates
+/// @nodoc - For internal use by TickerListBloc only
+class FlushBatchedUpdatesEvent extends TickerListEvent {
+  const FlushBatchedUpdatesEvent();
+}
+
 /// Sorting options for ticker list
 enum TickerSortBy {
   symbol,

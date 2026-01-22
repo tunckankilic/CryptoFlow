@@ -185,7 +185,7 @@ class _OrderRow extends StatelessWidget {
     final color = isBid ? CryptoColors.priceUp : CryptoColors.priceDown;
     final fillColor = color.withAlpha(51); // 0.2 opacity
 
-    return Container(
+    return SizedBox(
       height: 28,
       child: Stack(
         children: [

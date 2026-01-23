@@ -81,7 +81,7 @@ class _CreateAlertSheetState extends State<CreateAlertSheet> {
 
                 // Alert type
                 DropdownButtonFormField<AlertType>(
-                  value: _selectedType,
+                  initialValue: _selectedType,
                   decoration: const InputDecoration(
                     labelText: 'Alert Type',
                     prefixIcon: Icon(Icons.notifications),

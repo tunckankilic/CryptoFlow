@@ -66,7 +66,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
             // Transaction type
             DropdownButtonFormField<TransactionType>(
-              value: _selectedType,
+              initialValue: _selectedType,
               decoration: const InputDecoration(
                 labelText: 'Type',
                 prefixIcon: Icon(Icons.swap_horiz),

@@ -7,6 +7,7 @@ import 'package:portfolio/portfolio.dart';
 import 'package:alerts/alerts.dart';
 import 'package:watchlist/watchlist.dart';
 import 'package:settings/settings.dart';
+import 'package:auth/auth.dart';
 
 import '../di/injection_container.dart';
 import 'app_shell.dart';
@@ -85,6 +86,17 @@ final appRouter = GoRouter(
         create: (_) => getIt<TickerListBloc>()..add(const LoadTickers()),
         child: const SearchPage(),
       ),
+    ),
+    // Auth routes
+    GoRoute(
+      path: '/login',
+      name: 'login',
+      builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: '/profile',
+      name: 'profile',
+      builder: (context, state) => const ProfilePage(),
     ),
   ],
 );

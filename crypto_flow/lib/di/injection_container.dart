@@ -13,6 +13,7 @@ import 'portfolio_module.dart';
 import 'alerts_module.dart';
 import 'watchlist_module.dart';
 import 'settings_module.dart';
+import 'auth_module.dart';
 
 final getIt = GetIt.instance;
 
@@ -44,6 +45,7 @@ Future<void> configureDependencies() async {
   await registerAlertsModule();
   await registerWatchlistModule();
   await registerSettingsModule();
+  await registerAuthModule();
 }
 
 /// Dispose all resources

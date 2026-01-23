@@ -6,6 +6,7 @@
 /// - Constants and configurations
 /// - Base use cases
 /// - Utility functions
+/// - Cloud sync service
 library;
 
 // Constants
@@ -22,6 +23,9 @@ export 'error/failures.dart';
 export 'network/api_client.dart';
 export 'network/websocket_client.dart';
 export 'network/network_info.dart';
+
+// Services
+export 'services/cloud_sync_service.dart';
 
 // Use cases
 export 'usecases/usecase.dart';

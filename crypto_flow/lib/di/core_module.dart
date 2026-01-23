@@ -30,4 +30,9 @@ Future<void> registerCoreModule() async {
       networkInfo: getIt<NetworkInfo>(),
     ),
   );
+
+  // Cloud Sync Service
+  getIt.registerLazySingleton<CloudSyncService>(
+    () => CloudSyncService(),
+  );
 }

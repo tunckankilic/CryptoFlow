@@ -179,3 +179,34 @@ class UnexpectedFailure extends Failure {
     super.details,
   });
 }
+
+/// Authentication failure
+class AuthFailure extends Failure {
+  final AuthFailureType type;
+
+  AuthFailure({
+    required this.type,
+    String? message,
+    super.code,
+    super.details,
+  }) : super(message: message ?? type.defaultMessage);
+
+  @override
+  List<Object?> get props => [type, message, code, details];
+}
+
+/// Types of authentication failures
+enum AuthFailureType {
+  cancelled('Authentication was cancelled'),
+  invalidCredential('Invalid credentials provided'),
+  userNotFound('User not found'),
+  userDisabled('User account has been disabled'),
+  emailAlreadyInUse('Email is already in use'),
+  weakPassword('Password is too weak'),
+  networkError('Network error occurred'),
+  requiresRecentLogin('Please sign in again to complete this action'),
+  unknown('An authentication error occurred');
+
+  final String defaultMessage;
+  const AuthFailureType(this.defaultMessage);
+}

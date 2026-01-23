@@ -7,6 +7,7 @@ import 'package:portfolio/portfolio.dart';
 import 'package:alerts/alerts.dart';
 import 'package:watchlist/watchlist.dart';
 import 'package:settings/settings.dart';
+import 'package:auth/auth.dart';
 
 import 'di/injection_container.dart';
 import 'navigation/app_router.dart';
@@ -20,6 +21,9 @@ class CryptoFlowApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         // Global BLoCs (shared across pages)
+        BlocProvider<AuthBloc>(
+          create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
+        ),
         BlocProvider<WatchlistBloc>(
           create: (_) => getIt<WatchlistBloc>()..add(const LoadWatchlist()),
         ),

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../domain/entities/indicator_type.dart';
 
 /// Events for CandleBloc
 abstract class CandleEvent extends Equatable {
@@ -51,6 +52,16 @@ class ChangeCandleInterval extends CandleEvent {
 
   @override
   List<Object?> get props => [interval];
+}
+
+/// Toggle a technical indicator on/off
+class ToggleIndicator extends CandleEvent {
+  final IndicatorType indicator;
+
+  const ToggleIndicator(this.indicator);
+
+  @override
+  List<Object?> get props => [indicator];
 }
 
 /// Internal: Candle updated from WebSocket

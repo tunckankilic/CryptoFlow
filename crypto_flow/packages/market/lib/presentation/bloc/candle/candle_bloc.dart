@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/candle.dart';
+import '../../../domain/entities/indicator_type.dart';
+import '../../../domain/entities/macd_result.dart';
 import '../../../domain/repositories/market_repository.dart';
 import '../../../domain/repositories/websocket_repository.dart';
+import '../../../domain/services/technical_indicators.dart';
 import 'candle_event.dart';
 import 'candle_state.dart';
 
-/// BLoC for managing candlestick data with live updates
+/// BLoC for managing candlestick data with live updates and technical indicators
 class CandleBloc extends Bloc<CandleEvent, CandleState> {
   final MarketRepository _marketRepository;
   final WebSocketRepository _wsRepository;
@@ -26,6 +29,7 @@ class CandleBloc extends Bloc<CandleEvent, CandleState> {
     on<UnsubscribeFromCandleStream>(_onUnsubscribe);
     on<ChangeCandleInterval>(_onChangeInterval);
     on<CandleReceived>(_onCandleReceived);
+    on<ToggleIndicator>(_onToggleIndicator);
   }
 
   /// Load historical candles
@@ -46,11 +50,14 @@ class CandleBloc extends Bloc<CandleEvent, CandleState> {
 
     result.fold(
       (failure) => emit(CandleError(failure.message)),
-      (candles) => emit(CandleLoaded(
-        symbol: event.symbol,
-        candles: candles,
-        interval: event.interval,
-      )),
+      (candles) {
+        final loadedState = CandleLoaded(
+          symbol: event.symbol,
+          candles: candles,
+          interval: event.interval,
+        );
+        emit(loadedState);
+      },
     );
   }
 
@@ -140,8 +147,86 @@ class CandleBloc extends Bloc<CandleEvent, CandleState> {
         }
       }
 
-      emit(loaded.copyWith(candles: candles));
+      // Recalculate indicators if any are active
+      final newState = loaded.copyWith(candles: candles);
+      emit(_recalculateIndicators(newState));
     }
+  }
+
+  /// Toggle a technical indicator on/off
+  void _onToggleIndicator(
+    ToggleIndicator event,
+    Emitter<CandleState> emit,
+  ) {
+    if (state is! CandleLoaded) return;
+
+    final loaded = state as CandleLoaded;
+    final activeIndicators = Set<IndicatorType>.from(loaded.activeIndicators);
+
+    if (activeIndicators.contains(event.indicator)) {
+      activeIndicators.remove(event.indicator);
+    } else {
+      activeIndicators.add(event.indicator);
+    }
+
+    final newState = loaded.copyWith(activeIndicators: activeIndicators);
+    emit(_recalculateIndicators(newState));
+  }
+
+  /// Recalculate all active indicators
+  CandleLoaded _recalculateIndicators(CandleLoaded state) {
+    if (state.activeIndicators.isEmpty) {
+      return state.copyWith(
+        rsiValues: const [],
+        emaValues: const {},
+        smaValues: const [],
+        macdResult: null,
+      );
+    }
+
+    List<double?> rsiValues = state.rsiValues;
+    Map<int, List<double?>> emaValues = Map.from(state.emaValues);
+    List<double?> smaValues = state.smaValues;
+    MACDResult? macdResult = state.macdResult;
+
+    for (final indicator in state.activeIndicators) {
+      switch (indicator) {
+        case IndicatorType.rsi:
+          rsiValues = TechnicalIndicators.calculateRSI(state.candles);
+          break;
+        case IndicatorType.ema9:
+          emaValues[9] = TechnicalIndicators.calculateEMA(
+            state.candles,
+            period: 9,
+          );
+          break;
+        case IndicatorType.ema21:
+          emaValues[21] = TechnicalIndicators.calculateEMA(
+            state.candles,
+            period: 21,
+          );
+          break;
+        case IndicatorType.ema50:
+          emaValues[50] = TechnicalIndicators.calculateEMA(
+            state.candles,
+            period: 50,
+          );
+          break;
+        case IndicatorType.sma20:
+          smaValues = TechnicalIndicators.calculateSMA(state.candles);
+          break;
+        case IndicatorType.macd:
+          macdResult = TechnicalIndicators.calculateMACD(state.candles);
+          break;
+      }
+    }
+
+    return state.copyWith(
+      rsiValues: rsiValues,
+      emaValues: emaValues,
+      smaValues: smaValues,
+      macdResult: macdResult,
+    );
   }
 
   @override

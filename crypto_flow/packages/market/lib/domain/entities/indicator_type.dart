@@ -1,4 +1,5 @@
 /// Types of technical indicators available for chart analysis
+library;
 
 /// Types of technical indicators available for chart analysis
 enum IndicatorType {

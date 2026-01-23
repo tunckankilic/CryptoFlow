@@ -1,0 +1,52 @@
+name: auth
+description: Firebase Authentication for CryptoFlow
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Local packages
+  core:
+    path: ../core
+  design_system:
+    path: ../design_system
+  portfolio:
+    path: ../portfolio
+  alerts:
+    path: ../alerts
+  watchlist:
+    path: ../watchlist
+  
+  # Firebase
+  firebase_core: ^2.24.0
+  firebase_auth: ^4.16.0
+  
+  # Social Sign In
+  google_sign_in: ^6.2.1
+  sign_in_with_apple: ^5.0.0
+  
+  # Secure Storage
+  flutter_secure_storage: ^9.0.0
+  
+  # State management
+  flutter_bloc: ^8.1.0
+  
+  # Navigation
+  go_router: ^14.8.1
+  
+  # Utils
+  equatable: ^2.0.5
+  dartz: ^0.10.1
+  cached_network_image: ^3.3.0
+  path_provider: ^2.1.2
+  share_plus: ^7.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^3.0.0
+  mocktail: ^1.0.0
+  bloc_test: ^9.1.0

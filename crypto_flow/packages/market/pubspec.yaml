@@ -1,0 +1,42 @@
+name: market
+description: Market data and WebSocket streams for CryptoFlow
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Local packages
+  core:
+    path: ../core
+  design_system:
+    path: ../design_system
+  watchlist:
+    path: ../watchlist
+  alerts:
+    path: ../alerts
+  
+  # State management
+  flutter_bloc: ^8.1.0
+  
+  # Networking
+  web_socket_channel: ^2.4.0
+  rxdart: ^0.27.7
+  
+  # Charts
+  fl_chart: ^0.65.0
+  
+  # Local storage
+  drift: ^2.13.0
+  sqlite3_flutter_libs: ^0.5.0
+  hive_flutter: ^1.1.0
+  
+  # Utils
+  equatable: ^2.0.5
+  dartz: ^0.10.1
+
+dev_dependencies:
+  drift_dev: ^2.13.0
+  build_runner: ^2.4.0

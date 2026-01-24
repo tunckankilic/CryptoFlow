@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: true
+        default: 'main'
+        type: string
+
+env:
+  FLUTTER_VERSION: '3.19.0'
+
+jobs:
+  build_ios:
+    name: Build iOS
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: crypto_flow
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Build iOS Release (No CodeSign)
+        run: flutter build ios --release --no-codesign

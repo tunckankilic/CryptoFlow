@@ -1,3 +1,9 @@
+![CI](https://github.com/tunckankilic/CryptoFlow/workflows/CI/badge.svg)
+![Release iOS](https://github.com/tunckankilic/CryptoFlow/workflows/Release%20iOS/badge.svg)
+![Flutter](https://img.shields.io/badge/Flutter-3.19-blue.svg)
+![Fastlane](https://img.shields.io/badge/Fastlane-iOS-00F200.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 # crypto_flow
 
 A new Flutter project.

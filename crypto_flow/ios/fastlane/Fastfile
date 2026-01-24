@@ -1,0 +1,44 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Sync certificates"
+  lane :sync_certs do
+    match(type: "development", readonly: false)
+    match(type: "appstore", readonly: false)
+  end
+  
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    setup_ci if ENV['CI']
+    
+    match(
+      type: "appstore",
+      readonly: is_ci,
+      git_url: "git@github.com:tunckankilic/certificates.git"
+    )
+    
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "CryptoWave.ipa"
+    )
+    
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      api_key_path: "fastlane/api_key.json"
+    )
+  end
+  
+  desc "Upload to App Store"
+  lane :release do
+    beta
+    upload_to_app_store(
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      force: true
+    )
+  end
+end

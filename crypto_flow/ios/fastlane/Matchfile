@@ -1,0 +1,6 @@
+git_url("git@github.com:tunckankilic/certificates.git")
+storage_mode("git")
+type("appstore")
+app_identifier("com.tunckankilic.cryptoflow")
+username("ismail.tunc.kankilic@gmail.com")
+team_id("J2T55ML92H")

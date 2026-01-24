@@ -113,16 +113,17 @@ class LoginPage extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 32),
-
-                    // Google Sign In
-                    SocialLoginButton.google(
-                      onPressed: isLoading
-                          ? null
-                          : () => context
-                              .read<AuthBloc>()
-                              .add(const AuthGoogleSignInRequested()),
-                      isLoading: isLoading,
-                    ),
+                    if (Platform.isAndroid) ...[
+                      // Google Sign In
+                      SocialLoginButton.google(
+                        onPressed: isLoading
+                            ? null
+                            : () => context
+                                .read<AuthBloc>()
+                                .add(const AuthGoogleSignInRequested()),
+                        isLoading: isLoading,
+                      ),
+                    ],
 
                     const SizedBox(height: 12),
 

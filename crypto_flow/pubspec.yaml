@@ -30,7 +30,7 @@ dependencies:
     path: packages/auth
   
   # DI
-  get_it: ^7.6.0
+  get_it: ^9.2.0
   injectable: ^2.3.0
   
   # Navigation

@@ -21,11 +21,11 @@ dependencies:
     path: ../watchlist
   
   # Firebase
-  firebase_core: ^2.24.0
-  firebase_auth: ^4.16.0
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
   
   # Social Sign In
-  google_sign_in: ^6.2.1
+  google_sign_in: ^6.2.2
   sign_in_with_apple: ^5.0.0
   
   # Secure Storage

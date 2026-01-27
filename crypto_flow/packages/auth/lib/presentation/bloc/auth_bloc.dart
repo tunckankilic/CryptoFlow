@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../domain/entities/app_user.dart';
 import '../../domain/usecases/sign_in_with_google.dart';
@@ -10,6 +11,7 @@ import '../../domain/usecases/sign_in_anonymously.dart';
 import '../../domain/usecases/sign_out.dart';
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/watch_auth_state.dart';
+import '../../domain/usecases/delete_account.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -21,6 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignOut _signOut;
   final GetCurrentUser _getCurrentUser;
   final WatchAuthState _watchAuthState;
+  final DeleteAccount _deleteAccount;
 
   StreamSubscription<AppUser?>? _authStateSubscription;
 
@@ -31,12 +34,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required SignOut signOut,
     required GetCurrentUser getCurrentUser,
     required WatchAuthState watchAuthState,
+    required DeleteAccount deleteAccount,
   })  : _signInWithGoogle = signInWithGoogle,
         _signInWithApple = signInWithApple,
         _signInAnonymously = signInAnonymously,
         _signOut = signOut,
         _getCurrentUser = getCurrentUser,
         _watchAuthState = watchAuthState,
+        _deleteAccount = deleteAccount,
         super(const AuthInitial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthGoogleSignInRequested>(_onGoogleSignInRequested);
@@ -149,14 +154,39 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
 
-    // Note: Delete account should be implemented in repository
-    // For now, just sign out
-    final result = await _signOut(const NoParams());
+    // Delete account from Firebase
+    final result = await _deleteAccount(const NoParams());
 
-    result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (_) => emit(const AuthUnauthenticated()),
+    await result.fold(
+      (failure) async {
+        if (failure is AuthFailure &&
+            failure.type == AuthFailureType.requiresRecentLogin) {
+          emit(const AuthError('Please sign in again to delete your account'));
+        } else {
+          emit(AuthError(failure.message));
+        }
+      },
+      (_) async {
+        // Clear all local data
+        await _clearLocalData();
+        emit(const AuthUnauthenticated());
+      },
     );
+  }
+
+  /// Clear all local Hive data when account is deleted
+  Future<void> _clearLocalData() async {
+    try {
+      // Close and delete all Hive boxes
+      if (Hive.isBoxOpen('watchlist')) await Hive.box('watchlist').clear();
+      if (Hive.isBoxOpen('portfolio')) await Hive.box('portfolio').clear();
+      if (Hive.isBoxOpen('transactions'))
+        await Hive.box('transactions').clear();
+      if (Hive.isBoxOpen('alerts')) await Hive.box('alerts').clear();
+      if (Hive.isBoxOpen('settings')) await Hive.box('settings').clear();
+    } catch (_) {
+      // Ignore errors during cleanup
+    }
   }
 
   void _onAuthStateChanged(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/ticker_list/ticker_list_bloc.dart';
 import '../bloc/ticker_list/ticker_list_event.dart';
 import '../bloc/ticker_list/ticker_list_state.dart';
@@ -355,10 +356,7 @@ class _TickerListView extends StatelessWidget {
               key: ValueKey(ticker.symbol),
               ticker: ticker,
               onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  '/ticker/${ticker.symbol}',
-                );
+                context.go('/ticker/${ticker.symbol}');
               },
             ),
           );

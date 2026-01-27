@@ -40,7 +40,7 @@ class LoginPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Spacer(flex: 2),
+                    const SizedBox(height: 60),
 
                     // Logo
                     Container(
@@ -92,7 +92,7 @@ class LoginPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
 
-                    const Spacer(flex: 2),
+                    const SizedBox(height: 40),
 
                     // Welcome text
                     Text(
@@ -189,7 +189,7 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
 
-                    const Spacer(flex: 3),
+                    const SizedBox(height: 60),
 
                     // Terms and Privacy
                     Padding(

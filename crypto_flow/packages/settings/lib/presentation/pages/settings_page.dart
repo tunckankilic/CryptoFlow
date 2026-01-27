@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
@@ -68,6 +69,11 @@ class _SettingsContent extends StatelessWidget {
         // Currency Section
         _SectionHeader(title: 'Currency'),
         _CurrencyTile(currentCurrency: state.currency),
+        const Divider(),
+
+        // Account Section
+        _SectionHeader(title: 'Account'),
+        const _ProfileTile(),
         const Divider(),
 
         // About Section
@@ -180,6 +186,21 @@ class _CurrencyTile extends StatelessWidget {
           }
         },
       ),
+    );
+  }
+}
+
+class _ProfileTile extends StatelessWidget {
+  const _ProfileTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.person),
+      title: const Text('Profile'),
+      subtitle: const Text('Manage your account and data'),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => context.go('/profile'),
     );
   }
 }

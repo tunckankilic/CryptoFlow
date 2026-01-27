@@ -13,6 +13,7 @@ export 'domain/usecases/sign_in_anonymously.dart';
 export 'domain/usecases/sign_out.dart';
 export 'domain/usecases/get_current_user.dart';
 export 'domain/usecases/watch_auth_state.dart';
+export 'domain/usecases/delete_account.dart';
 
 // Data - Models
 export 'data/models/app_user_model.dart';

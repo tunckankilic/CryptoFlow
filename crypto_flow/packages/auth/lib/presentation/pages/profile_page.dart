@@ -130,16 +130,17 @@ class ProfilePage extends StatelessWidget {
             onTap: () => _showSignOutDialog(context),
           ),
 
-          if (!user.isAnonymous)
-            _buildListTile(
-              context,
-              icon: Icons.delete_forever,
-              title: 'Delete Account',
-              subtitle: 'Permanently delete your account and data',
-              iconColor: theme.colorScheme.error,
-              textColor: theme.colorScheme.error,
-              onTap: () => _showDeleteAccountDialog(context),
-            ),
+          _buildListTile(
+            context,
+            icon: Icons.delete_forever,
+            title: 'Delete Account',
+            subtitle: user.isAnonymous
+                ? 'Delete all local data'
+                : 'Permanently delete your account and data',
+            iconColor: theme.colorScheme.error,
+            textColor: theme.colorScheme.error,
+            onTap: () => _showDeleteAccountDialog(context),
+          ),
 
           const SizedBox(height: 32),
         ],

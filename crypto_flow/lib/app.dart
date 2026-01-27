@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:design_system/design_system.dart';
 
 // BLoCs
@@ -13,8 +14,22 @@ import 'di/injection_container.dart';
 import 'navigation/app_router.dart';
 
 /// Main CryptoFlow application
-class CryptoFlowApp extends StatelessWidget {
+class CryptoFlowApp extends StatefulWidget {
   const CryptoFlowApp({super.key});
+
+  @override
+  State<CryptoFlowApp> createState() => _CryptoFlowAppState();
+}
+
+class _CryptoFlowAppState extends State<CryptoFlowApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create router once with AuthBloc
+    _router = createAppRouter(getIt<AuthBloc>());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +64,8 @@ class CryptoFlowApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: settingsState.themeMode,
 
-            // Navigation
-            routerConfig: appRouter,
+            // Navigation - use cached router
+            routerConfig: _router,
           );
         },
       ),

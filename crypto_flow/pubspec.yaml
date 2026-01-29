@@ -28,6 +28,8 @@ dependencies:
     path: packages/settings
   auth:
     path: packages/auth
+  notifications:
+    path: packages/notifications
   
   # DI
   get_it: ^9.2.0
@@ -37,7 +39,7 @@ dependencies:
   go_router: ^14.8.1
   
   # State
-  flutter_bloc: ^8.1.0
+  flutter_bloc: ^9.1.1
   
   # UI
   cupertino_icons: ^1.0.8
@@ -54,7 +56,7 @@ dev_dependencies:
   
   # Testing
   mocktail: ^1.0.0
-  bloc_test: ^9.1.0
+  bloc_test: ^10.0.0
 
 flutter:
   uses-material-design: true

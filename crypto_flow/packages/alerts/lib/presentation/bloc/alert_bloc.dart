@@ -9,6 +9,7 @@ import '../../domain/usecases/toggle_alert.dart';
 import '../../domain/usecases/check_alerts.dart';
 import '../../domain/repositories/alert_repository.dart';
 import 'package:core/usecases/usecase.dart';
+import 'package:notifications/notifications.dart';
 import 'alert_event.dart';
 import 'alert_state.dart';
 
@@ -21,6 +22,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
   final CheckAlerts checkAlerts;
   final AlertRepository repository;
   final CloudSyncService? cloudSyncService;
+  final NotificationRepository? notificationRepository;
   final String? userId;
 
   StreamSubscription? _alertsSubscription;
@@ -33,6 +35,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     required this.checkAlerts,
     required this.repository,
     this.cloudSyncService,
+    this.notificationRepository,
     this.userId,
   }) : super(const AlertInitial()) {
     on<LoadAlerts>(_onLoadAlerts);
@@ -41,6 +44,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     on<ToggleAlertEvent>(_onToggleAlert);
     on<CheckAlertsEvent>(_onCheckAlerts);
     on<AlertsUpdated>(_onAlertsUpdated);
+    on<AlertTriggered>(_onAlertTriggered);
   }
 
   /// Load all alerts
@@ -131,10 +135,34 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       },
       (triggeredAlerts) {
         if (triggeredAlerts.isNotEmpty) {
+          // Send notifications for triggered alerts
+          for (final alert in triggeredAlerts) {
+            final currentPrice = event.currentPrices[alert.symbol];
+            if (currentPrice != null && alert.notificationEnabled) {
+              add(AlertTriggered(alert: alert, currentPrice: currentPrice));
+            }
+          }
           // Reload to get updated state
           add(const LoadAlerts());
         }
       },
+    );
+  }
+
+  /// Handle alert triggered - send notification
+  Future<void> _onAlertTriggered(
+    AlertTriggered event,
+    Emitter<AlertState> emit,
+  ) async {
+    if (notificationRepository == null) return;
+    if (!event.alert.pushEnabled) return;
+
+    // Send notification
+    await notificationRepository!.showPriceAlertNotification(
+      symbol: event.alert.symbol,
+      currentPrice: event.currentPrice,
+      targetPrice: event.alert.targetPrice,
+      alertType: event.alert.type.displayName,
     );
   }
 

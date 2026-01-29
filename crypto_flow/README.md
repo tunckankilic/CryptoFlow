@@ -20,3 +20,20 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+## What I Did:
+- Created notifications package with domain, data, and presentation layers
+- Added FCM datasource and local notification datasource
+- Implemented NotificationBloc with settings management
+- Updated alerts package with notificationEnabled and pushEnabled fields
+- Added AlertCheckerService for background price monitoring
+- Created notification_module.dart for dependency injection
+- Configured iOS push notifications (Info.plist, AppDelegate.swift)
+- Integrated NotificationBloc into settings page with toggle controls
+- Added NotificationBloc to MultiBlocProvider in app.dart
+- Fixed flutter_local_notifications v20 API (named parameters)
+- Added unit tests for entities and BLoC (10 tests passing)
+
+## Next On:
+- Run tests and bug fixes

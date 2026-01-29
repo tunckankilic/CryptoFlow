@@ -29,13 +29,15 @@ class PriceAlertModelAdapter extends TypeAdapter<PriceAlertModel> {
       hiveTriggeredAt: fields[9] as int?,
       hiveRepeatEnabled: fields[10] as bool,
       hiveNote: fields[11] as String?,
+      hiveNotificationEnabled: fields[12] as bool,
+      hivePushEnabled: fields[13] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, PriceAlertModel obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.hiveId)
       ..writeByte(1)
@@ -59,7 +61,11 @@ class PriceAlertModelAdapter extends TypeAdapter<PriceAlertModel> {
       ..writeByte(10)
       ..write(obj.hiveRepeatEnabled)
       ..writeByte(11)
-      ..write(obj.hiveNote);
+      ..write(obj.hiveNote)
+      ..writeByte(12)
+      ..write(obj.hiveNotificationEnabled)
+      ..writeByte(13)
+      ..write(obj.hivePushEnabled);
   }
 
   @override

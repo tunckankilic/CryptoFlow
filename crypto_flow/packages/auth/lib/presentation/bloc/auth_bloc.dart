@@ -180,8 +180,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Close and delete all Hive boxes
       if (Hive.isBoxOpen('watchlist')) await Hive.box('watchlist').clear();
       if (Hive.isBoxOpen('portfolio')) await Hive.box('portfolio').clear();
-      if (Hive.isBoxOpen('transactions'))
+      if (Hive.isBoxOpen('transactions')) {
         await Hive.box('transactions').clear();
+      }
       if (Hive.isBoxOpen('alerts')) await Hive.box('alerts').clear();
       if (Hive.isBoxOpen('settings')) await Hive.box('settings').clear();
     } catch (_) {

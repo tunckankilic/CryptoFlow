@@ -9,6 +9,7 @@ import 'package:alerts/alerts.dart';
 import 'package:watchlist/watchlist.dart';
 import 'package:settings/settings.dart';
 import 'package:auth/auth.dart';
+import 'package:notifications/notifications.dart' hide LoadSettings;
 
 import 'di/injection_container.dart';
 import 'navigation/app_router.dart';
@@ -50,6 +51,10 @@ class _CryptoFlowAppState extends State<CryptoFlowApp> {
         ),
         BlocProvider<SettingsBloc>(
           create: (_) => getIt<SettingsBloc>()..add(const LoadSettings()),
+        ),
+        BlocProvider<NotificationBloc>(
+          create: (_) => getIt<NotificationBloc>()
+            ..add(const InitializeNotificationsEvent()),
         ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(

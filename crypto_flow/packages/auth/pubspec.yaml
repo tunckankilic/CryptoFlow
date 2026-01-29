@@ -32,7 +32,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   
   # State management
-  flutter_bloc: ^8.1.0
+  flutter_bloc: ^9.1.1
   
   # Navigation
   go_router: ^14.8.1

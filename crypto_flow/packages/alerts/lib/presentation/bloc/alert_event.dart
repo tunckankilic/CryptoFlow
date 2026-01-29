@@ -59,3 +59,17 @@ class CheckAlertsEvent extends AlertEvent {
 class AlertsUpdated extends AlertEvent {
   const AlertsUpdated();
 }
+
+/// Alert triggered event
+class AlertTriggered extends AlertEvent {
+  final PriceAlert alert;
+  final double currentPrice;
+
+  const AlertTriggered({
+    required this.alert,
+    required this.currentPrice,
+  });
+
+  @override
+  List<Object?> get props => [alert, currentPrice];
+}

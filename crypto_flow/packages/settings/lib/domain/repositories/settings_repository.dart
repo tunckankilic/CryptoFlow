@@ -17,6 +17,15 @@ abstract class SettingsRepository {
   /// Update locale
   Future<Either<Failure, void>> updateLocale(String locale);
 
+  /// Update biometric enabled
+  Future<Either<Failure, void>> updateBiometricEnabled(bool enabled);
+
+  /// Update lock on background
+  Future<Either<Failure, void>> updateLockOnBackground(bool enabled);
+
+  /// Mark onboarding as seen
+  Future<Either<Failure, void>> markOnboardingAsSeen();
+
   /// Watch settings changes
   Stream<UserSettings> watchSettings();
 }

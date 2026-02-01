@@ -17,6 +17,9 @@ export 'molecules/percent_change.dart';
 export 'molecules/sparkline.dart';
 export 'molecules/loading_shimmer.dart';
 
+// Widgets
+export 'widgets/gauge_widget.dart';
+
 // Organisms
 export 'organisms/coin_tile.dart';
 export 'organisms/price_card.dart';

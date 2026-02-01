@@ -38,22 +38,37 @@ GoRouter createAppRouter(AuthBloc authBloc) {
   return GoRouter(
     initialLocation: '/',
     refreshListenable: authNotifier,
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final authState = authBloc.state;
       final isGoingToLogin = state.matchedLocation == '/login';
+      final isGoingToOnboarding = state.matchedLocation == '/onboarding';
 
       // If auth is still loading or initial, don't redirect
       if (authState is AuthInitial || authState is AuthLoading) {
         return null;
       }
 
-      // If user is not authenticated and not going to login, redirect to login
-      if (authState is AuthUnauthenticated) {
-        return isGoingToLogin ? null : '/login';
+      // Check onboarding status
+      final settingsRepo = getIt<SettingsRepository>();
+      final settingsResult = await settingsRepo.getSettings();
+      final hasSeenOnboarding = settingsResult.fold(
+        (_) => false,
+        (settings) => settings.hasSeenOnboarding,
+      );
+
+      // If haven't seen onboarding and not already going there
+      if (!hasSeenOnboarding && !isGoingToOnboarding) {
+        return '/onboarding';
       }
 
-      // If user is authenticated and going to login, redirect to home
-      if (authState is AuthAuthenticated && isGoingToLogin) {
+      // If user is not authenticated and not going to login/onboarding
+      if (authState is AuthUnauthenticated) {
+        return (isGoingToLogin || isGoingToOnboarding) ? null : '/login';
+      }
+
+      // If user is authenticated and going to login/onboarding, redirect to home
+      if (authState is AuthAuthenticated &&
+          (isGoingToLogin || isGoingToOnboarding)) {
         return '/';
       }
 
@@ -142,6 +157,14 @@ GoRouter createAppRouter(AuthBloc authBloc) {
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const ProfilePage(),
+      ),
+      // Onboarding route
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        builder: (context, state) => OnboardingPage(
+          settingsRepository: getIt<SettingsRepository>(),
+        ),
       ),
     ],
   );

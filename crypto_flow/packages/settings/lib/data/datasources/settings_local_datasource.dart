@@ -17,6 +17,12 @@ abstract class SettingsLocalDataSource {
   /// Update locale
   Future<void> updateLocale(String locale);
 
+  /// Update biometric enabled
+  Future<void> updateBiometricEnabled(bool enabled);
+
+  /// Update lock on background
+  Future<void> updateLockOnBackground(bool enabled);
+
   /// Watch settings changes
   Stream<UserSettingsModel> watchSettings();
 }
@@ -86,5 +92,19 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   Stream<UserSettingsModel> watchSettings() {
     return _settingsBox.watch(key: _settingsKey).map((event) =>
         event.value as UserSettingsModel? ?? UserSettingsModel.defaultSettings);
+  }
+
+  @override
+  Future<void> updateBiometricEnabled(bool enabled) async {
+    final current = await getSettings();
+    final updated = current.copyWith(biometricEnabled: enabled);
+    await _settingsBox.put(_settingsKey, updated);
+  }
+
+  @override
+  Future<void> updateLockOnBackground(bool enabled) async {
+    final current = await getSettings();
+    final updated = current.copyWith(lockOnBackground: enabled);
+    await _settingsBox.put(_settingsKey, updated);
   }
 }

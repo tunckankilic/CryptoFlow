@@ -5,6 +5,7 @@ import '../bloc/ticker_list/ticker_list_bloc.dart';
 import '../bloc/ticker_list/ticker_list_event.dart';
 import '../bloc/ticker_list/ticker_list_state.dart';
 import '../widgets/ticker_list_tile.dart';
+import '../widgets/fear_greed_card.dart';
 
 /// Main market list page showing all tickers
 class MarketListPage extends StatefulWidget {
@@ -56,6 +57,9 @@ class _MarketListPageState extends State<MarketListPage> {
               return const SizedBox.shrink();
             },
           ),
+
+          // Fear & Greed Index
+          const FearGreedCard(),
 
           // Quote asset tabs
           _QuoteAssetTabs(

@@ -1,0 +1,16 @@
+# Prompt files
+cryptoflow_extras_prompts.md
+
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+*.iml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# macOS
+.DS_Store

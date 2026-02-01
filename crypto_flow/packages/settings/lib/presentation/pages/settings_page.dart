@@ -1,3 +1,4 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -269,7 +270,7 @@ class _NotificationSettingsTile extends StatelessWidget {
             subtitle: const Text('Enable notifications in system settings'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Open app settings
+              AppSettings.openAppSettings(type: AppSettingsType.notification);
             },
           );
         }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/ticker_list/ticker_list_bloc.dart';
 import '../bloc/ticker_list/ticker_list_event.dart';
 import '../bloc/ticker_list/ticker_list_state.dart';
 import '../widgets/ticker_list_tile.dart';
+import '../widgets/fear_greed_card.dart';
 
 /// Main market list page showing all tickers
 class MarketListPage extends StatefulWidget {
@@ -55,6 +57,9 @@ class _MarketListPageState extends State<MarketListPage> {
               return const SizedBox.shrink();
             },
           ),
+
+          // Fear & Greed Index
+          const FearGreedCard(),
 
           // Quote asset tabs
           _QuoteAssetTabs(
@@ -355,10 +360,7 @@ class _TickerListView extends StatelessWidget {
               key: ValueKey(ticker.symbol),
               ticker: ticker,
               onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  '/ticker/${ticker.symbol}',
-                );
+                context.go('/ticker/${ticker.symbol}');
               },
             ),
           );

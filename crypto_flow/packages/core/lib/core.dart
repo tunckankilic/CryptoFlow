@@ -23,9 +23,14 @@ export 'error/failures.dart';
 export 'network/api_client.dart';
 export 'network/websocket_client.dart';
 export 'network/network_info.dart';
+export 'network/fear_greed_datasource.dart';
+
+// Entities
+export 'entities/fear_greed_index.dart';
 
 // Services
 export 'services/cloud_sync_service.dart';
+export 'services/share_service.dart';
 
 // Use cases
 export 'usecases/usecase.dart';

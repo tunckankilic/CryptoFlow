@@ -13,9 +13,14 @@ dependencies:
     path: ../core
   design_system:
     path: ../design_system
+  notifications:
+    path: ../notifications
   
   # State management
-  flutter_bloc: ^8.1.0
+  flutter_bloc: ^9.1.1
+  
+  # Navigation
+  go_router: ^14.0.0
   
   # Local storage
   hive_flutter: ^1.1.0
@@ -23,3 +28,4 @@ dependencies:
   # Utils
   equatable: ^2.0.5
   dartz: ^0.10.1
+  app_settings: ^5.1.1

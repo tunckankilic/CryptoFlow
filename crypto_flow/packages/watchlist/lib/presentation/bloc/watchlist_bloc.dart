@@ -134,14 +134,15 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
 
   /// Build loaded state with cache
   WatchlistLoaded _buildLoadedState(List<dynamic> items) {
-    final typedItems = items.cast();
+    // Properly convert List<dynamic> to List<WatchlistItem>
+    final typedItems = items.map((item) => item as WatchlistItem).toList();
     final cache = <String, bool>{};
     for (final item in typedItems) {
       cache[item.symbol] = true;
     }
 
     return WatchlistLoaded(
-      items: typedItems as List<WatchlistItem>,
+      items: typedItems,
       inWatchlistCache: cache,
     );
   }

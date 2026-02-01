@@ -42,6 +42,12 @@ class PriceAlertModel extends PriceAlert {
   @HiveField(11)
   final String? hiveNote;
 
+  @HiveField(12)
+  final bool hiveNotificationEnabled;
+
+  @HiveField(13)
+  final bool hivePushEnabled;
+
   PriceAlertModel({
     required this.hiveId,
     required this.hiveSymbol,
@@ -55,6 +61,8 @@ class PriceAlertModel extends PriceAlert {
     this.hiveTriggeredAt,
     required this.hiveRepeatEnabled,
     this.hiveNote,
+    required this.hiveNotificationEnabled,
+    required this.hivePushEnabled,
   }) : super(
           id: hiveId,
           symbol: hiveSymbol,
@@ -70,6 +78,8 @@ class PriceAlertModel extends PriceAlert {
               : null,
           repeatEnabled: hiveRepeatEnabled,
           note: hiveNote,
+          notificationEnabled: hiveNotificationEnabled,
+          pushEnabled: hivePushEnabled,
         );
 
   /// Create from domain entity
@@ -87,6 +97,8 @@ class PriceAlertModel extends PriceAlert {
       hiveTriggeredAt: alert.triggeredAt?.millisecondsSinceEpoch,
       hiveRepeatEnabled: alert.repeatEnabled,
       hiveNote: alert.note,
+      hiveNotificationEnabled: alert.notificationEnabled,
+      hivePushEnabled: alert.pushEnabled,
     );
   }
 
@@ -107,6 +119,8 @@ class PriceAlertModel extends PriceAlert {
           : null,
       repeatEnabled: hiveRepeatEnabled,
       note: hiveNote,
+      notificationEnabled: hiveNotificationEnabled,
+      pushEnabled: hivePushEnabled,
     );
   }
 
@@ -129,6 +143,8 @@ class PriceAlertModel extends PriceAlert {
       hiveTriggeredAt: json['triggeredAt'] as int?,
       hiveRepeatEnabled: json['repeatEnabled'] as bool,
       hiveNote: json['note'] as String?,
+      hiveNotificationEnabled: json['notificationEnabled'] as bool? ?? true,
+      hivePushEnabled: json['pushEnabled'] as bool? ?? true,
     );
   }
 
@@ -147,6 +163,8 @@ class PriceAlertModel extends PriceAlert {
       'triggeredAt': hiveTriggeredAt,
       'repeatEnabled': hiveRepeatEnabled,
       'note': hiveNote,
+      'notificationEnabled': hiveNotificationEnabled,
+      'pushEnabled': hivePushEnabled,
     };
   }
 }

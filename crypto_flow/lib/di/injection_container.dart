@@ -1,8 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 // Package imports
 import 'package:alerts/alerts.dart';
+import 'package:notifications/notifications.dart';
 import 'package:watchlist/watchlist.dart';
 import 'package:settings/settings.dart';
 
@@ -14,6 +16,7 @@ import 'alerts_module.dart';
 import 'watchlist_module.dart';
 import 'settings_module.dart';
 import 'auth_module.dart';
+import 'notification_module.dart';
 
 final getIt = GetIt.instance;
 
@@ -32,11 +35,17 @@ Future<void> configureDependencies() async {
   if (!Hive.isAdapterRegistered(12)) {
     Hive.registerAdapter(PriceAlertModelAdapter());
   }
+  if (!Hive.isAdapterRegistered(13)) {
+    Hive.registerAdapter(NotificationSettingsModelAdapter());
+  }
 
   // Open Hive boxes
   await Hive.openBox<UserSettingsModel>('settings');
   await Hive.openBox<WatchlistItemModel>('watchlist');
   await Hive.openBox<PriceAlertModel>('alerts');
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
 
   // Register modules
   await registerCoreModule();
@@ -46,6 +55,7 @@ Future<void> configureDependencies() async {
   await registerWatchlistModule();
   await registerSettingsModule();
   await registerAuthModule();
+  await initNotificationModule(getIt);
 }
 
 /// Dispose all resources

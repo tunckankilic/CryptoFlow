@@ -39,6 +39,10 @@ Future<void> registerAuthModule() async {
     () => WatchAuthState(getIt<AuthRepository>()),
   );
 
+  getIt.registerLazySingleton<DeleteAccount>(
+    () => DeleteAccount(getIt<AuthRepository>()),
+  );
+
   // BLoC
   getIt.registerFactory<AuthBloc>(
     () => AuthBloc(
@@ -48,6 +52,7 @@ Future<void> registerAuthModule() async {
       signOut: getIt<SignOut>(),
       getCurrentUser: getIt<GetCurrentUser>(),
       watchAuthState: getIt<WatchAuthState>(),
+      deleteAccount: getIt<DeleteAccount>(),
     ),
   );
 }

@@ -15,9 +15,11 @@ dependencies:
     path: ../design_system
   market:
     path: ../market
+  notifications:
+    path: ../notifications
   
   # State management
-  flutter_bloc: ^8.1.0
+  flutter_bloc: ^9.1.1
   
   # Local storage
   hive_flutter: ^1.1.0

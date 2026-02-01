@@ -19,20 +19,22 @@ dependencies:
     path: ../alerts
   watchlist:
     path: ../watchlist
+  settings:
+    path: ../settings
   
   # Firebase
-  firebase_core: ^2.24.0
-  firebase_auth: ^4.16.0
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
   
   # Social Sign In
-  google_sign_in: ^6.2.1
+  google_sign_in: ^6.2.2
   sign_in_with_apple: ^5.0.0
   
   # Secure Storage
   flutter_secure_storage: ^9.0.0
   
   # State management
-  flutter_bloc: ^8.1.0
+  flutter_bloc: ^9.1.1
   
   # Navigation
   go_router: ^14.8.1
@@ -43,10 +45,13 @@ dependencies:
   cached_network_image: ^3.3.0
   path_provider: ^2.1.2
   share_plus: ^7.2.2
+  
+  # Biometric
+  local_auth: ^2.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   lints: ^3.0.0
   mocktail: ^1.0.0
-  bloc_test: ^9.1.0
+  bloc_test: ^10.0.0

@@ -145,16 +145,16 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     // Get updated holdings
     final holdingsResult = await getHoldings(NoParams());
 
-    holdingsResult.fold(
-      (failure) {
+    await holdingsResult.fold(
+      (failure) async {
         emit(PortfolioError(message: failure.message));
       },
       (holdings) async {
         // Get transactions
         final transactionsResult = await repository.getTransactions();
 
-        transactionsResult.fold(
-          (failure) {
+        await transactionsResult.fold(
+          (failure) async {
             emit(PortfolioError(message: failure.message));
           },
           (transactions) async {
@@ -167,11 +167,11 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
                 ),
               );
 
-              summaryResult.fold(
-                (failure) {
+              await summaryResult.fold(
+                (failure) async {
                   emit(PortfolioError(message: failure.message));
                 },
-                (summary) {
+                (summary) async {
                   emit(PortfolioLoaded(
                     summary: summary,
                     holdings: holdings,

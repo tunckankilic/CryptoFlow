@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:design_system/design_system.dart';
 import 'package:watchlist/watchlist.dart';
 import 'package:alerts/alerts.dart';
+import 'package:core/core.dart';
 import '../../domain/entities/ticker.dart';
 import '../bloc/ticker_detail/ticker_detail_bloc.dart';
 import '../bloc/ticker_detail/ticker_detail_event.dart';
@@ -132,6 +133,15 @@ class _TickerDetailPageState extends State<TickerDetailPage>
                   icon: const Icon(Icons.notifications_none),
                   onPressed: () {
                     _showCreateAlertSheet(context, widget.symbol);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () {
+                    ShareService().shareTicker(
+                      widget.symbol,
+                      state.ticker.price,
+                    );
                   },
                 ),
               ],

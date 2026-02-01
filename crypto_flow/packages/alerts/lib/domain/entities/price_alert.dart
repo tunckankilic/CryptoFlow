@@ -115,6 +115,12 @@ class PriceAlert extends Equatable {
   /// Optional note/description
   final String? note;
 
+  /// Whether local notifications are enabled for this alert
+  final bool notificationEnabled;
+
+  /// Whether push notifications are enabled for this alert
+  final bool pushEnabled;
+
   const PriceAlert({
     required this.id,
     required this.symbol,
@@ -128,6 +134,8 @@ class PriceAlert extends Equatable {
     this.triggeredAt,
     required this.repeatEnabled,
     this.note,
+    this.notificationEnabled = true,
+    this.pushEnabled = true,
   });
 
   /// Check if this alert should trigger for the given price
@@ -173,6 +181,8 @@ class PriceAlert extends Equatable {
     DateTime? triggeredAt,
     bool? repeatEnabled,
     String? note,
+    bool? notificationEnabled,
+    bool? pushEnabled,
   }) {
     return PriceAlert(
       id: id ?? this.id,
@@ -187,6 +197,8 @@ class PriceAlert extends Equatable {
       triggeredAt: triggeredAt ?? this.triggeredAt,
       repeatEnabled: repeatEnabled ?? this.repeatEnabled,
       note: note ?? this.note,
+      notificationEnabled: notificationEnabled ?? this.notificationEnabled,
+      pushEnabled: pushEnabled ?? this.pushEnabled,
     );
   }
 
@@ -204,5 +216,7 @@ class PriceAlert extends Equatable {
         triggeredAt,
         repeatEnabled,
         note,
+        notificationEnabled,
+        pushEnabled,
       ];
 }

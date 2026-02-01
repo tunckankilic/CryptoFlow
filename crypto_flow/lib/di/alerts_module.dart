@@ -1,4 +1,5 @@
 import 'package:alerts/alerts.dart';
+import 'package:notifications/notifications.dart';
 
 import 'injection_container.dart';
 
@@ -35,6 +36,9 @@ Future<void> registerAlertsModule() async {
       toggleAlert: getIt<ToggleAlert>(),
       checkAlerts: getIt<CheckAlerts>(),
       repository: getIt<AlertRepository>(),
+      notificationRepository: getIt.isRegistered<NotificationRepository>()
+          ? getIt<NotificationRepository>()
+          : null,
     ),
   );
 }

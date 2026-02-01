@@ -1,5 +1,8 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:notifications/notifications.dart' as notifications;
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
@@ -68,6 +71,16 @@ class _SettingsContent extends StatelessWidget {
         // Currency Section
         _SectionHeader(title: 'Currency'),
         _CurrencyTile(currentCurrency: state.currency),
+        const Divider(),
+
+        // Account Section
+        _SectionHeader(title: 'Account'),
+        const _ProfileTile(),
+        const Divider(),
+
+        // Notifications Section
+        _SectionHeader(title: 'Notifications'),
+        const _NotificationSettingsTile(),
         const Divider(),
 
         // About Section
@@ -180,6 +193,90 @@ class _CurrencyTile extends StatelessWidget {
           }
         },
       ),
+    );
+  }
+}
+
+class _ProfileTile extends StatelessWidget {
+  const _ProfileTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.person),
+      title: const Text('Profile'),
+      subtitle: const Text('Manage your account and data'),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => context.go('/profile'),
+    );
+  }
+}
+
+class _NotificationSettingsTile extends StatelessWidget {
+  const _NotificationSettingsTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<notifications.NotificationBloc,
+        notifications.NotificationState>(
+      builder: (context, state) {
+        if (state is notifications.NotificationReady) {
+          return Column(
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.price_change),
+                title: const Text('Price Alerts'),
+                subtitle:
+                    const Text('Get notified when price targets are reached'),
+                value: state.settings.priceAlerts,
+                onChanged: (value) => context
+                    .read<notifications.NotificationBloc>()
+                    .add(notifications.TogglePriceAlerts(enabled: value)),
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.account_balance_wallet),
+                title: const Text('Portfolio Alerts'),
+                subtitle:
+                    const Text('Get notified of significant portfolio changes'),
+                value: state.settings.portfolioAlerts,
+                onChanged: (value) => context
+                    .read<notifications.NotificationBloc>()
+                    .add(notifications.TogglePortfolioAlerts(enabled: value)),
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.volume_up),
+                title: const Text('Sound'),
+                subtitle: const Text('Play sound for notifications'),
+                value: state.settings.soundEnabled,
+                onChanged: (value) => context
+                    .read<notifications.NotificationBloc>()
+                    .add(notifications.ToggleSoundEnabled(enabled: value)),
+              ),
+            ],
+          );
+        }
+
+        if (state is notifications.NotificationLoading) {
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state is notifications.NotificationPermissionDenied) {
+          return ListTile(
+            leading: const Icon(Icons.notifications_off, color: Colors.orange),
+            title: const Text('Notifications Disabled'),
+            subtitle: const Text('Enable notifications in system settings'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              AppSettings.openAppSettings(type: AppSettingsType.notification);
+            },
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
     );
   }
 }

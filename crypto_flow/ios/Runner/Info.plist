@@ -44,5 +44,20 @@
 	</array>
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<false/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>CryptoFlow hesabınıza güvenli erişim için Face ID kullanılacak</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.cryptoflow.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>cryptoflow</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

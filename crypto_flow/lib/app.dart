@@ -13,6 +13,7 @@ import 'package:notifications/notifications.dart' hide LoadSettings;
 
 import 'di/injection_container.dart';
 import 'navigation/app_router.dart';
+import 'presentation/widgets/biometric_guard.dart';
 
 /// Main CryptoFlow application
 class CryptoFlowApp extends StatefulWidget {
@@ -71,6 +72,11 @@ class _CryptoFlowAppState extends State<CryptoFlowApp> {
 
             // Navigation - use cached router
             routerConfig: _router,
+
+            // Biometric guard wrapper
+            builder: (context, child) {
+              return BiometricGuard(child: child!);
+            },
           );
         },
       ),

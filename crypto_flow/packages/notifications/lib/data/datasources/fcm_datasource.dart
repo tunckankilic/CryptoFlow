@@ -58,6 +58,12 @@ class FCMDatasource {
     return await _messaging.getToken();
   }
 
+  /// Get initial message if app was opened via notification
+  /// Returns the RemoteMessage that launched the app from terminated state
+  Future<fcm.RemoteMessage?> getInitialMessage() async {
+    return await _messaging.getInitialMessage();
+  }
+
   /// Token refresh stream
   Stream<String> get onTokenRefresh => _messaging.onTokenRefresh;
 

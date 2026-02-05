@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Crypto Flow</string>
+	<string>Crypto Wave</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>crypto_flow</string>
+	<string>crypto_wave</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,17 +45,17 @@
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<false/>
 	<key>NSFaceIDUsageDescription</key>
-	<string>CryptoFlow hesabınıza güvenli erişim için Face ID kullanılacak</string>
+	<string>CryptoWave hesabınıza güvenli erişim için Face ID kullanılacak</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.cryptoflow.app</string>
+			<string>com.cryptowave.app</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>cryptoflow</string>
+				<string>cryptowave</string>
 			</array>
 		</dict>
 	</array>

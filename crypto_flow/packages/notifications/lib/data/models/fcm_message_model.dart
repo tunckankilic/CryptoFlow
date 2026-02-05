@@ -19,7 +19,7 @@ class FCMMessageModel {
     return AppNotification(
       id: message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
       type: type,
-      title: notification?.title ?? data['title'] as String? ?? 'CryptoFlow',
+      title: notification?.title ?? data['title'] as String? ?? 'CryptoWave',
       body: notification?.body ?? data['body'] as String? ?? '',
       data: data,
       receivedAt: message.sentTime ?? DateTime.now(),

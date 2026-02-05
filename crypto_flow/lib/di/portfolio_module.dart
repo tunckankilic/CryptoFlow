@@ -1,5 +1,4 @@
 import 'package:portfolio/portfolio.dart';
-import 'package:portfolio/data/datasources/portfolio_database.dart';
 
 import 'injection_container.dart';
 
@@ -14,6 +13,15 @@ Future<void> registerPortfolioModule() async {
     () => PortfolioLocalDataSource(getIt<PortfolioDatabase>()),
   );
 
+  // DAOs
+  getIt.registerLazySingleton<JournalDao>(
+    () => JournalDao(getIt<PortfolioDatabase>()),
+  );
+
+  getIt.registerLazySingleton<TagDao>(
+    () => TagDao(getIt<PortfolioDatabase>()),
+  );
+
   // Repositories
   getIt.registerLazySingleton<PortfolioRepository>(
     () => PortfolioRepositoryImpl(
@@ -21,7 +29,14 @@ Future<void> registerPortfolioModule() async {
     ),
   );
 
-  // Use cases
+  getIt.registerLazySingleton<JournalRepository>(
+    () => JournalRepositoryImpl(
+      journalDao: getIt<JournalDao>(),
+      tagDao: getIt<TagDao>(),
+    ),
+  );
+
+  // Portfolio Use cases
   getIt.registerLazySingleton(() => GetHoldings(getIt<PortfolioRepository>()));
   getIt.registerLazySingleton(
       () => AddTransaction(getIt<PortfolioRepository>()));
@@ -31,13 +46,46 @@ Future<void> registerPortfolioModule() async {
   getIt
       .registerLazySingleton(() => GetAllocation(getIt<PortfolioRepository>()));
 
-  // BLoC
+  // Journal Use cases
+  getIt.registerLazySingleton(
+      () => GetJournalEntries(getIt<JournalRepository>()));
+  getIt
+      .registerLazySingleton(() => AddJournalEntry(getIt<JournalRepository>()));
+  getIt.registerLazySingleton(
+      () => UpdateJournalEntry(getIt<JournalRepository>()));
+  getIt.registerLazySingleton(
+      () => DeleteJournalEntry(getIt<JournalRepository>()));
+  getIt
+      .registerLazySingleton(() => GetTradingStats(getIt<JournalRepository>()));
+  getIt.registerLazySingleton(() => GetEquityCurve(getIt<JournalRepository>()));
+  getIt.registerLazySingleton(() => GetPnlAnalysis(getIt<JournalRepository>()));
+
+  // BLoCs
   getIt.registerFactory<PortfolioBloc>(
     () => PortfolioBloc(
       getHoldings: getIt<GetHoldings>(),
       addTransaction: getIt<AddTransaction>(),
       getPortfolioValue: getIt<GetPortfolioValue>(),
       repository: getIt<PortfolioRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<JournalBloc>(
+    () => JournalBloc(
+      getJournalEntries: getIt<GetJournalEntries>(),
+      addJournalEntry: getIt<AddJournalEntry>(),
+      updateJournalEntry: getIt<UpdateJournalEntry>(),
+      deleteJournalEntry: getIt<DeleteJournalEntry>(),
+      repository: getIt<JournalRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<JournalStatsBloc>(
+    () => JournalStatsBloc(
+      getTradingStats: getIt<GetTradingStats>(),
+      getEquityCurve: getIt<GetEquityCurve>(),
+      getPnlAnalysis: getIt<GetPnlAnalysis>(),
+      repository: getIt<JournalRepository>(),
     ),
   );
 }

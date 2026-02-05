@@ -24,7 +24,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final List<Map<String, dynamic>> _pages = [
     {
       'icon': Icons.currency_bitcoin,
-      'title': 'Welcome to CryptoFlow',
+      'title': 'Welcome to CryptoWave',
       'description': 'Track your favorite cryptocurrencies in real-time',
     },
     {

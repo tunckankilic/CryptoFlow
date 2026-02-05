@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Typography system for CryptoFlow app
+/// Typography system for CryptoWave app
 class AppTypography {
   AppTypography._();
 

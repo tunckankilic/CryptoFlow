@@ -1,5 +1,5 @@
 name: design_system
-description: Design system and UI components for CryptoFlow
+description: Design system and UI components for CryptoWave
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

@@ -15,15 +15,15 @@ import 'di/injection_container.dart';
 import 'navigation/app_router.dart';
 import 'presentation/widgets/biometric_guard.dart';
 
-/// Main CryptoFlow application
-class CryptoFlowApp extends StatefulWidget {
-  const CryptoFlowApp({super.key});
+/// Main CryptoWave application
+class CryptoWaveApp extends StatefulWidget {
+  const CryptoWaveApp({super.key});
 
   @override
-  State<CryptoFlowApp> createState() => _CryptoFlowAppState();
+  State<CryptoWaveApp> createState() => _CryptoWaveAppState();
 }
 
-class _CryptoFlowAppState extends State<CryptoFlowApp> {
+class _CryptoWaveAppState extends State<CryptoWaveApp> {
   late final GoRouter _router;
 
   @override
@@ -47,6 +47,12 @@ class _CryptoFlowAppState extends State<CryptoFlowApp> {
         BlocProvider<PortfolioBloc>(
           create: (_) => getIt<PortfolioBloc>()..add(const LoadPortfolio()),
         ),
+        BlocProvider<JournalBloc>(
+          create: (_) => getIt<JournalBloc>(),
+        ),
+        BlocProvider<JournalStatsBloc>(
+          create: (_) => getIt<JournalStatsBloc>(),
+        ),
         BlocProvider<AlertBloc>(
           create: (_) => getIt<AlertBloc>()..add(const LoadAlerts()),
         ),
@@ -62,7 +68,7 @@ class _CryptoFlowAppState extends State<CryptoFlowApp> {
         buildWhen: (prev, curr) => prev.themeMode != curr.themeMode,
         builder: (context, settingsState) {
           return MaterialApp.router(
-            title: 'CryptoFlow',
+            title: 'CryptoWave',
             debugShowCheckedModeBanner: false,
 
             // Theming

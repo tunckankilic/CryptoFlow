@@ -1,5 +1,5 @@
 name: portfolio
-description: Portfolio management for CryptoFlow
+description: Portfolio management for CryptoWave
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -28,6 +28,18 @@ dependencies:
   # Utils
   equatable: ^2.0.5
   dartz: ^0.10.1
+  
+  # PDF generation
+  pdf: ^3.10.0
+  
+  # Charts for analytics
+  fl_chart: ^0.65.0
+  
+  # Swipeable list items
+  flutter_slidable: ^3.0.1
+  
+  # Image selection
+  image_picker: ^1.0.7
 
 dev_dependencies:
   drift_dev: ^2.30.1

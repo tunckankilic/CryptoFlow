@@ -56,9 +56,9 @@ class ExportService {
     };
 
     return exportToJson(
-      fileName: 'cryptoflow_portfolio',
+      fileName: 'cryptowave_portfolio',
       data: data,
-      title: 'CryptoFlow Portfolio Export',
+      title: 'CryptoWave Portfolio Export',
     );
   }
 
@@ -73,9 +73,9 @@ class ExportService {
     };
 
     return exportToJson(
-      fileName: 'cryptoflow_alerts',
+      fileName: 'cryptowave_alerts',
       data: data,
-      title: 'CryptoFlow Alerts Export',
+      title: 'CryptoWave Alerts Export',
     );
   }
 
@@ -90,9 +90,9 @@ class ExportService {
     };
 
     return exportToJson(
-      fileName: 'cryptoflow_watchlist',
+      fileName: 'cryptowave_watchlist',
       data: data,
-      title: 'CryptoFlow Watchlist Export',
+      title: 'CryptoWave Watchlist Export',
     );
   }
 
@@ -115,9 +115,9 @@ class ExportService {
     };
 
     return exportToJson(
-      fileName: 'cryptoflow_backup',
+      fileName: 'cryptowave_backup',
       data: data,
-      title: 'CryptoFlow Full Backup',
+      title: 'CryptoWave Full Backup',
     );
   }
 }

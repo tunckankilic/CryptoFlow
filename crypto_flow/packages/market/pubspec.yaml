@@ -1,5 +1,5 @@
 name: market
-description: Market data and WebSocket streams for CryptoFlow
+description: Market data and WebSocket streams for CryptoWave
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

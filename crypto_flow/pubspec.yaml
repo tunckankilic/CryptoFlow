@@ -1,5 +1,5 @@
-name: crypto_flow
-description: Real-time cryptocurrency tracker with Binance WebSocket
+name: crypto_wave
+description: CryptoWave - Real-time cryptocurrency tracker with Binance WebSocket
 publish_to: 'none'
 
 version: 1.0.0+1

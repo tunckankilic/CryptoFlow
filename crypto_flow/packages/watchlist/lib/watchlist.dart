@@ -1,4 +1,4 @@
-/// Watchlist package for CryptoFlow
+/// Watchlist package for CryptoWave
 ///
 /// This package provides:
 /// - Cryptocurrency watchlist management

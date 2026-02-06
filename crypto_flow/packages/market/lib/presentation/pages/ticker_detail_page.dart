@@ -144,6 +144,16 @@ class _TickerDetailPageState extends State<TickerDetailPage>
                     );
                   },
                 ),
+                IconButton(
+                  icon: const Icon(Icons.book),
+                  tooltip: 'Log Trade',
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/portfolio/journal/add',
+                    );
+                  },
+                ),
               ],
             ),
             body: Column(

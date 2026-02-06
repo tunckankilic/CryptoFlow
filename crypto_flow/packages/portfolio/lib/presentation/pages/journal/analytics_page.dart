@@ -5,8 +5,10 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../bloc/journal_stats/journal_stats_bloc.dart';
 import '../../bloc/journal_stats/journal_stats_event.dart';
 import '../../bloc/journal_stats/journal_stats_state.dart';
+import '../../widgets/journal/share_report_bottom_sheet.dart';
 import '../../../domain/entities/trade_emotion.dart';
 import '../../../domain/entities/stats_period.dart';
+import '../../../data/services/pdf_report_service.dart';
 
 /// Analytics dashboard for trading journal
 class AnalyticsPage extends StatefulWidget {
@@ -52,78 +54,130 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(_title),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
-          child: _buildPeriodSelector(),
+    return BlocListener<JournalStatsBloc, JournalStatsState>(
+      listener: (context, state) {
+        if (state is JournalReportGenerated) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Report generated successfully!'),
+              backgroundColor: CryptoColors.success,
+            ),
+          );
+          // Show share bottom sheet
+          ShareReportBottomSheet.show(
+            context: context,
+            pdfBytes: state.pdfBytes,
+            pdfReportService: PdfReportService(),
+          );
+        } else if (state is JournalReportError) {
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: CryptoColors.error,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(_title),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(50),
+            child: _buildPeriodSelector(),
+          ),
         ),
-      ),
-      body: BlocBuilder<JournalStatsBloc, JournalStatsState>(
-        builder: (context, state) {
-          if (state is JournalStatsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        body: BlocBuilder<JournalStatsBloc, JournalStatsState>(
+          builder: (context, state) {
+            // Show loading during report generation
+            if (state is JournalReportGenerating) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: AppSpacing.md),
+                    Text('Generating PDF report...'),
+                  ],
+                ),
+              );
+            }
 
-          if (state is JournalStatsError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            if (state is JournalStatsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is JournalStatsError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: CryptoColors.error,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      state.message,
+                      style: AppTypography.body1,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (state is JournalStatsLoaded) {
+              return ListView(
+                padding: AppSpacing.paddingMD,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: CryptoColors.error,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    state.message,
-                    style: AppTypography.body1,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is JournalStatsLoaded) {
-            return ListView(
-              padding: AppSpacing.paddingMD,
-              children: [
-                // Stats Cards Row
-                _buildStatsCards(state),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Equity Curve
-                if (state.equityCurve.isNotEmpty) ...[
-                  _buildSectionTitle(_equityCurveTitle),
-                  const SizedBox(height: AppSpacing.md),
-                  _buildEquityCurve(state.equityCurve),
+                  // Stats Cards Row
+                  _buildStatsCards(state),
                   const SizedBox(height: AppSpacing.lg),
-                ],
 
-                // P&L by Symbol
-                if (state.symbolPnl.isNotEmpty) ...[
-                  _buildSectionTitle(_pnlBySymbolTitle),
-                  const SizedBox(height: AppSpacing.md),
-                  _buildPnlBySymbol(state.symbolPnl),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
+                  // Equity Curve
+                  if (state.equityCurve.isNotEmpty) ...[
+                    _buildSectionTitle(_equityCurveTitle),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildEquityCurve(state.equityCurve),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
 
-                // Emotion Analysis
-                if (state.emotionPnl.isNotEmpty) ...[
-                  _buildSectionTitle(_emotionAnalysisTitle),
-                  const SizedBox(height: AppSpacing.md),
-                  _buildEmotionPieChart(state.emotionPnl),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-              ],
-            );
-          }
+                  // P&L by Symbol
+                  if (state.symbolPnl.isNotEmpty) ...[
+                    _buildSectionTitle(_pnlBySymbolTitle),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildPnlBySymbol(state.symbolPnl),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
 
-          return const Center(child: Text(_noDataLabel));
-        },
+                  // Emotion Analysis
+                  if (state.emotionPnl.isNotEmpty) ...[
+                    _buildSectionTitle(_emotionAnalysisTitle),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildEmotionPieChart(state.emotionPnl),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
+                ],
+              );
+            }
+
+            return const Center(child: Text(_noDataLabel));
+          },
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            // Trigger PDF generation with current period
+            final period = _mapDaysToPeriod(_selectedPeriodDays);
+            context
+                .read<JournalStatsBloc>()
+                .add(JournalReportRequested(period));
+          },
+          icon: const Icon(Icons.file_download),
+          label: const Text('Export Report'),
+        ),
       ),
     );
   }

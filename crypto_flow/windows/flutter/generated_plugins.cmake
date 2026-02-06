@@ -5,10 +5,12 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
   connectivity_plus
+  file_selector_windows
   firebase_auth
   firebase_core
   flutter_secure_storage_windows
   local_auth_windows
+  printing
   share_plus
   sqlite3_flutter_libs
   url_launcher_windows

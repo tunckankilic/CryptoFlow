@@ -31,7 +31,7 @@ class _LockScreenState extends State<LockScreen> {
 
   Future<void> _authenticate() async {
     final result = await _biometricService.authenticate(
-      reason: 'CryptoFlow\'a erişmek için doğrulayın',
+      reason: 'CryptoWave\'a erişmek için doğrulayın',
     );
 
     if (result == BiometricResult.success) {
@@ -77,7 +77,7 @@ class _LockScreenState extends State<LockScreen> {
 
                 // Title
                 Text(
-                  'CryptoFlow Kilitli',
+                  'CryptoWave Kilitli',
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

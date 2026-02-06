@@ -13,5 +13,5 @@ void main() async {
   // Initialize dependencies
   await configureDependencies();
 
-  runApp(const CryptoFlowApp());
+  runApp(const CryptoWaveApp());
 }

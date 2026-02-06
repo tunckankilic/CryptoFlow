@@ -59,7 +59,7 @@ class AppConstants {
   static const int maxActiveAlerts = 100;
 
   // App Info
-  static const String appName = 'CryptoFlow';
+  static const String appName = 'CryptoWave';
   static const String appVersion = '1.0.0';
-  static const String supportEmail = 'support@cryptoflow.app';
+  static const String supportEmail = 'support@cryptowave.app';
 }

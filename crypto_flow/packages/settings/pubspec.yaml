@@ -1,5 +1,5 @@
 name: settings
-description: User settings for CryptoFlow
+description: User settings for CryptoWave
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

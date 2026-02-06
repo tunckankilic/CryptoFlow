@@ -92,7 +92,7 @@ class _SettingsContent extends StatelessWidget {
         ),
         const ListTile(
           leading: Icon(Icons.code),
-          title: Text('CryptoFlow'),
+          title: Text('CryptoWave'),
           subtitle: Text('Real-time cryptocurrency tracker'),
         ),
       ],

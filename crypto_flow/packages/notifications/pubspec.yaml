@@ -1,5 +1,5 @@
 name: notifications
-description: Push notifications for CryptoFlow
+description: Push notifications for CryptoWave
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

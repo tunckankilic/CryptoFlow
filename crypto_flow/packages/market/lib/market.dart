@@ -1,4 +1,4 @@
-/// Market package for CryptoFlow
+/// Market package for CryptoWave
 ///
 /// This package provides:
 /// - Market data entities and models

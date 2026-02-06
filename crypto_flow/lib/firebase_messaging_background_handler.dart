@@ -45,7 +45,7 @@ Future<void> _showBackgroundNotification(RemoteMessage message) async {
   // Using named parameters as per flutter_local_notifications v20 API
   await plugin.show(
     id: message.hashCode,
-    title: notification.title ?? 'CryptoFlow',
+    title: notification.title ?? 'CryptoWave',
     body: notification.body ?? '',
     notificationDetails: notificationDetails,
     payload: message.data.toString(),

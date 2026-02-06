@@ -75,7 +75,7 @@ class LoginPage extends StatelessWidget {
 
                     // App Name
                     Text(
-                      'CryptoFlow',
+                      'CryptoWave',
                       style: theme.textTheme.headlineLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),

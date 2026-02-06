@@ -18,7 +18,7 @@ class AuthenticateWithBiometric extends BiometricEvent {
   final String reason;
 
   const AuthenticateWithBiometric({
-    this.reason = 'CryptoFlow\'a erişmek için doğrulayın',
+    this.reason = 'CryptoWave\'a erişmek için doğrulayın',
   });
 
   @override

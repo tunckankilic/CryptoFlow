@@ -1,4 +1,4 @@
-// Basic widget test placeholder for crypto_flow app
+// Basic widget test placeholder for crypto_wave app
 // Main tests are in test/unit/ and test/widget/ directories
 
 import 'package:flutter_test/flutter_test.dart';

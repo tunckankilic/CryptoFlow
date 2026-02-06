@@ -9,15 +9,15 @@ class ShareService {
     final message = '''
 🚀 $symbol fiyatı: \$${price.toStringAsFixed(2)}
 
-CryptoFlow'da detayları gör:
-cryptoflow://ticker/$symbol
+CryptoWave'da detayları gör:
+cryptowave://ticker/$symbol
 
-#CryptoFlow #Crypto #$symbol
+#CryptoWave #Crypto #$symbol
 ''';
 
     await Share.share(
       message,
-      subject: '$symbol - CryptoFlow',
+      subject: '$symbol - CryptoWave',
     );
   }
 
@@ -36,15 +36,15 @@ $emoji Portfolyo Özeti
 Toplam Değer: \$${totalValue.toStringAsFixed(2)}
 Kar/Zarar: $sign\$${profitLoss.toStringAsFixed(2)} ($sign${profitLossPercentage.toStringAsFixed(2)}%)
 
-CryptoFlow ile kripto varlıklarımı takip ediyorum!
-cryptoflow://portfolio
+CryptoWave ile kripto varlıklarımı takip ediyorum!
+cryptowave://portfolio
 
-#CryptoFlow #Crypto #Portfolio
+#CryptoWave #Crypto #Portfolio
 ''';
 
     await Share.share(
       message,
-      subject: 'Portfolyo - CryptoFlow',
+      subject: 'Portfolyo - CryptoWave',
     );
   }
 
@@ -62,15 +62,15 @@ cryptoflow://portfolio
 
 $symbol \$${targetPrice.toStringAsFixed(2)} $conditionText bildirim al!
 
-CryptoFlow'da alarm kur:
-cryptoflow://alerts
+CryptoWave'da alarm kur:
+cryptowave://alerts
 
-#CryptoFlow #PriceAlert #$symbol
+#CryptoWave #PriceAlert #$symbol
 ''';
 
     await Share.share(
       message,
-      subject: 'Fiyat Alarmı - CryptoFlow',
+      subject: 'Fiyat Alarmı - CryptoWave',
     );
   }
 }

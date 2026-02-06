@@ -1,4 +1,4 @@
-/// Design System package for CryptoFlow
+/// Design System package for CryptoWave
 ///
 /// This package provides:
 /// - Crypto-themed UI components

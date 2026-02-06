@@ -1,4 +1,4 @@
-/// Core package for CryptoFlow
+/// Core package for CryptoWave
 ///
 /// This package provides:
 /// - Network clients (REST and WebSocket)

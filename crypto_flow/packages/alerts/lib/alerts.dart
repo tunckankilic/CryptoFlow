@@ -1,4 +1,4 @@
-/// Alerts package for CryptoFlow
+/// Alerts package for CryptoWave
 ///
 /// This package provides:
 /// - Price alert creation and management

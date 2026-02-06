@@ -49,6 +49,8 @@ export 'data/datasources/portfolio_local_datasource.dart';
 export 'data/repositories/portfolio_repository_impl.dart';
 export 'data/repositories/journal_repository_impl.dart';
 
+export 'data/services/pdf_report_service.dart';
+
 export 'data/local/daos/journal_dao.dart';
 export 'data/local/daos/tag_dao.dart';
 

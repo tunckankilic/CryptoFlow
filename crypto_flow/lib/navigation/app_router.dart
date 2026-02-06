@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -138,6 +139,41 @@ GoRouter createAppRouter(AuthBloc authBloc) {
         path: '/portfolio/add',
         name: 'add-transaction',
         builder: (context, state) => const AddTransactionPage(),
+      ),
+      // Journal routes
+      GoRoute(
+        path: '/portfolio/journal/add',
+        name: 'add-journal-entry',
+        builder: (context, state) {
+          return BlocProvider.value(
+            value: getIt<JournalBloc>(),
+            child: const AddEditJournalPage(),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/portfolio/journal/:id',
+        name: 'journal-detail',
+        builder: (context, state) {
+          // Entry is passed via extra parameter
+          final entry = state.extra as JournalEntry?;
+          if (entry == null) {
+            // Navigate back if no entry provided
+            return const SizedBox.shrink();
+          }
+          return JournalDetailPage(entry: entry);
+        },
+      ),
+      GoRoute(
+        path: '/portfolio/journal/:id/edit',
+        name: 'edit-journal-entry',
+        builder: (context, state) {
+          final entry = state.extra as JournalEntry?;
+          return BlocProvider.value(
+            value: getIt<JournalBloc>(),
+            child: AddEditJournalPage(entry: entry),
+          );
+        },
       ),
       GoRoute(
         path: '/search',

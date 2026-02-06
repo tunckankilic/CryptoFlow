@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/trade_emotion.dart';
 import '../../../domain/entities/trading_stats.dart';
@@ -72,6 +73,31 @@ class JournalStatsError extends JournalStatsState {
   final String message;
 
   const JournalStatsError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+/// Generating PDF report
+class JournalReportGenerating extends JournalStatsState {
+  const JournalReportGenerating();
+}
+
+/// PDF report generated successfully
+class JournalReportGenerated extends JournalStatsState {
+  final Uint8List pdfBytes;
+
+  const JournalReportGenerated(this.pdfBytes);
+
+  @override
+  List<Object?> get props => [pdfBytes];
+}
+
+/// Error generating PDF report
+class JournalReportError extends JournalStatsState {
+  final String message;
+
+  const JournalReportError(this.message);
 
   @override
   List<Object?> get props => [message];

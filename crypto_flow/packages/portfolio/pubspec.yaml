@@ -31,6 +31,7 @@ dependencies:
   
   # PDF generation
   pdf: ^3.10.0
+  printing: ^5.11.0
   
   # Charts for analytics
   fl_chart: ^0.65.0
@@ -42,5 +43,11 @@ dependencies:
   image_picker: ^1.0.7
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   drift_dev: ^2.30.1
   build_runner: ^2.4.0
+  
+  # Testing
+  mocktail: ^1.0.0
+  bloc_test: ^10.0.0

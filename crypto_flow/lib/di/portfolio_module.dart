@@ -1,3 +1,4 @@
+import 'package:portfolio/data/services/pdf_report_service.dart';
 import 'package:portfolio/portfolio.dart';
 
 import 'injection_container.dart';
@@ -60,6 +61,9 @@ Future<void> registerPortfolioModule() async {
   getIt.registerLazySingleton(() => GetEquityCurve(getIt<JournalRepository>()));
   getIt.registerLazySingleton(() => GetPnlAnalysis(getIt<JournalRepository>()));
 
+  // Services
+  getIt.registerLazySingleton(() => PdfReportService());
+
   // BLoCs
   getIt.registerFactory<PortfolioBloc>(
     () => PortfolioBloc(
@@ -85,7 +89,9 @@ Future<void> registerPortfolioModule() async {
       getTradingStats: getIt<GetTradingStats>(),
       getEquityCurve: getIt<GetEquityCurve>(),
       getPnlAnalysis: getIt<GetPnlAnalysis>(),
+      getJournalEntries: getIt<GetJournalEntries>(),
       repository: getIt<JournalRepository>(),
+      pdfReportService: getIt<PdfReportService>(),
     ),
   );
 }

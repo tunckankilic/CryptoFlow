@@ -40,3 +40,13 @@ class JournalEmotionAnalysisRequested extends JournalStatsEvent {
   @override
   List<Object?> get props => [days];
 }
+
+/// Request PDF report generation
+class JournalReportRequested extends JournalStatsEvent {
+  final StatsPeriod period;
+
+  const JournalReportRequested(this.period);
+
+  @override
+  List<Object?> get props => [period];
+}

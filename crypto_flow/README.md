@@ -1,16 +1,15 @@
-![CI](https://github.com/tunckankilic/CryptoWave/workflows/CI/badge.svg)
-![Release iOS](https://github.com/tunckankilic/CryptoWave/workflows/Release%20iOS/badge.svg)
-![Flutter](https://img.shields.io/badge/Flutter-3.19-blue.svg)
-![Fastlane](https://img.shields.io/badge/Fastlane-iOS-00F200.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![Codemagic build status](https://api.codemagic.io/apps/YOUR_APP_ID/ios-release/status_badge.svg)](https://codemagic.io/apps/YOUR_APP_ID/ios-release/latest_build)
+[![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen.svg)](https://github.com/tunckankilic/CryptoWave)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Flutter](https://img.shields.io/badge/Flutter-3.24-02569B?logo=flutter)](https://flutter.dev)
 
 # CryptoWave 🌊
 
 A comprehensive cryptocurrency portfolio tracker and trading journal built with Flutter, featuring real-time market data, advanced analytics, and professional reporting capabilities.
 
-## ✨ Features
+## Features
 
-### 📊 Market & Portfolio
+# Market & Portfolio
 - **Real-time Market Data**: Live cryptocurrency prices powered by Binance WebSocket API
 - **Portfolio Tracking**: Monitor your holdings with automatic P&L calculations
 - **Price Alerts**: Set custom alerts with push notifications
@@ -18,7 +17,7 @@ A comprehensive cryptocurrency portfolio tracker and trading journal built with 
 - **Live Charts**: Interactive candlestick charts with multiple timeframes
 - **Order Book**: Real-time bid/ask ladder visualization
 
-### 📔 Trading Journal
+# Trading Journal
 - **Trade Logging**: Record entries, exits, P&L, and position sizes
 - **Emotional State Tracking**: Document your trading psychology
 - **Strategy Management**: Tag trades with strategies for pattern analysis
@@ -26,7 +25,7 @@ A comprehensive cryptocurrency portfolio tracker and trading journal built with 
 - **Trade Duration**: Automatic calculation of holding time
 - **Custom Tags**: Organize trades with flexible tagging system
 
-### 📈 Advanced Analytics
+# Advanced Analytics
 - **Win Rate Analysis**: Track trading performance over time
 - **Profit Factor**: Calculate risk-adjusted returns
 - **Equity Curve**: Visualize account growth
@@ -34,13 +33,13 @@ A comprehensive cryptocurrency portfolio tracker and trading journal built with 
 - **R:R Ratio**: Average risk-reward metrics
 - **Performance by Period**: Daily, weekly, monthly breakdowns
 
-### 📄 Professional Reports
+# Professional Reports
 - **PDF Export**: Generate comprehensive trading reports
 - **Statistics Summary**: Win rate, avg R:R, profit factor
 - **Trade History**: Detailed journal entries with metrics
 - **Shareable**: Export and share your trading analysis
 
-### 🔐 Security & UX
+# Security & UX
 - **Biometric Authentication**: Face ID / Touch ID support
 - **App Lock**: Secure your data with PIN or biometric
 - **Dark Mode**: Easy on the eyes for extended use
@@ -48,7 +47,7 @@ A comprehensive cryptocurrency portfolio tracker and trading journal built with 
 - **Home Screen Widgets**: iOS widgets for quick portfolio view
 - **Onboarding Flow**: Smooth first-time user experience
 
-## 🏗️ Architecture
+## Architecture
 
 Built using **Clean Architecture** with feature-based modules:
 
@@ -70,7 +69,7 @@ crypto_wave/
 │   └── notifications/  # Push notifications
 ```
 
-### Tech Stack
+# Tech Stack
 
 - **Framework**: Flutter 3.19
 - **State Management**: BLoC pattern with flutter_bloc
@@ -82,15 +81,15 @@ crypto_wave/
 - **Notifications**: Firebase Cloud Messaging
 - **Testing**: mocktail, bloc_test
 
-## 🚀 Getting Started
+## Getting Started
 
-### Prerequisites
+# Prerequisites
 
 - Flutter SDK 3.19 or higher
 - Xcode 15+ (for iOS)
 - CocoaPods (for iOS dependencies)
 
-### Installation
+# Installation
 
 1. **Clone the repository**
    ```bash
@@ -113,7 +112,7 @@ crypto_wave/
    flutter run
    ```
 
-### Running Tests
+# Running Tests
 
 ```bash
 # Run all tests
@@ -123,7 +122,7 @@ flutter test
 flutter test --coverage
 ```
 
-### Building for Production
+# Building for Production
 
 ```bash
 # iOS
@@ -133,11 +132,11 @@ flutter build ios --release
 flutter build apk --release
 ```
 
-## 📱 Screenshots
+## Screenshots
 
 > Coming soon! Screenshots will be added showing portfolio dashboard, trading journal, analytics charts, and more.
 
-## 📖 Documentation
+##  Documentation
 
 For detailed information about specific features:
 - [Trading Journal Guide](docs/journal.md) _(coming soon)_

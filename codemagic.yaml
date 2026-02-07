@@ -1,0 +1,111 @@
+workflows:
+  ios-release:
+    name: iOS Release Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    triggering:
+      events:
+        - push
+      cancel_previous_builds: false
+      branch_patterns:
+        - pattern: '*'
+          include: false
+    environment:
+      groups:
+        - app_store_credentials
+      vars:
+        XCODE_WORKSPACE: "crypto_flow/ios/Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+        BUNDLE_ID: "com.cryptowave.app"
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Set up environment
+        script: |
+          cd crypto_flow
+          flutter pub get
+          cd ios && pod install
+      
+      - name: Flutter analyze
+        script: |
+          cd crypto_flow
+          flutter analyze
+        ignore_failure: false
+      
+      - name: Run tests
+        script: |
+          cd crypto_flow
+          flutter test --coverage
+        ignore_failure: false
+      
+      - name: Check test coverage
+        script: |
+          cd crypto_flow
+          if [ -f coverage/lcov.info ]; then
+            COVERAGE=$(flutter pub run coverage:format_coverage \
+              --lcov --in=coverage/lcov.info \
+              --report-on=lib | \
+              grep -oP 'lines\.*: \K[0-9.]+')
+            echo "Test coverage: ${COVERAGE}%"
+            if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+              echo "Coverage below 80% threshold"
+              exit 1
+            fi
+          fi
+      
+      - name: Build iOS
+        script: |
+          cd crypto_flow
+          flutter build ipa \
+            --release \
+            --export-options-plist=ios/ExportOptions.plist
+    
+    artifacts:
+      - crypto_flow/build/ios/ipa/*.ipa
+      - flutter_drive.log
+    
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        key_id: $APP_STORE_CONNECT_KEY_ID
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+      
+      email:
+        recipients:
+          - [YOUR_EMAIL]
+        notify:
+          success: true
+          failure: true
+
+  ios-debug:
+    name: iOS Debug Build (PR Check)
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    triggering:
+      events:
+        - pull_request
+      branch_patterns:
+        - pattern: 'develop'
+          include: true
+        - pattern: 'feature/*'
+          include: true
+    environment:
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Dependencies
+        script: |
+          cd crypto_flow
+          flutter pub get
+      
+      - name: Analyze
+        script: |
+          cd crypto_flow
+          flutter analyze
+      
+      - name: Test
+        script: |
+          cd crypto_flow
+          flutter test

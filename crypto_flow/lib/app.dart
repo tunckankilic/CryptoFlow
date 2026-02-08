@@ -67,22 +67,51 @@ class _CryptoWaveAppState extends State<CryptoWaveApp> {
       child: BlocBuilder<SettingsBloc, SettingsState>(
         buildWhen: (prev, curr) => prev.themeMode != curr.themeMode,
         builder: (context, settingsState) {
-          return MaterialApp.router(
-            title: 'CryptoWave',
-            debugShowCheckedModeBanner: false,
+          return BlocListener<NotificationBloc, NotificationState>(
+            listener: (context, state) {
+              // Handle navigation when a notification is tapped
+              if (state is NotificationReady &&
+                  state.pendingNavigation != null) {
+                final notification = state.pendingNavigation!;
 
-            // Theming
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: settingsState.themeMode,
+                // Get the navigation action from the handler
+                final action =
+                    NotificationNavigationHandler.getNavigationAction(
+                        notification);
 
-            // Navigation - use cached router
-            routerConfig: _router,
+                if (action != null) {
+                  // Perform navigation based on action type
+                  if (action.isPush) {
+                    context.push(action.route);
+                  } else {
+                    context.go(action.route);
+                  }
 
-            // Biometric guard wrapper
-            builder: (context, child) {
-              return BiometricGuard(child: child!);
+                  // Clear the pending navigation by emitting a new state
+                  // This prevents re-navigation on rebuilds
+                  context.read<NotificationBloc>().add(
+                        const ClearPendingNavigation(),
+                      );
+                }
+              }
             },
+            child: MaterialApp.router(
+              title: 'CryptoWave',
+              debugShowCheckedModeBanner: false,
+
+              // Theming
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: settingsState.themeMode,
+
+              // Navigation - use cached router
+              routerConfig: _router,
+
+              // Biometric guard wrapper
+              builder: (context, child) {
+                return BiometricGuard(child: child!);
+              },
+            ),
           );
         },
       ),

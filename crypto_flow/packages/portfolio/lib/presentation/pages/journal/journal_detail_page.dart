@@ -134,7 +134,7 @@ class JournalDetailPage extends StatelessWidget {
                 if (entry.riskRewardRatio != null)
                   _InfoRow(
                     label: 'Risk/Reward',
-                    value: '${entry.riskRewardRatio!.toStringAsFixed(2)}',
+                    value: entry.riskRewardRatio!.toStringAsFixed(2),
                     valueColor: CryptoColors.primary,
                   ),
                 if (entry.duration != null) ...[

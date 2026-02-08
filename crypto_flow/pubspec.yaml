@@ -45,6 +45,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   cached_network_image: ^3.3.0
 
+  dio: any
+  connectivity_plus: any
+  hive_flutter: any
+  firebase_messaging: any
+  flutter_local_notifications: any
+  firebase_core: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -58,5 +64,6 @@ dev_dependencies:
   mocktail: ^1.0.0
   bloc_test: ^10.0.0
 
+  dartz: any
 flutter:
   uses-material-design: true

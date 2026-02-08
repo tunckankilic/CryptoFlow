@@ -3,21 +3,7 @@ import 'package:core/error/failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:portfolio/data/services/pdf_report_service.dart';
-import 'package:portfolio/domain/entities/journal_entry.dart';
-import 'package:portfolio/domain/entities/stats_period.dart';
-import 'package:portfolio/domain/entities/trade_emotion.dart';
-import 'package:portfolio/domain/entities/trade_side.dart';
-import 'package:portfolio/domain/entities/trading_stats.dart';
-import 'package:portfolio/domain/repositories/journal_repository.dart';
-import 'package:portfolio/domain/usecases/get_equity_curve.dart';
-import 'package:portfolio/domain/usecases/get_journal_entries.dart';
-import 'package:portfolio/domain/usecases/get_pnl_analysis.dart';
-import 'package:portfolio/domain/usecases/get_trading_stats.dart';
 import 'package:portfolio/portfolio.dart';
-import 'package:portfolio/presentation/bloc/journal_stats/journal_stats_bloc.dart';
-import 'package:portfolio/presentation/bloc/journal_stats/journal_stats_event.dart';
-import 'package:portfolio/presentation/bloc/journal_stats/journal_stats_state.dart';
 import 'dart:typed_data';
 
 // Mock classes

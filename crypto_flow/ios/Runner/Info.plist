@@ -45,7 +45,7 @@
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<false/>
 	<key>NSFaceIDUsageDescription</key>
-	<string>CryptoWave hesabınıza güvenli erişim için Face ID kullanılacak</string>
+	<string>CryptoWave uses Face ID to securely access your account</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

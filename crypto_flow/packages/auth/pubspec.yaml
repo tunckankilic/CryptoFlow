@@ -48,6 +48,9 @@ dependencies:
   
   # Biometric
   local_auth: ^2.3.0
+  
+  # URL Launcher
+  url_launcher: ^6.2.0
 
   hive_flutter: any
 dev_dependencies:

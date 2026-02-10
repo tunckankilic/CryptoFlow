@@ -21,7 +21,7 @@ workflows:
       xcode: latest
       cocoapods: default
     integrations:
-      app_store_connect: CodeMagic CI/CD
+      app_store_connect: Code Magic CI/CD
     scripts:
       - name: Set up keychain
         script: |

@@ -20,25 +20,36 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+    integrations:
+      app_store_connect: CodeMagic CI/CD
     scripts:
+      - name: Set up keychain
+        script: |
+          keychain initialize
+      - name: Fetch signing files
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Set up signing
+        script: |
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Set up environment
         script: |
           cd crypto_flow
           flutter pub get
           cd ios && pod install
-
       - name: Flutter analyze
         script: |
           cd crypto_flow
           flutter analyze --no-fatal-warnings
         ignore_failure: true
-
       - name: Run tests
         script: |
           cd crypto_flow
           flutter test --coverage
         ignore_failure: true
-
       - name: Check test coverage
         script: |
           cd crypto_flow
@@ -54,25 +65,21 @@ workflows:
             fi
           fi
         ignore_failure: true
-
       - name: Build iOS
         script: |
           cd crypto_flow
           flutter build ipa \
             --release \
-            --export-options-plist=ios/ExportOptions.plist
-
+            --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - crypto_flow/build/ios/ipa/*.ipa
       - flutter_drive.log
-
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_KEY_IDENTIFIER
         key_id: $APP_STORE_CONNECT_KEY_ID
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
-
       email:
         recipients:
           - tuncsoftwarehere@gmail.com
@@ -100,13 +107,11 @@ workflows:
         script: |
           cd crypto_flow
           flutter pub get
-
       - name: Flutter analyze
         script: |
           cd crypto_flow
           flutter analyze --no-fatal-warnings
         ignore_failure: true
-
       - name: Test
         script: |
           cd crypto_flow

@@ -30,19 +30,11 @@ workflows:
         script: |
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --create \
-            --certificate-key=@file:/tmp/certs/cert_key
-        ignore_failure: true
-      - name: Fetch signing files fallback
-        script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE
-        ignore_failure: true
+            --create
       - name: Set up signing
         script: |
           keychain add-certificates
           xcode-project use-profiles
-        ignore_failure: true
       - name: Set up environment
         script: |
           cd crypto_flow
@@ -79,7 +71,6 @@ workflows:
           flutter build ipa \
             --release \
             --export-options-plist=/Users/builder/export_options.plist
-        ignore_failure: true
     artifacts:
       - crypto_flow/build/ios/ipa/*.ipa
       - flutter_drive.log

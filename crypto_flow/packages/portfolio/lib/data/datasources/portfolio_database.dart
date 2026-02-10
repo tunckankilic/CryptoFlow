@@ -39,6 +39,23 @@ class PortfolioDatabase extends _$PortfolioDatabase {
   @override
   int get schemaVersion => 2;
 
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 2) {
+          // v1 -> v2: Add journal tables
+          await m.createTable(journalEntries);
+          await m.createTable(journalTags);
+          await m.createTable(tradingStats);
+        }
+      },
+    );
+  }
+
   // Transactions CRUD operations
 
   /// Get all transactions

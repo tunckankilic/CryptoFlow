@@ -2,14 +2,14 @@ workflows:
   ios-release:
     name: iOS Release Build
     max_build_duration: 60
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2
     triggering:
       events:
         - push
       cancel_previous_builds: false
       branch_patterns:
-        - pattern: '*'
-          include: false
+        - pattern: 'main'
+          include: true
     environment:
       groups:
         - app_store_credentials
@@ -26,19 +26,19 @@ workflows:
           cd crypto_flow
           flutter pub get
           cd ios && pod install
-      
+
       - name: Flutter analyze
         script: |
           cd crypto_flow
           flutter analyze
         ignore_failure: false
-      
+
       - name: Run tests
         script: |
           cd crypto_flow
           flutter test --coverage
         ignore_failure: false
-      
+
       - name: Check test coverage
         script: |
           cd crypto_flow
@@ -53,28 +53,30 @@ workflows:
               exit 1
             fi
           fi
-      
+
       - name: Build iOS
         script: |
           cd crypto_flow
           flutter build ipa \
             --release \
             --export-options-plist=ios/ExportOptions.plist
-    
+
     artifacts:
       - crypto_flow/build/ios/ipa/*.ipa
       - flutter_drive.log
-    
+
     publishing:
       app_store_connect:
+        auth: integration
+        is_connected: false
         api_key: $APP_STORE_CONNECT_KEY_IDENTIFIER
         key_id: $APP_STORE_CONNECT_KEY_ID
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
-      
+
       email:
         recipients:
-          - [YOUR_EMAIL]
+          - tuncsoftwarehere@gmail.com
         notify:
           success: true
           failure: true
@@ -82,7 +84,7 @@ workflows:
   ios-debug:
     name: iOS Debug Build (PR Check)
     max_build_duration: 30
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2
     triggering:
       events:
         - pull_request
@@ -99,12 +101,12 @@ workflows:
         script: |
           cd crypto_flow
           flutter pub get
-      
+
       - name: Analyze
         script: |
           cd crypto_flow
           flutter analyze
-      
+
       - name: Test
         script: |
           cd crypto_flow

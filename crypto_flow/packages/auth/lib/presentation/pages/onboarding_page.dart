@@ -23,17 +23,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   final List<Map<String, dynamic>> _pages = [
     {
-      'icon': Icons.currency_bitcoin,
+      'imagePath': 'assets/1024.png',
       'title': 'Welcome to CryptoWave',
       'description': 'Track your favorite cryptocurrencies in real-time',
     },
     {
-      'icon': Icons.show_chart,
+      'imagePath': 'assets/1024.png',
       'title': 'Real-Time Market Data',
       'description': 'Get live prices, charts, and market insights',
     },
     {
-      'icon': Icons.notifications_active,
+      'imagePath': 'assets/1024.png',
       'title': 'Price Alerts',
       'description': 'Never miss a price movement with custom alerts',
     },
@@ -101,7 +101,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   final page = _pages[index];
                   return OnboardingContent(
                     key: ValueKey(index),
-                    icon: page['icon'] as IconData,
+                    icon: page['icon'] as IconData?,
+                    imagePath: page['imagePath'] as String?,
                     title: page['title'] as String,
                     description: page['description'] as String,
                   );

@@ -59,7 +59,7 @@ class _StrategySelectorWidgetState extends State<StrategySelectorWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DropdownButtonFormField<String>(
-          value: _isCustom ? _customOption : widget.selectedStrategy,
+          initialValue: _isCustom ? _customOption : widget.selectedStrategy,
           decoration: InputDecoration(
             labelText: _label,
             hintText: _hint,

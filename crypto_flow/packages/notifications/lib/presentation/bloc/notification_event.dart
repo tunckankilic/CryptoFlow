@@ -123,3 +123,18 @@ class UnsubscribeFromSymbol extends NotificationEvent {
 class LoadSettings extends NotificationEvent {
   const LoadSettings();
 }
+
+/// Notification tapped (app opened from notification)
+class NotificationTapped extends NotificationEvent {
+  final AppNotification notification;
+
+  const NotificationTapped({required this.notification});
+
+  @override
+  List<Object?> get props => [notification];
+}
+
+/// Clear pending navigation
+class ClearPendingNavigation extends NotificationEvent {
+  const ClearPendingNavigation();
+}

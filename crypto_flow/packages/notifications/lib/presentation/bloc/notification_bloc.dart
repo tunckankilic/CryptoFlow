@@ -35,6 +35,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     on<RequestPermissionEvent>(_onRequestPermission);
     on<TokenRefreshed>(_onTokenRefreshed);
     on<NotificationReceived>(_onNotificationReceived);
+    on<NotificationTapped>(_onNotificationTapped);
+    on<ClearPendingNavigation>(_onClearPendingNavigation);
     on<TogglePriceAlerts>(_onTogglePriceAlerts);
     on<TogglePortfolioAlerts>(_onTogglePortfolioAlerts);
     on<ToggleNewsAlerts>(_onToggleNewsAlerts);
@@ -128,6 +130,39 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       ].take(10).toList(); // Keep only last 10
 
       emit(currentState.copyWith(recentNotifications: updatedNotifications));
+    }
+  }
+
+  /// Notification tapped (app opened from notification)
+  Future<void> _onNotificationTapped(
+    NotificationTapped event,
+    Emitter<NotificationState> emit,
+  ) async {
+    if (state is NotificationReady) {
+      final currentState = state as NotificationReady;
+
+      // Add to recent notifications
+      final updatedNotifications = [
+        event.notification,
+        ...currentState.recentNotifications,
+      ].take(10).toList();
+
+      // Set pending navigation so the UI layer can handle it
+      emit(currentState.copyWith(
+        recentNotifications: updatedNotifications,
+        pendingNavigation: event.notification,
+      ));
+    }
+  }
+
+  /// Clear pending navigation
+  Future<void> _onClearPendingNavigation(
+    ClearPendingNavigation event,
+    Emitter<NotificationState> emit,
+  ) async {
+    if (state is NotificationReady) {
+      final currentState = state as NotificationReady;
+      emit(currentState.copyWith(clearPendingNavigation: true));
     }
   }
 
@@ -241,8 +276,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     // Listen to messages that opened app
     _messageOpenedAppSubscription =
         repository.onMessageOpenedApp.listen((notification) {
-      add(NotificationReceived(notification: notification));
-      // TODO: Handle navigation to relevant screen
+      // Trigger NotificationTapped event to handle navigation
+      add(NotificationTapped(notification: notification));
     });
   }
 

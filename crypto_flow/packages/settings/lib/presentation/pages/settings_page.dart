@@ -207,7 +207,7 @@ class _ProfileTile extends StatelessWidget {
       title: const Text('Profile'),
       subtitle: const Text('Manage your account and data'),
       trailing: const Icon(Icons.chevron_right),
-      onTap: () => context.go('/profile'),
+      onTap: () => context.push('/profile'),
     );
   }
 }

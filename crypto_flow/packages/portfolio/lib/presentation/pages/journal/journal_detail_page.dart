@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:design_system/design_system.dart';
 import 'package:intl/intl.dart';
 import 'package:portfolio/domain/entities/trade_side.dart';
 import 'dart:io';
 import '../../../domain/entities/journal_entry.dart';
 import '../../../domain/entities/trade_emotion.dart';
+import '../../bloc/journal/journal_bloc.dart';
+import '../../bloc/journal/journal_event.dart';
 
 /// Detail view for a single journal entry
 class JournalDetailPage extends StatelessWidget {
@@ -51,19 +55,13 @@ class JournalDetailPage extends StatelessWidget {
             icon: const Icon(Icons.edit),
             tooltip: _editButton,
             onPressed: () {
-              Navigator.pushNamed(
-                context,
-                '/portfolio/journal/${entry.id}/edit',
-              );
+              context.push('/portfolio/journal/${entry.id}/edit');
             },
           ),
           IconButton(
             icon: const Icon(Icons.delete),
             tooltip: _deleteButton,
-            onPressed: () {
-              // TODO: Show delete confirmation
-              Navigator.pop(context);
-            },
+            onPressed: () => _showDeleteConfirmation(context),
           ),
         ],
       ),
@@ -134,7 +132,7 @@ class JournalDetailPage extends StatelessWidget {
                 if (entry.riskRewardRatio != null)
                   _InfoRow(
                     label: 'Risk/Reward',
-                    value: '${entry.riskRewardRatio!.toStringAsFixed(2)}',
+                    value: entry.riskRewardRatio!.toStringAsFixed(2),
                     valueColor: CryptoColors.primary,
                   ),
                 if (entry.duration != null) ...[
@@ -258,6 +256,37 @@ class JournalDetailPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showDeleteConfirmation(BuildContext context) {
+    showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Entry'),
+        content: Text(
+          'Are you sure you want to delete this ${entry.symbol} trade entry? '
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: CryptoColors.priceDown,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed == true && context.mounted) {
+        context.read<JournalBloc>().add(JournalEntryDeleted(entry.id));
+        Navigator.pop(context);
+      }
+    });
   }
 
   String _formatDuration(Duration duration) {

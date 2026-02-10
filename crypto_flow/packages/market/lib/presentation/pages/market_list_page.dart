@@ -360,7 +360,7 @@ class _TickerListView extends StatelessWidget {
               key: ValueKey(ticker.symbol),
               ticker: ticker,
               onTap: () {
-                context.go('/ticker/${ticker.symbol}');
+                context.push('/ticker/${ticker.symbol}');
               },
             ),
           );

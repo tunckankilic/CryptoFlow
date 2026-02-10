@@ -29,6 +29,7 @@ dependencies:
   # Storage
   hive_flutter: ^1.1.0
 
+  hive: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

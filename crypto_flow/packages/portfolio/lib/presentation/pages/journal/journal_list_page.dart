@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:design_system/design_system.dart';
 import '../../bloc/journal/journal_bloc.dart';
 import '../../bloc/journal/journal_event.dart';
@@ -164,16 +165,10 @@ class _JournalListPageState extends State<JournalListPage> {
                       return JournalEntryCard(
                         entry: entry,
                         onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/portfolio/journal/${entry.id}',
-                          );
+                          context.push('/portfolio/journal/${entry.id}');
                         },
                         onEdit: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/portfolio/journal/${entry.id}/edit',
-                          );
+                          context.push('/portfolio/journal/${entry.id}/edit');
                         },
                         onDelete: () =>
                             _showDeleteConfirmation(context, entry.id),
@@ -187,13 +182,6 @@ class _JournalListPageState extends State<JournalListPage> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pushNamed(context, '/portfolio/journal/add');
-        },
-        icon: const Icon(Icons.add),
-        label: const Text(_addButton),
       ),
     );
   }

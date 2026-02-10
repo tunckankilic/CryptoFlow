@@ -58,33 +58,21 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   @override
   Future<void> updateTheme(ThemeMode themeMode) async {
     final current = await getSettings();
-    final updated = UserSettingsModel(
-      themeModeIndex: themeMode.index,
-      currency: current.currency,
-      locale: current.locale,
-    );
+    final updated = current.copyWith(themeModeIndex: themeMode.index);
     await _settingsBox.put(_settingsKey, updated);
   }
 
   @override
   Future<void> updateCurrency(String currency) async {
     final current = await getSettings();
-    final updated = UserSettingsModel(
-      themeModeIndex: current.themeModeIndex,
-      currency: currency,
-      locale: current.locale,
-    );
+    final updated = current.copyWith(currency: currency);
     await _settingsBox.put(_settingsKey, updated);
   }
 
   @override
   Future<void> updateLocale(String locale) async {
     final current = await getSettings();
-    final updated = UserSettingsModel(
-      themeModeIndex: current.themeModeIndex,
-      currency: current.currency,
-      locale: locale,
-    );
+    final updated = current.copyWith(locale: locale);
     await _settingsBox.put(_settingsKey, updated);
   }
 

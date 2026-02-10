@@ -92,7 +92,7 @@ class WatchlistPage extends StatelessWidget {
                     key: ValueKey(item.symbol),
                     item: item,
                     onTap: () {
-                      Navigator.pushNamed(context, '/ticker/${item.symbol}');
+                      context.push('/ticker/${item.symbol}');
                     },
                   ),
                 );

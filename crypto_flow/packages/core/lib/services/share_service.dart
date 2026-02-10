@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:share_plus/share_plus.dart';
 
 /// Service for sharing content from the app
@@ -9,7 +10,7 @@ class ShareService {
     final message = '''
 🚀 $symbol fiyatı: \$${price.toStringAsFixed(2)}
 
-CryptoWave'da detayları gör:
+Details in CryptoWave:
 cryptowave://ticker/$symbol
 
 #CryptoWave #Crypto #$symbol
@@ -18,6 +19,7 @@ cryptowave://ticker/$symbol
     await Share.share(
       message,
       subject: '$symbol - CryptoWave',
+      sharePositionOrigin: const Rect.fromLTWH(100, 100, 100, 100),
     );
   }
 
@@ -45,6 +47,7 @@ cryptowave://portfolio
     await Share.share(
       message,
       subject: 'Portfolyo - CryptoWave',
+      sharePositionOrigin: const Rect.fromLTWH(100, 100, 100, 100),
     );
   }
 
@@ -71,6 +74,7 @@ cryptowave://alerts
     await Share.share(
       message,
       subject: 'Fiyat Alarmı - CryptoWave',
+      sharePositionOrigin: const Rect.fromLTWH(100, 100, 100, 100),
     );
   }
 }

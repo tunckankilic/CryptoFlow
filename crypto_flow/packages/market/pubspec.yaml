@@ -37,6 +37,8 @@ dependencies:
   equatable: ^2.0.5
   dartz: ^0.10.1
 
+  hive: any
+  go_router: any
 dev_dependencies:
   drift_dev: ^2.30.1
   build_runner: ^2.4.0

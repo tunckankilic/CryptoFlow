@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/portfolio_bloc.dart';
 import '../bloc/portfolio_event.dart';
 import '../bloc/portfolio_state.dart';
@@ -37,6 +38,11 @@ class _PortfolioPageState extends State<PortfolioPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -86,23 +92,48 @@ class _PortfolioPageState extends State<PortfolioPage>
           const AnalyticsPage(),
         ],
       ),
-      floatingActionButton: _tabController.index == 0
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BlocProvider.value(
-                      value: context.read<PortfolioBloc>(),
-                      child: const AddTransactionPage(),
-                    ),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
+      floatingActionButton: _buildFab(),
     );
+  }
+
+  Widget? _buildFab() {
+    switch (_tabController.index) {
+      case 0:
+        return FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: context.read<PortfolioBloc>(),
+                  child: const AddTransactionPage(),
+                ),
+              ),
+            );
+          },
+          child: const Icon(Icons.add),
+        );
+      case 1:
+        return FloatingActionButton.extended(
+          onPressed: () {
+            context.push('/portfolio/journal/add');
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('Add Entry'),
+        );
+      case 2:
+        return FloatingActionButton.extended(
+          onPressed: () {
+            context
+                .read<JournalStatsBloc>()
+                .add(const JournalReportRequested(StatsPeriod.allTime));
+          },
+          icon: const Icon(Icons.file_download),
+          label: const Text('Export Report'),
+        );
+      default:
+        return null;
+    }
   }
 }
 

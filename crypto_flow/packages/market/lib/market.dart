@@ -67,6 +67,10 @@ export 'presentation/bloc/order_book/order_book_bloc.dart';
 export 'presentation/bloc/order_book/order_book_event.dart';
 export 'presentation/bloc/order_book/order_book_state.dart';
 
+export 'presentation/bloc/fear_greed/fear_greed_bloc.dart';
+export 'presentation/bloc/fear_greed/fear_greed_event.dart';
+export 'presentation/bloc/fear_greed/fear_greed_state.dart';
+
 // Presentation layer - Pages
 export 'presentation/pages/market_list_page.dart';
 export 'presentation/pages/ticker_detail_page.dart';

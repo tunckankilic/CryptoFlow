@@ -22,3 +22,6 @@ export 'presentation/bloc/notification_bloc.dart';
 export 'presentation/bloc/notification_event.dart';
 export 'presentation/bloc/notification_state.dart';
 export 'presentation/widgets/notification_permission_dialog.dart';
+
+// Utils
+export 'utils/notification_navigation_handler.dart';

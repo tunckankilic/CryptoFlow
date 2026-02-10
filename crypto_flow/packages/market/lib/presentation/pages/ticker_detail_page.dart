@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:design_system/design_system.dart';
 import 'package:watchlist/watchlist.dart';
 import 'package:alerts/alerts.dart';
@@ -148,10 +149,7 @@ class _TickerDetailPageState extends State<TickerDetailPage>
                   icon: const Icon(Icons.book),
                   tooltip: 'Log Trade',
                   onPressed: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/portfolio/journal/add',
-                    );
+                    context.push('/portfolio/journal/add');
                   },
                 ),
               ],
@@ -339,9 +337,19 @@ class _ChartTab extends StatelessWidget {
       return const Center(child: Text('No chart data'));
     }
 
-    // Use CandleChart from design_system if available
-    // Cast to the expected type
-    return CandleChart(candles: candles.cast());
+    // Map market Candle entities to design_system Candle objects
+    final chartCandles = candles.map((c) {
+      return Candle(
+        timestamp: c.openTime,
+        open: c.open,
+        high: c.high,
+        low: c.low,
+        close: c.close,
+        volume: c.volume,
+      );
+    }).toList();
+
+    return CandleChart(candles: chartCandles);
   }
 }
 

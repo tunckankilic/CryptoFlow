@@ -18,6 +18,10 @@ Future<void> registerMarketModule() async {
     () => MarketLocalDataSourceImpl(),
   );
 
+  getIt.registerLazySingleton<FearGreedDatasource>(
+    () => FearGreedDatasource(getIt()),
+  );
+
   // Repositories
   getIt.registerLazySingleton<MarketRepository>(
     () => MarketRepositoryImpl(
@@ -75,5 +79,9 @@ Future<void> registerMarketModule() async {
       marketRepository: getIt<MarketRepository>(),
       wsRepository: getIt<WebSocketRepository>(),
     ),
+  );
+
+  getIt.registerFactory<FearGreedBloc>(
+    () => FearGreedBloc(getIt<FearGreedDatasource>()),
   );
 }

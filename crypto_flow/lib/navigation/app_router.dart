@@ -67,8 +67,9 @@ GoRouter createAppRouter(AuthBloc authBloc) {
       }
 
       // If user is authenticated and going to login/onboarding, redirect to home
+      // But only redirect away from onboarding if they've already seen it
       if (authState is AuthAuthenticated &&
-          (isGoingToLogin || isGoingToOnboarding)) {
+          (isGoingToLogin || (isGoingToOnboarding && hasSeenOnboarding))) {
         return '/';
       }
 
@@ -84,8 +85,15 @@ GoRouter createAppRouter(AuthBloc authBloc) {
             path: '/',
             name: 'markets',
             pageBuilder: (context, state) => NoTransitionPage(
-              child: BlocProvider(
-                create: (_) => getIt<TickerListBloc>(),
+              child: MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (_) => getIt<TickerListBloc>(),
+                  ),
+                  BlocProvider(
+                    create: (_) => getIt<FearGreedBloc>(),
+                  ),
+                ],
                 child: const MarketListPage(),
               ),
             ),

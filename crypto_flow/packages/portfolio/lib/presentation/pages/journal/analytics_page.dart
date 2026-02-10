@@ -130,6 +130,34 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             }
 
             if (state is JournalStatsLoaded) {
+              // Show empty state if no trades
+              if (state.stats.totalTrades == 0) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.analytics_outlined,
+                        size: 80,
+                        color: CryptoColors.textTertiary,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        'No trades to analyze yet',
+                        style: AppTypography.h4,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'Add journal entries to see analytics',
+                        style: AppTypography.body1.copyWith(
+                          color: CryptoColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
               return ListView(
                 padding: AppSpacing.paddingMD,
                 children: [
@@ -166,17 +194,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
 
             return const Center(child: Text(_noDataLabel));
           },
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            // Trigger PDF generation with current period
-            final period = _mapDaysToPeriod(_selectedPeriodDays);
-            context
-                .read<JournalStatsBloc>()
-                .add(JournalReportRequested(period));
-          },
-          icon: const Icon(Icons.file_download),
-          label: const Text('Export Report'),
         ),
       ),
     );

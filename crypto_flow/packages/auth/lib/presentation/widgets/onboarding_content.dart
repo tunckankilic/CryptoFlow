@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 
 /// Content widget for each onboarding page
 class OnboardingContent extends StatefulWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? imagePath;
   final String title;
   final String description;
 
   const OnboardingContent({
     super.key,
-    required this.icon,
+    this.icon,
+    this.imagePath,
     required this.title,
     required this.description,
   });
@@ -62,7 +64,7 @@ class _OnboardingContentState extends State<OnboardingContent>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icon container with animation
+              // Icon/Image container with animation
               TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0.0, end: 1.0),
                 duration: const Duration(milliseconds: 800),
@@ -77,11 +79,18 @@ class _OnboardingContentState extends State<OnboardingContent>
                         color: Theme.of(context).colorScheme.primaryContainer,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        widget.icon,
-                        size: 60,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      child: widget.imagePath != null
+                          ? ClipOval(
+                              child: Image.asset(
+                                widget.imagePath!,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Icon(
+                              widget.icon,
+                              size: 60,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                     ),
                   );
                 },

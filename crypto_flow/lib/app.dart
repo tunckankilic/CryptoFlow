@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:design_system/design_system.dart';
 
@@ -35,85 +36,93 @@ class _CryptoWaveAppState extends State<CryptoWaveApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiProvider(
       providers: [
-        // Global BLoCs (shared across pages)
-        BlocProvider<AuthBloc>(
-          create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
-        ),
-        BlocProvider<WatchlistBloc>(
-          create: (_) => getIt<WatchlistBloc>()..add(const LoadWatchlist()),
-        ),
-        BlocProvider<PortfolioBloc>(
-          create: (_) => getIt<PortfolioBloc>()..add(const LoadPortfolio()),
-        ),
-        BlocProvider<JournalBloc>(
-          create: (_) => getIt<JournalBloc>(),
-        ),
-        BlocProvider<JournalStatsBloc>(
-          create: (_) => getIt<JournalStatsBloc>(),
-        ),
-        BlocProvider<AlertBloc>(
-          create: (_) => getIt<AlertBloc>()..add(const LoadAlerts()),
-        ),
-        BlocProvider<SettingsBloc>(
-          create: (_) => getIt<SettingsBloc>()..add(const LoadSettings()),
-        ),
-        BlocProvider<NotificationBloc>(
-          create: (_) => getIt<NotificationBloc>()
-            ..add(const InitializeNotificationsEvent()),
+        // Repositories (for widgets that need direct access)
+        Provider<SettingsRepository>(
+          create: (_) => getIt<SettingsRepository>(),
         ),
       ],
-      child: BlocBuilder<SettingsBloc, SettingsState>(
-        buildWhen: (prev, curr) => prev.themeMode != curr.themeMode,
-        builder: (context, settingsState) {
-          return BlocListener<NotificationBloc, NotificationState>(
-            listener: (context, state) {
-              // Handle navigation when a notification is tapped
-              if (state is NotificationReady &&
-                  state.pendingNavigation != null) {
-                final notification = state.pendingNavigation!;
+      child: MultiBlocProvider(
+        providers: [
+          // Global BLoCs (shared across pages)
+          BlocProvider<AuthBloc>(
+            create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
+          ),
+          BlocProvider<WatchlistBloc>(
+            create: (_) => getIt<WatchlistBloc>()..add(const LoadWatchlist()),
+          ),
+          BlocProvider<PortfolioBloc>(
+            create: (_) => getIt<PortfolioBloc>()..add(const LoadPortfolio()),
+          ),
+          BlocProvider<JournalBloc>(
+            create: (_) => getIt<JournalBloc>(),
+          ),
+          BlocProvider<JournalStatsBloc>(
+            create: (_) => getIt<JournalStatsBloc>(),
+          ),
+          BlocProvider<AlertBloc>(
+            create: (_) => getIt<AlertBloc>()..add(const LoadAlerts()),
+          ),
+          BlocProvider<SettingsBloc>(
+            create: (_) => getIt<SettingsBloc>()..add(const LoadSettings()),
+          ),
+          BlocProvider<NotificationBloc>(
+            create: (_) => getIt<NotificationBloc>()
+              ..add(const InitializeNotificationsEvent()),
+          ),
+        ],
+        child: BlocBuilder<SettingsBloc, SettingsState>(
+          buildWhen: (prev, curr) => prev.themeMode != curr.themeMode,
+          builder: (context, settingsState) {
+            return BlocListener<NotificationBloc, NotificationState>(
+              listener: (context, state) {
+                // Handle navigation when a notification is tapped
+                if (state is NotificationReady &&
+                    state.pendingNavigation != null) {
+                  final notification = state.pendingNavigation!;
 
-                // Get the navigation action from the handler
-                final action =
-                    NotificationNavigationHandler.getNavigationAction(
-                        notification);
+                  // Get the navigation action from the handler
+                  final action =
+                      NotificationNavigationHandler.getNavigationAction(
+                          notification);
 
-                if (action != null) {
-                  // Perform navigation based on action type
-                  if (action.isPush) {
-                    context.push(action.route);
-                  } else {
-                    context.go(action.route);
+                  if (action != null) {
+                    // Perform navigation based on action type
+                    if (action.isPush) {
+                      context.push(action.route);
+                    } else {
+                      context.go(action.route);
+                    }
+
+                    // Clear the pending navigation by emitting a new state
+                    // This prevents re-navigation on rebuilds
+                    context.read<NotificationBloc>().add(
+                          const ClearPendingNavigation(),
+                        );
                   }
-
-                  // Clear the pending navigation by emitting a new state
-                  // This prevents re-navigation on rebuilds
-                  context.read<NotificationBloc>().add(
-                        const ClearPendingNavigation(),
-                      );
                 }
-              }
-            },
-            child: MaterialApp.router(
-              title: 'CryptoWave',
-              debugShowCheckedModeBanner: false,
-
-              // Theming
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: settingsState.themeMode,
-
-              // Navigation - use cached router
-              routerConfig: _router,
-
-              // Biometric guard wrapper
-              builder: (context, child) {
-                return BiometricGuard(child: child!);
               },
-            ),
-          );
-        },
+              child: MaterialApp.router(
+                title: 'CryptoWave',
+                debugShowCheckedModeBanner: false,
+
+                // Theming
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: settingsState.themeMode,
+
+                // Navigation - use cached router
+                routerConfig: _router,
+
+                // Biometric guard wrapper
+                builder: (context, child) {
+                  return BiometricGuard(child: child!);
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }

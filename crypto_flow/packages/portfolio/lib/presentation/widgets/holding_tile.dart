@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../domain/entities/holding.dart';
 import 'package:design_system/design_system.dart';
 import 'package:core/utils/formatters.dart';
@@ -167,7 +168,7 @@ class _HoldingActionsSheet extends StatelessWidget {
             subtitle: const Text('Log this trade in your journal'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/portfolio/journal/add');
+              context.push('/portfolio/journal/add');
             },
           ),
           const SizedBox(height: AppSpacing.md),

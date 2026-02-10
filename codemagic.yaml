@@ -16,7 +16,7 @@ workflows:
       vars:
         XCODE_WORKSPACE: "crypto_flow/ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
-        BUNDLE_ID: "com.cryptowave.app"
+        BUNDLE_ID: "site.tunckankilic.cryptoFlow"
       flutter: stable
       xcode: latest
       cocoapods: default

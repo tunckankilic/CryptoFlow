@@ -67,8 +67,6 @@ workflows:
 
     publishing:
       app_store_connect:
-        auth: integration
-        is_connected: false
         api_key: $APP_STORE_CONNECT_KEY_IDENTIFIER
         key_id: $APP_STORE_CONNECT_KEY_ID
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID

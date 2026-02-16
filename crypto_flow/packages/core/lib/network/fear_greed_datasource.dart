@@ -13,7 +13,13 @@ class FearGreedDatasource {
   /// Endpoint: https://api.alternative.me/fng/
   Future<FearGreedIndex> getFearGreedIndex() async {
     try {
-      final response = await _dio.get('https://api.alternative.me/fng/');
+      final response = await _dio.get(
+        'https://api.alternative.me/fng/',
+        options: Options(
+          receiveTimeout: const Duration(seconds: 10),
+          sendTimeout: const Duration(seconds: 5),
+        ),
+      );
 
       if (response.statusCode == 200) {
         final data = response.data['data'][0];

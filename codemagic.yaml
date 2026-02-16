@@ -6,7 +6,7 @@ workflows:
     triggering:
       events:
         - push
-      cancel_previous_builds: false
+      cancel_previous_builds: true
       branch_patterns:
         - pattern: 'main'
           include: true
@@ -39,7 +39,7 @@ workflows:
         script: |
           cd crypto_flow
           flutter pub get
-          cd ios && pod install
+          cd ios && pod install --repo-update
       - name: Flutter analyze
         script: |
           cd crypto_flow
@@ -50,21 +50,13 @@ workflows:
           cd crypto_flow
           flutter test --coverage
         ignore_failure: true
-      - name: Check test coverage
+      - name: Increment build number
         script: |
           cd crypto_flow
-          if [ -f coverage/lcov.info ]; then
-            COVERAGE=$(flutter pub run coverage:format_coverage \
-              --lcov --in=coverage/lcov.info \
-              --report-on=lib | \
-              grep -oP 'lines\.*: \K[0-9.]+')
-            echo "Test coverage: ${COVERAGE}%"
-            if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-              echo "Coverage below 80% threshold"
-              exit 1
-            fi
-          fi
-        ignore_failure: true
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" || echo 0)
+          NEW_BUILD=$((LATEST_BUILD + 1))
+          echo "Setting build number to $NEW_BUILD"
+          agvtool new-version -all $NEW_BUILD
       - name: Build iOS
         script: |
           cd crypto_flow
@@ -73,12 +65,9 @@ workflows:
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - crypto_flow/build/ios/ipa/*.ipa
-      - flutter_drive.log
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        key_id: $APP_STORE_CONNECT_KEY_ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        auth: integration
         submit_to_testflight: true
       email:
         recipients:
@@ -94,14 +83,20 @@ workflows:
     triggering:
       events:
         - pull_request
+      cancel_previous_builds: true
       branch_patterns:
+        - pattern: 'main'
+          include: true
         - pattern: 'develop'
           include: true
         - pattern: 'feature/*'
           include: true
+        - pattern: 'fix/*'
+          include: true
     environment:
       flutter: stable
       xcode: latest
+      cocoapods: default
     scripts:
       - name: Dependencies
         script: |

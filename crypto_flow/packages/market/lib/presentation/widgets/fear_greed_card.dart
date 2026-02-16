@@ -6,19 +6,25 @@ import '../bloc/fear_greed/fear_greed_event.dart';
 import '../bloc/fear_greed/fear_greed_state.dart';
 
 /// Widget displaying the Crypto Fear & Greed Index
-class FearGreedCard extends StatelessWidget {
+class FearGreedCard extends StatefulWidget {
   const FearGreedCard({super.key});
+
+  @override
+  State<FearGreedCard> createState() => _FearGreedCardState();
+}
+
+class _FearGreedCardState extends State<FearGreedCard> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<FearGreedBloc>().add(const LoadFearGreedIndex());
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FearGreedBloc, FearGreedState>(
       builder: (context, state) {
-        if (state is FearGreedInitial) {
-          context.read<FearGreedBloc>().add(const LoadFearGreedIndex());
-          return const SizedBox.shrink();
-        }
-
-        if (state is FearGreedLoading) {
+        if (state is FearGreedInitial || state is FearGreedLoading) {
           return Card(
             margin: const EdgeInsets.all(16),
             child: Container(

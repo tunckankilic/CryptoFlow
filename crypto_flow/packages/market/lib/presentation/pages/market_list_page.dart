@@ -21,6 +21,15 @@ class _MarketListPageState extends State<MarketListPage> {
   int _selectedTabIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // Trigger initial load from initState, not from build
+    final bloc = context.read<TickerListBloc>();
+    bloc.add(const LoadTickers());
+    bloc.add(const SubscribeToTickers());
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -78,18 +87,8 @@ class _MarketListPageState extends State<MarketListPage> {
           Expanded(
             child: BlocBuilder<TickerListBloc, TickerListState>(
               builder: (context, state) {
-                if (state is TickerListInitial) {
-                  // Trigger initial load
-                  context.read<TickerListBloc>()
-                    ..add(const LoadTickers())
-                    ..add(const SubscribeToTickers());
+                if (state is TickerListInitial || state is TickerListLoading) {
                   return const Center(child: CircularProgressIndicator());
-                }
-
-                if (state is TickerListLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
                 }
 
                 if (state is TickerListError) {

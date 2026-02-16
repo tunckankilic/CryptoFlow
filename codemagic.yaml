@@ -54,14 +54,14 @@ workflows:
         script: |
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" || echo 0)
           NEW_BUILD=$((LATEST_BUILD + 1))
+          echo "BUILD_NUMBER=$NEW_BUILD" >> $CM_ENV
           echo "Setting build number to $NEW_BUILD"
-          cd crypto_flow/ios
-          agvtool new-version -all $NEW_BUILD
       - name: Build iOS
         script: |
           cd crypto_flow
           flutter build ipa \
             --release \
+            --build-number=$BUILD_NUMBER \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - crypto_flow/build/ios/ipa/*.ipa

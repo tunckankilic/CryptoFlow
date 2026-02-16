@@ -52,10 +52,10 @@ workflows:
         ignore_failure: true
       - name: Increment build number
         script: |
-          cd crypto_flow
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" || echo 0)
           NEW_BUILD=$((LATEST_BUILD + 1))
           echo "Setting build number to $NEW_BUILD"
+          cd crypto_flow/ios
           agvtool new-version -all $NEW_BUILD
       - name: Build iOS
         script: |

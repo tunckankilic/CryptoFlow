@@ -85,7 +85,15 @@ class FirebaseAuthDataSource {
         ..addScope('email')
         ..addScope('name');
 
-      final userCredential = await _auth.signInWithProvider(appleProvider);
+      final userCredential = await _auth
+          .signInWithProvider(appleProvider)
+          .timeout(
+            const Duration(seconds: 60),
+            onTimeout: () => throw const AuthException(
+              'Apple sign in timed out. Please try again.',
+              code: 'timeout',
+            ),
+          );
 
       if (userCredential.user == null) {
         throw const AuthException(
@@ -98,10 +106,33 @@ class FirebaseAuthDataSource {
         userCredential.user!,
         provider: AuthProvider.apple,
       );
+    } on AuthException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'canceled' || e.code == 'web-context-cancelled') {
+        throw const AuthException(
+          'Apple sign in was cancelled',
+          code: 'cancelled',
+        );
+      }
       throw AuthException(
         e.message ?? 'Apple sign in failed',
         code: e.code,
+      );
+    } catch (e) {
+      // Catch PlatformException and other errors on iPad
+      final message = e.toString().toLowerCase();
+      if (message.contains('cancel') ||
+          message.contains('dismissed') ||
+          message.contains('1001')) {
+        throw const AuthException(
+          'Apple sign in was cancelled',
+          code: 'cancelled',
+        );
+      }
+      throw AuthException(
+        'Apple sign in failed: ${e.toString()}',
+        code: 'unknown',
       );
     }
   }
@@ -109,7 +140,15 @@ class FirebaseAuthDataSource {
   /// Sign in anonymously
   Future<AppUserModel> signInAnonymously() async {
     try {
-      final userCredential = await _auth.signInAnonymously();
+      final userCredential = await _auth
+          .signInAnonymously()
+          .timeout(
+            const Duration(seconds: 30),
+            onTimeout: () => throw const AuthException(
+              'Sign in timed out. Please check your connection and try again.',
+              code: 'timeout',
+            ),
+          );
 
       if (userCredential.user == null) {
         throw const AuthException(
@@ -122,10 +161,17 @@ class FirebaseAuthDataSource {
         userCredential.user!,
         provider: AuthProvider.anonymous,
       );
+    } on AuthException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       throw AuthException(
         e.message ?? 'Anonymous sign in failed',
         code: e.code,
+      );
+    } catch (e) {
+      throw AuthException(
+        'Anonymous sign in failed: ${e.toString()}',
+        code: 'unknown',
       );
     }
   }

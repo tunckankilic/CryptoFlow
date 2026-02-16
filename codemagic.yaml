@@ -52,10 +52,13 @@ workflows:
         ignore_failure: true
       - name: Increment build number
         script: |
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" || echo 0)
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" 2>/dev/null || true)
+          if [ -z "$LATEST_BUILD" ] || [ "$LATEST_BUILD" = "0" ]; then
+            LATEST_BUILD=1
+          fi
           NEW_BUILD=$((LATEST_BUILD + 1))
           echo "BUILD_NUMBER=$NEW_BUILD" >> $CM_ENV
-          echo "Setting build number to $NEW_BUILD"
+          echo "Latest build: $LATEST_BUILD -> New build: $NEW_BUILD"
       - name: Build iOS
         script: |
           cd crypto_flow

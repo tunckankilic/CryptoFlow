@@ -47,7 +47,7 @@ class PriceCard extends StatelessWidget {
               Text(
                 symbol!.toUpperCase(),
                 style: AppTypography.h5.copyWith(
-                  color: CryptoColors.textSecondary,
+                  color: CryptoColors.getTextSecondary(context),
                 ),
               ),
               SizedBox(height: AppSpacing.sm),
@@ -75,14 +75,14 @@ class PriceCard extends StatelessWidget {
             SizedBox(height: AppSpacing.lg),
 
             // 24h Stats
-            _buildStatsGrid(),
+            _buildStatsGrid(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(BuildContext context) {
     final stats = <String, String?>{
       '24h High':
           high24h != null ? CryptoFormatters.formatPrice(high24h!) : null,
@@ -111,6 +111,7 @@ class PriceCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildStatItem(
+                    context,
                     availableStats[i].key,
                     availableStats[i].value!,
                   ),
@@ -119,6 +120,7 @@ class PriceCard extends StatelessWidget {
                   SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: _buildStatItem(
+                      context,
                       availableStats[i + 1].key,
                       availableStats[i + 1].value!,
                     ),
@@ -132,21 +134,21 @@ class PriceCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String label, String value) {
+  Widget _buildStatItem(BuildContext context, String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: AppTypography.caption.copyWith(
-            color: CryptoColors.textTertiary,
+            color: CryptoColors.getTextTertiary(context),
           ),
         ),
         SizedBox(height: 4),
         Text(
           value,
           style: AppTypography.body2.copyWith(
-            color: CryptoColors.textPrimary,
+            color: CryptoColors.getTextPrimary(context),
             fontWeight: FontWeight.w600,
           ),
         ),

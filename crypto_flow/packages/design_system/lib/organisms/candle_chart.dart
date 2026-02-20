@@ -72,7 +72,7 @@ class CandleChart extends StatelessWidget {
           child: Text(
             'No data available',
             style: AppTypography.body2.copyWith(
-              color: CryptoColors.textTertiary,
+              color: CryptoColors.getTextTertiary(context),
             ),
           ),
         ),
@@ -85,7 +85,7 @@ class CandleChart extends StatelessWidget {
       child: Column(
         children: [
           // Chart header
-          _buildHeader(),
+          _buildHeader(context),
 
           SizedBox(height: AppSpacing.sm),
 
@@ -93,7 +93,7 @@ class CandleChart extends StatelessWidget {
           Expanded(
             child: Stack(
               children: [
-                _buildCandlestickChart(),
+                _buildCandlestickChart(context),
                 if (emaOverlays.isNotEmpty || smaValues != null)
                   _buildOverlayLines(),
               ],
@@ -104,22 +104,23 @@ class CandleChart extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           interval.toUpperCase(),
           style: AppTypography.body2.copyWith(
-            color: CryptoColors.textPrimary,
+            color: CryptoColors.getTextPrimary(context),
             fontWeight: FontWeight.w600,
           ),
         ),
         Row(
           children: [
-            if (showVolume) _buildHeaderButton('Volume', true),
-            if (showMA) _buildHeaderButton('MA', true),
+            if (showVolume) _buildHeaderButton(context, 'Volume', true),
+            if (showMA) _buildHeaderButton(context, 'MA', true),
             ...emaOverlays.map((overlay) => _buildHeaderButton(
+                  context,
                   'EMA${overlay.period}',
                   true,
                   color: overlay.color,
@@ -130,7 +131,7 @@ class CandleChart extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderButton(String label, bool active, {Color? color}) {
+  Widget _buildHeaderButton(BuildContext context, String label, bool active, {Color? color}) {
     final buttonColor = color ?? CryptoColors.primary;
     return Container(
       margin: const EdgeInsets.only(left: AppSpacing.sm),
@@ -148,14 +149,14 @@ class CandleChart extends StatelessWidget {
       child: Text(
         label,
         style: AppTypography.caption.copyWith(
-          color: active ? buttonColor : CryptoColors.textSecondary,
+          color: active ? buttonColor : CryptoColors.getTextSecondary(context),
           fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
 
-  Widget _buildCandlestickChart() {
+  Widget _buildCandlestickChart(BuildContext context) {
     // For simplicity, using a placeholder implementation
     // A full implementation would use custom painting or fl_chart's BarChart
     return BarChart(
@@ -190,7 +191,7 @@ class CandleChart extends StatelessWidget {
                       child: Text(
                         '${candle.timestamp.hour}:${candle.timestamp.minute.toString().padLeft(2, '0')}',
                         style: AppTypography.chartLabel.copyWith(
-                          color: CryptoColors.textTertiary,
+                          color: CryptoColors.getTextTertiary(context),
                         ),
                       ),
                     );
@@ -208,7 +209,7 @@ class CandleChart extends StatelessWidget {
                 return Text(
                   value.toStringAsFixed(0),
                   style: AppTypography.chartLabel.copyWith(
-                    color: CryptoColors.textTertiary,
+                    color: CryptoColors.getTextTertiary(context),
                   ),
                 );
               },

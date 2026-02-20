@@ -45,13 +45,13 @@ class CoinTile extends StatelessWidget {
           child: Row(
             children: [
               // Coin icon
-              _buildIcon(),
+              _buildIcon(context),
               SizedBox(width: AppSpacing.sm),
 
               // Symbol and name
               Expanded(
                 flex: 2,
-                child: _buildSymbolAndName(),
+                child: _buildSymbolAndName(context),
               ),
 
               SizedBox(width: AppSpacing.sm),
@@ -72,7 +72,7 @@ class CoinTile extends StatelessWidget {
     );
   }
 
-  Widget _buildIcon() {
+  Widget _buildIcon(BuildContext context) {
     return Container(
       width: AppSpacing.coinIconSize,
       height: AppSpacing.coinIconSize,
@@ -87,26 +87,26 @@ class CoinTile extends StatelessWidget {
                 width: AppSpacing.coinIconSize,
                 height: AppSpacing.coinIconSize,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => _buildPlaceholderIcon(),
-                errorWidget: (context, url, error) => _buildPlaceholderIcon(),
+                placeholder: (context, url) => _buildPlaceholderIcon(context),
+                errorWidget: (context, url, error) => _buildPlaceholderIcon(context),
               ),
             )
-          : _buildPlaceholderIcon(),
+          : _buildPlaceholderIcon(context),
     );
   }
 
-  Widget _buildPlaceholderIcon() {
+  Widget _buildPlaceholderIcon(BuildContext context) {
     return Center(
       child: Text(
         symbol.substring(0, 1).toUpperCase(),
         style: AppTypography.h5.copyWith(
-          color: CryptoColors.textSecondary,
+          color: CryptoColors.getTextSecondary(context),
         ),
       ),
     );
   }
 
-  Widget _buildSymbolAndName() {
+  Widget _buildSymbolAndName(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -114,7 +114,7 @@ class CoinTile extends StatelessWidget {
         Text(
           symbol.toUpperCase(),
           style: AppTypography.symbol.copyWith(
-            color: CryptoColors.textPrimary,
+            color: CryptoColors.getTextPrimary(context),
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -123,7 +123,7 @@ class CoinTile extends StatelessWidget {
         Text(
           name,
           style: AppTypography.caption.copyWith(
-            color: CryptoColors.textSecondary,
+            color: CryptoColors.getTextSecondary(context),
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

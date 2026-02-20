@@ -163,7 +163,10 @@ class RSIPanel extends StatelessWidget {
                       return touchedSpots.map((spot) {
                         return LineTooltipItem(
                           'RSI: ${spot.y.toStringAsFixed(2)}',
-                          const TextStyle(color: Colors.white, fontSize: 12),
+                          TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                            fontSize: 12,
+                          ),
                         );
                       }).toList();
                     },

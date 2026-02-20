@@ -39,7 +39,7 @@ class OrderBookView extends StatelessWidget {
     return Column(
       children: [
         // Header
-        _buildHeader(),
+        _buildHeader(context),
 
         SizedBox(height: AppSpacing.sm),
 
@@ -50,6 +50,7 @@ class OrderBookView extends StatelessWidget {
             // Bids (left side)
             Expanded(
               child: _buildOrderList(
+                context: context,
                 entries: displayBids,
                 isBid: true,
               ),
@@ -64,6 +65,7 @@ class OrderBookView extends StatelessWidget {
             // Asks (right side)
             Expanded(
               child: _buildOrderList(
+                context: context,
                 entries: displayAsks,
                 isBid: false,
               ),
@@ -74,7 +76,7 @@ class OrderBookView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: AppSpacing.paddingSM,
       child: Row(
@@ -105,6 +107,7 @@ class OrderBookView extends StatelessWidget {
   }
 
   Widget _buildOrderList({
+    required BuildContext context,
     required List<OrderBookEntry> entries,
     required bool isBid,
   }) {
@@ -115,7 +118,7 @@ class OrderBookView extends StatelessWidget {
           child: Text(
             'No data',
             style: AppTypography.caption.copyWith(
-              color: CryptoColors.textTertiary,
+              color: CryptoColors.getTextTertiary(context),
             ),
           ),
         ),
@@ -129,6 +132,7 @@ class OrderBookView extends StatelessWidget {
     return Column(
       children: entries.map((entry) {
         return _buildOrderRow(
+          context: context,
           entry: entry,
           isBid: isBid,
           maxTotal: maxTotal,
@@ -138,6 +142,7 @@ class OrderBookView extends StatelessWidget {
   }
 
   Widget _buildOrderRow({
+    required BuildContext context,
     required OrderBookEntry entry,
     required bool isBid,
     required double maxTotal,
@@ -182,7 +187,7 @@ class OrderBookView extends StatelessWidget {
                 Text(
                   entry.amount.toStringAsFixed(4),
                   style: AppTypography.chartLabel.copyWith(
-                    color: CryptoColors.textSecondary,
+                    color: CryptoColors.getTextSecondary(context),
                   ),
                 ),
               ],

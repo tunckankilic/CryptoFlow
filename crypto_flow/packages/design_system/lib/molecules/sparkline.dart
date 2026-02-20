@@ -25,9 +25,9 @@ class Sparkline extends StatelessWidget {
       return SizedBox(
         height: height,
         width: width,
-        child: const Center(
+        child: Center(
           child: Icon(Icons.show_chart,
-              size: 20, color: CryptoColors.textTertiary),
+              size: 20, color: CryptoColors.getTextTertiary(context)),
         ),
       );
     }

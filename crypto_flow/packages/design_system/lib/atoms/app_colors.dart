@@ -134,6 +134,35 @@ class CryptoColors {
   /// Overlay color for modals/dialogs
   static const overlay = Color(0x99000000);
 
+  // Theme-aware Text Colors
+  /// Get primary text color based on current theme brightness
+  static Color getTextPrimary(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? textPrimary
+        : lightTextPrimary;
+  }
+
+  /// Get secondary text color based on current theme brightness
+  static Color getTextSecondary(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? textSecondary
+        : lightTextSecondary;
+  }
+
+  /// Get tertiary text color based on current theme brightness
+  static Color getTextTertiary(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? textTertiary
+        : lightTextTertiary;
+  }
+
+  /// Get disabled text color based on current theme brightness
+  static Color getTextDisabled(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? textDisabled
+        : lightTextDisabled;
+  }
+
   // Helper Methods
   /// Get price color based on change value
   static Color getPriceColor(double change) {

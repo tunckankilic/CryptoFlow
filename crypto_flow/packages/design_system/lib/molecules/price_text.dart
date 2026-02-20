@@ -30,7 +30,7 @@ class _PriceTextState extends State<PriceText>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
-  final Color _currentColor = CryptoColors.textPrimary;
+  Color _currentColor = CryptoColors.textPrimary;
 
   @override
   void initState() {
@@ -76,6 +76,7 @@ class _PriceTextState extends State<PriceText>
 
   @override
   Widget build(BuildContext context) {
+    _currentColor = CryptoColors.getTextPrimary(context);
     final displayColor = _getPriceColor();
     final formattedPrice = CryptoFormatters.formatPrice(
       widget.price,

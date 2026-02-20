@@ -47,9 +47,13 @@ class LoginPage extends StatelessWidget {
           builder: (context, state) {
             final isLoading = state is AuthLoading;
 
-            return SingleChildScrollView(
+            return Center(
+              child: SingleChildScrollView(
               child: Container(
-                constraints: BoxConstraints(minHeight: size.height - 100),
+                constraints: BoxConstraints(
+                  minHeight: size.height - 100,
+                  maxWidth: 480,
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -57,31 +61,13 @@ class LoginPage extends StatelessWidget {
                     const SizedBox(height: 60),
 
                     // Logo
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            theme.colorScheme.primary,
-                            theme.colorScheme.secondary,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.primary.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.show_chart_rounded,
-                        size: 60,
-                        color: Colors.white,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Image.asset(
+                        'assets/1024.png',
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
                       ),
                     ),
 
@@ -275,6 +261,7 @@ class LoginPage extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
               ),
             );
           },

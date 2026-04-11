@@ -19,7 +19,9 @@ export 'domain/usecases/delete_account.dart';
 export 'data/models/app_user_model.dart';
 
 // Data - Datasources
+export 'data/datasources/auth_data_source.dart';
 export 'data/datasources/firebase_auth_datasource.dart';
+export 'data/datasources/cognito_auth_datasource.dart';
 
 // Data - Repositories
 export 'data/repositories/auth_repository_impl.dart';

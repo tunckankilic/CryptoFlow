@@ -1,0 +1,6 @@
+environment  = "dev"
+region       = "eu-central-1"
+project_name = "cryptoflow"
+
+# Cognito IDs and Apple/Google parameters fall back to defaults in variables.tf.
+# Override here if you provision a separate Cognito stack per environment.

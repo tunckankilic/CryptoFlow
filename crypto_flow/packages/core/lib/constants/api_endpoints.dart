@@ -1,10 +1,14 @@
+import '../config/app_config.dart';
+
 /// Binance API endpoints for REST and WebSocket connections
 class BinanceEndpoints {
   BinanceEndpoints._();
 
-  // Base URLs
-  static const baseUrl = 'https://api.binance.com';
-  static const wsBaseUrl = 'wss://stream.binance.com:9443';
+  // Base URLs — sourced from AppConfig so that they can be overridden via
+  // --dart-define at build time. Defaults preserve the original Binance public
+  // endpoints.
+  static String get baseUrl => AppConfig.binanceRestUrl;
+  static String get wsBaseUrl => AppConfig.binanceWsUrl;
 
   // REST API Endpoints
   static const ticker24h = '/api/v3/ticker/24hr';

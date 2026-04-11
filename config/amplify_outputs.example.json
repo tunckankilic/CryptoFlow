@@ -1,0 +1,17 @@
+{
+  "version": "1",
+  "auth": {
+    "user_pool_id": "eu-central-1_xxxxxxxx",
+    "user_pool_client_id": "<APP_CLIENT_ID>",
+    "identity_pool_id": "eu-central-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "aws_region": "eu-central-1",
+    "oauth": {
+      "domain": "cryptoflow.auth.eu-central-1.amazoncognito.com",
+      "scopes": ["openid", "email", "profile"],
+      "redirect_sign_in_uri": ["cryptoflow://callback"],
+      "redirect_sign_out_uri": ["cryptoflow://signout"],
+      "identity_providers": ["GOOGLE", "SIGN_IN_WITH_APPLE"],
+      "response_type": "code"
+    }
+  }
+}

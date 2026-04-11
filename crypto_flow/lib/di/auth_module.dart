@@ -1,17 +1,24 @@
 import 'package:auth/auth.dart';
+import 'package:core/core.dart';
 
 import 'injection_container.dart';
 
 /// Register Auth package dependencies
 Future<void> registerAuthModule() async {
-  // Data sources
-  getIt.registerLazySingleton<FirebaseAuthDataSource>(
-    () => FirebaseAuthDataSource(),
-  );
+  // Data source — feature-flagged between Cognito (AWS) and Firebase (legacy)
+  if (FeatureFlags.useCognitoAuth) {
+    getIt.registerLazySingleton<AuthDataSource>(
+      () => CognitoAuthDataSource(),
+    );
+  } else {
+    getIt.registerLazySingleton<AuthDataSource>(
+      () => FirebaseAuthDataSource(),
+    );
+  }
 
   // Repository
   getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(getIt<FirebaseAuthDataSource>()),
+    () => AuthRepositoryImpl(getIt<AuthDataSource>()),
   );
 
   // Use cases

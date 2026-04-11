@@ -65,6 +65,16 @@
 				<string>cryptowave</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>site.tunckankilic.cryptoFlow.cognito</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>cryptoflow</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

@@ -9,6 +9,9 @@
 /// - Cloud sync service
 library;
 
+// Config
+export 'config/config.dart';
+
 // Constants
 export 'constants/api_endpoints.dart';
 export 'constants/app_constants.dart';

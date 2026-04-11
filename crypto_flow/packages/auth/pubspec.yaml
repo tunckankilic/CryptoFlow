@@ -25,10 +25,15 @@ dependencies:
   # Firebase
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
-  
+
   # Social Sign In
   google_sign_in: ^6.2.2
   sign_in_with_apple: ^5.0.0
+
+  # AWS Amplify (Cognito) — feature-flagged alongside Firebase
+  amplify_flutter: ^2.6.1
+  amplify_auth_cognito: ^2.6.1
+  collection: ^1.18.0
   
   # Secure Storage
   flutter_secure_storage: ^9.0.0

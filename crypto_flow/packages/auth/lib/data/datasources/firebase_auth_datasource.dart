@@ -3,21 +3,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import '../models/app_user_model.dart';
 import '../../domain/entities/app_user.dart';
+import 'auth_data_source.dart';
 
-/// Exception thrown by Firebase Auth operations
-class AuthException implements Exception {
-  final String message;
-  final String? code;
-
-  const AuthException(this.message, {this.code});
-
-  @override
-  String toString() =>
-      'AuthException: $message${code != null ? ' ($code)' : ''}';
-}
-
-/// Firebase Authentication data source
-class FirebaseAuthDataSource {
+/// Firebase Authentication data source.
+class FirebaseAuthDataSource implements AuthDataSource {
   final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
 
@@ -27,13 +16,12 @@ class FirebaseAuthDataSource {
   })  : _auth = auth ?? FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn();
 
-  /// Stream of auth state changes
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  @override
+  Stream<AppUserModel?> get authStateChanges => _auth.authStateChanges().map(
+        (user) => user == null ? null : AppUserModel.fromFirebaseUser(user),
+      );
 
-  /// Get current Firebase user
-  User? get currentUser => _auth.currentUser;
-
-  /// Sign in with Google
+  @override
   Future<AppUserModel> signInWithGoogle() async {
     try {
       // Trigger the authentication flow
@@ -78,7 +66,7 @@ class FirebaseAuthDataSource {
     }
   }
 
-  /// Sign in with Apple
+  @override
   Future<AppUserModel> signInWithApple() async {
     try {
       final appleProvider = AppleAuthProvider()
@@ -137,7 +125,7 @@ class FirebaseAuthDataSource {
     }
   }
 
-  /// Sign in anonymously
+  @override
   Future<AppUserModel> signInAnonymously() async {
     try {
       final userCredential = await _auth
@@ -176,7 +164,7 @@ class FirebaseAuthDataSource {
     }
   }
 
-  /// Sign out
+  @override
   Future<void> signOut() async {
     try {
       // Sign out from Google if signed in
@@ -193,7 +181,7 @@ class FirebaseAuthDataSource {
     }
   }
 
-  /// Delete user account
+  @override
   Future<void> deleteAccount() async {
     try {
       final user = _auth.currentUser;
@@ -212,8 +200,8 @@ class FirebaseAuthDataSource {
     }
   }
 
-  /// Get current user as AppUserModel
-  AppUserModel? getCurrentUser() {
+  @override
+  Future<AppUserModel?> getCurrentUser() async {
     final user = _auth.currentUser;
     if (user == null) return null;
     return AppUserModel.fromFirebaseUser(user);

@@ -1,3 +1,4 @@
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart' as cognito;
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 
 import '../../domain/entities/app_user.dart';
@@ -48,6 +49,58 @@ class AppUserModel extends AppUser {
       createdAt: user.metadata.creationTime ?? DateTime.now(),
       lastLoginAt: user.metadata.lastSignInTime ?? DateTime.now(),
     );
+  }
+
+  /// Create from a Cognito [AuthUser] + the result of `fetchUserAttributes`.
+  ///
+  /// Cognito does not expose `creationDate` or `lastLogin` via
+  /// `fetchUserAttributes`, so both fall back to "now" — that's acceptable
+  /// because the app only uses these fields for display purposes.
+  factory AppUserModel.fromCognitoUser({
+    required cognito.AuthUser authUser,
+    required List<cognito.AuthUserAttribute> attributes,
+    AuthProvider? provider,
+  }) {
+    String? attr(String key) {
+      for (final a in attributes) {
+        if (a.userAttributeKey.key == key) return a.value;
+      }
+      return null;
+    }
+
+    final inferredProvider = provider ??
+        _providerFromCognitoIdentities(attr('identities')) ??
+        AuthProvider.email;
+
+    return AppUserModel(
+      uid: authUser.userId, // Cognito sub
+      email: attr('email'),
+      displayName: attr('name') ??
+          attr('preferred_username') ??
+          attr('given_name'),
+      photoUrl: attr('picture'),
+      provider: inferredProvider,
+      createdAt: DateTime.now(),
+      lastLoginAt: DateTime.now(),
+    );
+  }
+
+  /// Cognito stores federated identities as a JSON string in the
+  /// `identities` attribute, e.g.
+  /// `[{"providerName":"Google","providerType":"Google", ...}]`.
+  ///
+  /// We do a tiny substring match to avoid pulling in `dart:convert` for
+  /// such a small need.
+  static AuthProvider? _providerFromCognitoIdentities(String? identities) {
+    if (identities == null || identities.isEmpty) return null;
+    final lower = identities.toLowerCase();
+    if (lower.contains('signinwithapple') || lower.contains('"apple"')) {
+      return AuthProvider.apple;
+    }
+    if (lower.contains('"google"')) {
+      return AuthProvider.google;
+    }
+    return null;
   }
 
   /// Convert to JSON for storage

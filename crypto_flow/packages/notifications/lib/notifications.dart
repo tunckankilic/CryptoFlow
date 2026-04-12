@@ -15,7 +15,9 @@ export 'data/models/fcm_message_model.dart';
 export 'data/datasources/fcm_datasource.dart';
 export 'data/datasources/local_notification_datasource.dart';
 export 'data/datasources/notification_settings_local_datasource.dart';
+export 'data/datasources/notification_remote_datasource.dart';
 export 'data/repositories/notification_repository_impl.dart';
+export 'data/repositories/notification_aws_repository_impl.dart';
 
 // Presentation
 export 'presentation/bloc/notification_bloc.dart';

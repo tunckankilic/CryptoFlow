@@ -1,3 +1,4 @@
+import 'package:core/core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -17,7 +18,7 @@ Future<void> initNotificationModule(GetIt sl) async {
   sl.registerLazySingleton(() => FirebaseMessaging.instance);
   sl.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
 
-  // Datasources
+  // Datasources (always registered — local push display stays regardless)
   sl.registerLazySingleton<FCMDatasource>(
     () => FCMDatasource(sl()),
   );
@@ -30,14 +31,30 @@ Future<void> initNotificationModule(GetIt sl) async {
     () => NotificationSettingsLocalDatasource(),
   );
 
-  // Repository
-  sl.registerLazySingleton<NotificationRepository>(
-    () => NotificationRepositoryImpl(
-      fcmDatasource: sl(),
-      localNotificationDatasource: sl(),
-      settingsLocalDatasource: sl(),
-    ),
-  );
+  // Repository — feature-flag conditional
+  if (FeatureFlags.useAwsBackend) {
+    sl.registerLazySingleton<NotificationRemoteDataSource>(
+      () => NotificationRemoteDataSourceImpl(
+        apiClient: sl<AwsApiClient>(),
+      ),
+    );
+    sl.registerLazySingleton<NotificationRepository>(
+      () => NotificationAwsRepositoryImpl(
+        fcmDatasource: sl(),
+        localNotificationDatasource: sl(),
+        settingsLocalDatasource: sl(),
+        remoteDataSource: sl(),
+      ),
+    );
+  } else {
+    sl.registerLazySingleton<NotificationRepository>(
+      () => NotificationRepositoryImpl(
+        fcmDatasource: sl(),
+        localNotificationDatasource: sl(),
+        settingsLocalDatasource: sl(),
+      ),
+    );
+  }
 
   // Use cases
   sl.registerLazySingleton(

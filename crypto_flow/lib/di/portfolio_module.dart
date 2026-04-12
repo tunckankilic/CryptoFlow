@@ -1,3 +1,4 @@
+import 'package:core/core.dart';
 import 'package:portfolio/portfolio.dart';
 
 import 'injection_container.dart';
@@ -8,7 +9,7 @@ Future<void> registerPortfolioModule() async {
   final database = PortfolioDatabase();
   getIt.registerSingleton<PortfolioDatabase>(database);
 
-  // Data sources
+  // Local data sources (always registered — used as cache even in AWS mode)
   getIt.registerLazySingleton<PortfolioLocalDataSource>(
     () => PortfolioLocalDataSource(getIt<PortfolioDatabase>()),
   );
@@ -22,19 +23,48 @@ Future<void> registerPortfolioModule() async {
     () => TagDao(getIt<PortfolioDatabase>()),
   );
 
-  // Repositories
-  getIt.registerLazySingleton<PortfolioRepository>(
-    () => PortfolioRepositoryImpl(
-      localDataSource: getIt<PortfolioLocalDataSource>(),
-    ),
-  );
+  // Repositories — feature-flag conditional
+  if (FeatureFlags.useAwsBackend) {
+    // Remote data sources
+    getIt.registerLazySingleton<PortfolioRemoteDataSource>(
+      () => PortfolioRemoteDataSourceImpl(
+        apiClient: getIt<AwsApiClient>(),
+      ),
+    );
+    getIt.registerLazySingleton<JournalRemoteDataSource>(
+      () => JournalRemoteDataSourceImpl(
+        apiClient: getIt<AwsApiClient>(),
+      ),
+    );
 
-  getIt.registerLazySingleton<JournalRepository>(
-    () => JournalRepositoryImpl(
-      journalDao: getIt<JournalDao>(),
-      tagDao: getIt<TagDao>(),
-    ),
-  );
+    // AWS repository implementations
+    getIt.registerLazySingleton<PortfolioRepository>(
+      () => PortfolioAwsRepositoryImpl(
+        remoteDataSource: getIt<PortfolioRemoteDataSource>(),
+        localDataSource: getIt<PortfolioLocalDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<JournalRepository>(
+      () => JournalAwsRepositoryImpl(
+        remoteDataSource: getIt<JournalRemoteDataSource>(),
+        journalDao: getIt<JournalDao>(),
+        tagDao: getIt<TagDao>(),
+      ),
+    );
+  } else {
+    // Local-only repository implementations (legacy)
+    getIt.registerLazySingleton<PortfolioRepository>(
+      () => PortfolioRepositoryImpl(
+        localDataSource: getIt<PortfolioLocalDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<JournalRepository>(
+      () => JournalRepositoryImpl(
+        journalDao: getIt<JournalDao>(),
+        tagDao: getIt<TagDao>(),
+      ),
+    );
+  }
 
   // Portfolio Use cases
   getIt.registerLazySingleton(() => GetHoldings(getIt<PortfolioRepository>()));
@@ -70,6 +100,7 @@ Future<void> registerPortfolioModule() async {
       addTransaction: getIt<AddTransaction>(),
       getPortfolioValue: getIt<GetPortfolioValue>(),
       repository: getIt<PortfolioRepository>(),
+      widgetDataService: getIt<WidgetDataService>(),
     ),
   );
 

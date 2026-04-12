@@ -20,8 +20,10 @@ export 'domain/usecases/toggle_alert.dart';
 export 'data/models/price_alert_model.dart';
 
 export 'data/datasources/alert_local_datasource.dart';
+export 'data/datasources/alert_remote_datasource.dart';
 
 export 'data/repositories/alert_repository_impl.dart';
+export 'data/repositories/alert_aws_repository_impl.dart';
 
 // Presentation layer
 export 'presentation/bloc/alert_bloc.dart';

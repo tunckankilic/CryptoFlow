@@ -57,6 +57,7 @@ Future<void> registerMarketModule() async {
     () => TickerListBloc(
       marketRepository: getIt<MarketRepository>(),
       wsRepository: getIt<WebSocketRepository>(),
+      widgetDataService: getIt<WidgetDataService>(),
     ),
   );
 
@@ -82,6 +83,9 @@ Future<void> registerMarketModule() async {
   );
 
   getIt.registerFactory<FearGreedBloc>(
-    () => FearGreedBloc(getIt<FearGreedDatasource>()),
+    () => FearGreedBloc(
+      getIt<FearGreedDatasource>(),
+      widgetDataService: getIt<WidgetDataService>(),
+    ),
   );
 }

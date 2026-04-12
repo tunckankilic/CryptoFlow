@@ -23,6 +23,9 @@ export 'data/datasources/auth_data_source.dart';
 export 'data/datasources/firebase_auth_datasource.dart';
 export 'data/datasources/cognito_auth_datasource.dart';
 
+// Data - Network
+export 'data/network/cognito_token_provider.dart';
+
 // Data - Repositories
 export 'data/repositories/auth_repository_impl.dart';
 

@@ -1,10 +1,11 @@
+import 'package:core/core.dart';
 import 'package:watchlist/watchlist.dart';
 
 import 'injection_container.dart';
 
 /// Register watchlist dependencies
 Future<void> registerWatchlistModule() async {
-  // Data sources (no Impl suffix - class is named WatchlistLocalDataSource)
+  // Local data source (always registered — used as cache even in AWS mode)
   final watchlistDataSource = WatchlistLocalDataSource();
   await watchlistDataSource.init();
 
@@ -12,12 +13,26 @@ Future<void> registerWatchlistModule() async {
     () => watchlistDataSource,
   );
 
-  // Repositories
-  getIt.registerLazySingleton<WatchlistRepository>(
-    () => WatchlistRepositoryImpl(
-      localDataSource: getIt<WatchlistLocalDataSource>(),
-    ),
-  );
+  // Repositories — feature-flag conditional
+  if (FeatureFlags.useAwsBackend) {
+    getIt.registerLazySingleton<WatchlistRemoteDataSource>(
+      () => WatchlistRemoteDataSourceImpl(
+        apiClient: getIt<AwsApiClient>(),
+      ),
+    );
+    getIt.registerLazySingleton<WatchlistRepository>(
+      () => WatchlistAwsRepositoryImpl(
+        remoteDataSource: getIt<WatchlistRemoteDataSource>(),
+        localDataSource: getIt<WatchlistLocalDataSource>(),
+      ),
+    );
+  } else {
+    getIt.registerLazySingleton<WatchlistRepository>(
+      () => WatchlistRepositoryImpl(
+        localDataSource: getIt<WatchlistLocalDataSource>(),
+      ),
+    );
+  }
 
   // Use cases
   getIt.registerLazySingleton(() => GetWatchlist(getIt<WatchlistRepository>()));

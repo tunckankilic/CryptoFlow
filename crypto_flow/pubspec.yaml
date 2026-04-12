@@ -55,6 +55,9 @@ dependencies:
   # AWS Amplify (Cognito auth) — coexists with Firebase behind useCognitoAuth flag
   amplify_flutter: ^2.6.1
   amplify_auth_cognito: ^2.6.1
+
+  # WidgetKit bridge (iOS home screen widgets)
+  home_widget: ^0.7.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

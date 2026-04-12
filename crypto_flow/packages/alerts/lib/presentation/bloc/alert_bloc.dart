@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:alerts/domain/entities/price_alert.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/services/cloud_sync_service.dart';
+import 'package:core/services/widget_data_service.dart';
 import '../../domain/usecases/get_alerts.dart';
 import '../../domain/usecases/create_alert.dart';
 import '../../domain/usecases/delete_alert.dart';
@@ -22,6 +23,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
   final CheckAlerts checkAlerts;
   final AlertRepository repository;
   final CloudSyncService? cloudSyncService;
+  final WidgetDataService? widgetDataService;
   final NotificationRepository? notificationRepository;
   final String? userId;
 
@@ -35,6 +37,7 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     required this.checkAlerts,
     required this.repository,
     this.cloudSyncService,
+    this.widgetDataService,
     this.notificationRepository,
     this.userId,
   }) : super(const AlertInitial()) {
@@ -186,10 +189,29 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         typedAlerts.where((a) => a.isActive && !a.isTriggered).toList();
     final triggeredAlerts = typedAlerts.where((a) => a.isTriggered).toList();
 
-    return AlertLoaded(
+    final loaded = AlertLoaded(
       alerts: typedAlerts,
       activeAlerts: activeAlerts,
       triggeredAlerts: triggeredAlerts,
+    );
+    _pushAlertDataToWidget(loaded);
+    return loaded;
+  }
+
+  /// Push alert summary to iOS home screen widget.
+  void _pushAlertDataToWidget(AlertLoaded loaded) {
+    if (widgetDataService == null) return;
+    final recentAlerts = loaded.alerts.take(5).map((a) => {
+          'symbol': a.symbol,
+          'type': a.type.toJson(),
+          'targetPrice': a.targetPrice,
+          'status': a.isTriggered ? 'triggered' : (a.isActive ? 'active' : 'disabled'),
+        }).toList();
+
+    widgetDataService!.updateAlertData(
+      activeCount: loaded.activeAlerts.length,
+      triggeredCount: loaded.triggeredAlerts.length,
+      recentAlerts: recentAlerts,
     );
   }
 

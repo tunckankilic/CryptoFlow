@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/network/websocket_client.dart';
+import 'package:core/services/widget_data_service.dart';
 import '../../../domain/entities/ticker.dart';
 import '../../../domain/repositories/market_repository.dart';
 import '../../../domain/repositories/websocket_repository.dart';
@@ -11,6 +12,7 @@ import 'ticker_list_state.dart';
 class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
   final MarketRepository _marketRepository;
   final WebSocketRepository _wsRepository;
+  final WidgetDataService? _widgetDataService;
 
   StreamSubscription? _tickerSubscription;
   StreamSubscription? _statusSubscription;
@@ -24,11 +26,16 @@ class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
   final _pendingUpdates = <String, Ticker>{};
   Timer? _batchTimer;
 
+  // Throttle widget updates (every 60s, not every 100ms batch)
+  DateTime? _lastWidgetUpdate;
+
   TickerListBloc({
     required MarketRepository marketRepository,
     required WebSocketRepository wsRepository,
+    WidgetDataService? widgetDataService,
   })  : _marketRepository = marketRepository,
         _wsRepository = wsRepository,
+        _widgetDataService = widgetDataService,
         super(const TickerListInitial()) {
     on<LoadTickers>(_onLoadTickers);
     on<SubscribeToTickers>(_onSubscribe);
@@ -156,7 +163,28 @@ class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
       }
     }
 
-    emit(_buildLoadedState());
+    final loadedState = _buildLoadedState();
+    emit(loadedState);
+    _pushTickerDataToWidget(loadedState);
+  }
+
+  /// Push top tickers to the iOS home screen widget (throttled to 60s).
+  void _pushTickerDataToWidget(TickerListLoaded loaded) {
+    if (_widgetDataService == null) return;
+    final now = DateTime.now();
+    if (_lastWidgetUpdate != null &&
+        now.difference(_lastWidgetUpdate!).inSeconds < 60) {
+      return;
+    }
+    _lastWidgetUpdate = now;
+
+    final top = loaded.filteredTickers.take(10).map((t) => {
+          'symbol': t.symbol,
+          'price': t.price,
+          'change24h': t.priceChange,
+          'changePercent24h': t.priceChangePercent,
+        }).toList();
+    _widgetDataService!.updateTickerData(top);
   }
 
   /// Handle connection errors

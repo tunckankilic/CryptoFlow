@@ -34,5 +34,8 @@ void main() async {
     await _configureAmplify();
   }
 
+  // Initialize WidgetKit data bridge
+  await getIt<WidgetDataService>().initialize();
+
   runApp(const CryptoWaveApp());
 }

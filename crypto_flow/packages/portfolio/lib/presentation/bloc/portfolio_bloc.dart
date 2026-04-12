@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/services/cloud_sync_service.dart';
+import 'package:core/services/widget_data_service.dart';
 import '../../domain/usecases/add_transaction.dart';
 import '../../domain/usecases/get_holdings.dart';
 import '../../domain/usecases/get_portfolio_value.dart';
@@ -17,6 +18,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
   final GetPortfolioValue getPortfolioValue;
   final PortfolioRepository repository;
   final CloudSyncService? cloudSyncService;
+  final WidgetDataService? widgetDataService;
   final String? userId;
 
   StreamSubscription? _holdingsSubscription;
@@ -29,6 +31,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     required this.getPortfolioValue,
     required this.repository,
     this.cloudSyncService,
+    this.widgetDataService,
     this.userId,
   }) : super(const PortfolioInitial()) {
     on<LoadPortfolio>(_onLoadPortfolio);
@@ -217,10 +220,12 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
           emit(PortfolioError(message: failure.message));
         },
         (summary) {
-          emit(currentState.copyWith(
+          final loaded = currentState.copyWith(
             summary: summary,
             currentPrices: _currentPrices,
-          ));
+          );
+          emit(loaded);
+          _pushPortfolioToWidget(loaded);
         },
       );
     }
@@ -236,6 +241,28 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     if (state is PortfolioLoaded && _currentPrices.isNotEmpty) {
       add(UpdatePrices(_currentPrices));
     }
+  }
+
+  /// Push portfolio data to iOS home screen widget.
+  void _pushPortfolioToWidget(PortfolioLoaded loaded) {
+    if (widgetDataService == null) return;
+    final s = loaded.summary;
+    final topHoldings = s.holdings.take(5).map((h) {
+      final pct = s.allocation[h.symbol] ?? 0;
+      final price = _currentPrices[h.symbol] ?? 0;
+      return {
+        'symbol': h.baseAsset,
+        'value': h.quantity * price,
+        'percentage': pct,
+      };
+    }).toList();
+
+    widgetDataService!.updatePortfolioData(
+      totalValue: s.totalValue,
+      pnl: s.totalPnl,
+      pnlPercentage: s.totalPnlPercent,
+      topHoldings: topHoldings,
+    );
   }
 
   @override

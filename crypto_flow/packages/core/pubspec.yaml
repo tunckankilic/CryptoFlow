@@ -21,6 +21,9 @@ dependencies:
   # Utils
   intl: ^0.18.0
   share_plus: ^10.1.3
-  
+
+  # WidgetKit bridge
+  home_widget: ^0.7.0
+
   flutter:
     sdk: flutter

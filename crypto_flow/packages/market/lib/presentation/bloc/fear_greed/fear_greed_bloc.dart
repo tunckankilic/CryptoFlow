@@ -6,8 +6,13 @@ import 'fear_greed_state.dart';
 /// BLoC for Fear & Greed Index
 class FearGreedBloc extends Bloc<FearGreedEvent, FearGreedState> {
   final FearGreedDatasource _datasource;
+  final WidgetDataService? _widgetDataService;
 
-  FearGreedBloc(this._datasource) : super(const FearGreedInitial()) {
+  FearGreedBloc(
+    this._datasource, {
+    WidgetDataService? widgetDataService,
+  }) : _widgetDataService = widgetDataService,
+       super(const FearGreedInitial()) {
     on<LoadFearGreedIndex>(_onLoad);
   }
 
@@ -20,6 +25,10 @@ class FearGreedBloc extends Bloc<FearGreedEvent, FearGreedState> {
     try {
       final index = await _datasource.getFearGreedIndex();
       emit(FearGreedLoaded(index));
+      _widgetDataService?.updateFearGreedData(
+        value: index.value,
+        label: index.classification,
+      );
     } on ServerException catch (e) {
       emit(FearGreedError(e.message));
     } catch (e) {

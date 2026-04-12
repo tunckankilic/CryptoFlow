@@ -1,11 +1,12 @@
 import 'package:alerts/alerts.dart';
+import 'package:core/core.dart';
 import 'package:notifications/notifications.dart';
 
 import 'injection_container.dart';
 
 /// Register alerts dependencies
 Future<void> registerAlertsModule() async {
-  // Data sources (no Impl suffix - class is named AlertLocalDataSource)
+  // Local data source (always registered — used as cache even in AWS mode)
   final alertDataSource = AlertLocalDataSource();
   await alertDataSource.init();
 
@@ -13,12 +14,26 @@ Future<void> registerAlertsModule() async {
     () => alertDataSource,
   );
 
-  // Repositories
-  getIt.registerLazySingleton<AlertRepository>(
-    () => AlertRepositoryImpl(
-      localDataSource: getIt<AlertLocalDataSource>(),
-    ),
-  );
+  // Repositories — feature-flag conditional
+  if (FeatureFlags.useAwsBackend) {
+    getIt.registerLazySingleton<AlertRemoteDataSource>(
+      () => AlertRemoteDataSourceImpl(
+        apiClient: getIt<AwsApiClient>(),
+      ),
+    );
+    getIt.registerLazySingleton<AlertRepository>(
+      () => AlertAwsRepositoryImpl(
+        remoteDataSource: getIt<AlertRemoteDataSource>(),
+        localDataSource: getIt<AlertLocalDataSource>(),
+      ),
+    );
+  } else {
+    getIt.registerLazySingleton<AlertRepository>(
+      () => AlertRepositoryImpl(
+        localDataSource: getIt<AlertLocalDataSource>(),
+      ),
+    );
+  }
 
   // Use cases
   getIt.registerLazySingleton(() => GetAlerts(getIt<AlertRepository>()));
@@ -36,6 +51,7 @@ Future<void> registerAlertsModule() async {
       toggleAlert: getIt<ToggleAlert>(),
       checkAlerts: getIt<CheckAlerts>(),
       repository: getIt<AlertRepository>(),
+      widgetDataService: getIt<WidgetDataService>(),
       notificationRepository: getIt.isRegistered<NotificationRepository>()
           ? getIt<NotificationRepository>()
           : null,

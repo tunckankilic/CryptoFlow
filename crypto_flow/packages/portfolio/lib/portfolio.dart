@@ -45,9 +45,13 @@ export 'data/models/journal_tag_model.dart';
 export 'data/models/trading_stats_model.dart';
 
 export 'data/datasources/portfolio_local_datasource.dart';
+export 'data/datasources/portfolio_remote_datasource.dart';
+export 'data/datasources/journal_remote_datasource.dart';
 
 export 'data/repositories/portfolio_repository_impl.dart';
+export 'data/repositories/portfolio_aws_repository_impl.dart';
 export 'data/repositories/journal_repository_impl.dart';
+export 'data/repositories/journal_aws_repository_impl.dart';
 
 export 'data/services/pdf_report_service.dart';
 

@@ -25,13 +25,16 @@ class NotificationSettingsModelAdapter
       soundEnabled: fields[4] as bool,
       vibrationEnabled: fields[5] as bool,
       fcmToken: fields[6] as String?,
+      whaleAlerts: fields[7] == null ? false : fields[7] as bool,
+      fundingRateAlerts: fields[8] == null ? false : fields[8] as bool,
+      sentimentAlerts: fields[9] == null ? false : fields[9] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, NotificationSettingsModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.priceAlerts)
       ..writeByte(1)
@@ -45,7 +48,13 @@ class NotificationSettingsModelAdapter
       ..writeByte(5)
       ..write(obj.vibrationEnabled)
       ..writeByte(6)
-      ..write(obj.fcmToken);
+      ..write(obj.fcmToken)
+      ..writeByte(7)
+      ..write(obj.whaleAlerts)
+      ..writeByte(8)
+      ..write(obj.fundingRateAlerts)
+      ..writeByte(9)
+      ..write(obj.sentimentAlerts);
   }
 
   @override

@@ -33,6 +33,9 @@ export 'network/token_provider.dart';
 export 'network/websocket_client.dart';
 export 'network/fear_greed_datasource.dart';
 
+// Models
+export 'models/exchange_source.dart';
+
 // Entities
 export 'entities/fear_greed_index.dart';
 

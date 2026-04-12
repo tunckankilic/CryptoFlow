@@ -34,6 +34,18 @@ class NotificationSettingsModel extends NotificationSettings {
   @override
   final String? fcmToken;
 
+  @HiveField(7, defaultValue: false)
+  @override
+  final bool whaleAlerts;
+
+  @HiveField(8, defaultValue: false)
+  @override
+  final bool fundingRateAlerts;
+
+  @HiveField(9, defaultValue: false)
+  @override
+  final bool sentimentAlerts;
+
   const NotificationSettingsModel({
     required this.priceAlerts,
     required this.portfolioAlerts,
@@ -41,6 +53,9 @@ class NotificationSettingsModel extends NotificationSettings {
     required this.marketUpdates,
     required this.soundEnabled,
     required this.vibrationEnabled,
+    this.whaleAlerts = false,
+    this.fundingRateAlerts = false,
+    this.sentimentAlerts = false,
     this.fcmToken,
   }) : super(
           priceAlerts: priceAlerts,
@@ -49,6 +64,9 @@ class NotificationSettingsModel extends NotificationSettings {
           marketUpdates: marketUpdates,
           soundEnabled: soundEnabled,
           vibrationEnabled: vibrationEnabled,
+          whaleAlerts: whaleAlerts,
+          fundingRateAlerts: fundingRateAlerts,
+          sentimentAlerts: sentimentAlerts,
           fcmToken: fcmToken,
         );
 
@@ -61,6 +79,9 @@ class NotificationSettingsModel extends NotificationSettings {
       marketUpdates: entity.marketUpdates,
       soundEnabled: entity.soundEnabled,
       vibrationEnabled: entity.vibrationEnabled,
+      whaleAlerts: entity.whaleAlerts,
+      fundingRateAlerts: entity.fundingRateAlerts,
+      sentimentAlerts: entity.sentimentAlerts,
       fcmToken: entity.fcmToken,
     );
   }
@@ -74,6 +95,9 @@ class NotificationSettingsModel extends NotificationSettings {
       marketUpdates: json['marketUpdates'] as bool? ?? false,
       soundEnabled: json['soundEnabled'] as bool? ?? true,
       vibrationEnabled: json['vibrationEnabled'] as bool? ?? true,
+      whaleAlerts: json['whaleAlerts'] as bool? ?? false,
+      fundingRateAlerts: json['fundingRateAlerts'] as bool? ?? false,
+      sentimentAlerts: json['sentimentAlerts'] as bool? ?? false,
       fcmToken: json['fcmToken'] as String?,
     );
   }
@@ -87,6 +111,9 @@ class NotificationSettingsModel extends NotificationSettings {
       'marketUpdates': marketUpdates,
       'soundEnabled': soundEnabled,
       'vibrationEnabled': vibrationEnabled,
+      'whaleAlerts': whaleAlerts,
+      'fundingRateAlerts': fundingRateAlerts,
+      'sentimentAlerts': sentimentAlerts,
       'fcmToken': fcmToken,
     };
   }
@@ -100,6 +127,9 @@ class NotificationSettingsModel extends NotificationSettings {
     bool? marketUpdates,
     bool? soundEnabled,
     bool? vibrationEnabled,
+    bool? whaleAlerts,
+    bool? fundingRateAlerts,
+    bool? sentimentAlerts,
     String? fcmToken,
   }) {
     return NotificationSettingsModel(
@@ -109,6 +139,9 @@ class NotificationSettingsModel extends NotificationSettings {
       marketUpdates: marketUpdates ?? this.marketUpdates,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+      whaleAlerts: whaleAlerts ?? this.whaleAlerts,
+      fundingRateAlerts: fundingRateAlerts ?? this.fundingRateAlerts,
+      sentimentAlerts: sentimentAlerts ?? this.sentimentAlerts,
       fcmToken: fcmToken ?? this.fcmToken,
     );
   }

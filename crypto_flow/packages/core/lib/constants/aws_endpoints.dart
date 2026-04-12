@@ -45,4 +45,25 @@ class AwsEndpoints {
   // Reports
   static const reports = '/api/v1/reports';
   static const generateReport = '/api/v1/reports/generate';
+
+  // Analytics
+  static const performanceAnalytics = '/api/v1/analytics/performance';
+
+  // Tax
+  static const taxGenerateReport = '/api/v1/tax/generate-report';
+  static const taxReports = '/api/v1/tax/reports';
+
+  // Patterns
+  static String patterns(String symbol) => '/api/v1/patterns/$symbol';
+  static String patternSignals(String symbol) =>
+      '/api/v1/patterns/$symbol/signals';
+
+  // Risk
+  static const riskPositionSize = '/api/v1/risk/position-size';
+  static const riskCorrelation = '/api/v1/risk/correlation';
+  static const riskVar = '/api/v1/risk/var';
+
+  // Automation Rules
+  static const automationRules = '/api/v1/automation/rules';
+  static String automationRule(String id) => '/api/v1/automation/rules/$id';
 }

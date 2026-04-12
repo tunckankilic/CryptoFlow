@@ -7,6 +7,10 @@ import { watchlistRoutes } from './watchlist.routes';
 import { notificationsRoutes } from './notifications.routes';
 import { widgetsRoutes } from './widgets.routes';
 import { reportsRoutes } from './reports.routes';
+import { analyticsRoutes } from './analytics.routes';
+import { taxRoutes } from './tax.routes';
+import { riskRoutes } from './risk.routes';
+import { automationRoutes } from './automation.routes';
 
 export const allRoutes: Route[] = [
   ...healthRoutes,
@@ -17,4 +21,8 @@ export const allRoutes: Route[] = [
   ...notificationsRoutes,
   ...widgetsRoutes,
   ...reportsRoutes,
+  ...analyticsRoutes,
+  ...taxRoutes,
+  ...riskRoutes,
+  ...automationRoutes,
 ];

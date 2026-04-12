@@ -88,4 +88,14 @@ Future<void> registerMarketModule() async {
       widgetDataService: getIt<WidgetDataService>(),
     ),
   );
+
+  // Faz 6.4 — Pattern Recognition (AWS only)
+  if (FeatureFlags.useAwsBackend) {
+    getIt.registerLazySingleton<PatternRemoteDataSource>(
+      () => PatternRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+    );
+    getIt.registerFactory<PatternBloc>(
+      () => PatternBloc(dataSource: getIt<PatternRemoteDataSource>()),
+    );
+  }
 }

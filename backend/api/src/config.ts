@@ -28,6 +28,7 @@ export const config = {
     watchlist: required('DDB_WATCHLIST'),
     deviceTokens: required('DDB_DEVICE_TOKENS'),
     wsConnections: required('DDB_WS_CONNECTIONS'),
+    automationRules: optional('DDB_AUTOMATION_RULES') ?? 'automation-rules',
   },
   snsTopicArn: required('SNS_NOTIFICATIONS_TOPIC'),
   reportsBucket: required('REPORTS_BUCKET'),

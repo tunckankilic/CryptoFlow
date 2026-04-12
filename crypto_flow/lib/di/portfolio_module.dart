@@ -93,6 +93,32 @@ Future<void> registerPortfolioModule() async {
   // Services
   getIt.registerLazySingleton(() => PdfReportService());
 
+  // Faz 6 — Performance Analytics & Tax Reporting (AWS only)
+  if (FeatureFlags.useAwsBackend) {
+    getIt.registerLazySingleton<AnalyticsRemoteDataSource>(
+      () => AnalyticsRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+    );
+    getIt.registerLazySingleton<TaxRemoteDataSource>(
+      () => TaxRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+    );
+    getIt.registerFactory<PerformanceBloc>(
+      () => PerformanceBloc(
+        analyticsDataSource: getIt<AnalyticsRemoteDataSource>(),
+      ),
+    );
+    getIt.registerFactory<TaxReportBloc>(
+      () => TaxReportBloc(taxDataSource: getIt<TaxRemoteDataSource>()),
+    );
+
+    // Faz 7.1 — Risk Management
+    getIt.registerLazySingleton<RiskRemoteDataSource>(
+      () => RiskRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+    );
+    getIt.registerFactory<RiskBloc>(
+      () => RiskBloc(dataSource: getIt<RiskRemoteDataSource>()),
+    );
+  }
+
   // BLoCs
   getIt.registerFactory<PortfolioBloc>(
     () => PortfolioBloc(

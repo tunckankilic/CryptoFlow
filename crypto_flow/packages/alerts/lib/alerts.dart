@@ -34,3 +34,10 @@ export 'presentation/pages/alerts_page.dart';
 
 export 'presentation/widgets/alert_tile.dart';
 export 'presentation/widgets/create_alert_sheet.dart';
+
+// Automation Rules (Faz 7.2)
+export 'domain/entities/automation_rule.dart';
+export 'data/models/automation_rule_model.dart';
+export 'data/datasources/automation_remote_datasource.dart';
+export 'presentation/bloc/automation/automation_bloc.dart';
+export 'presentation/pages/automation_builder_page.dart';

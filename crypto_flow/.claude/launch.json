@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Flutter App (Web)",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": ["run", "-d", "web-server", "--web-port", "8080"],
+      "port": 8080
+    },
+    {
+      "name": "Flutter App (Chrome)",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": ["run", "-d", "chrome"],
+      "port": 8080
+    },
+    {
+      "name": "Flutter App (iOS Simulator)",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": ["run", "-d", "iPhone"],
+      "port": 0
+    },
+    {
+      "name": "Backend API (Build & Test)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["test"],
+      "port": 0
+    }
+  ]
+}

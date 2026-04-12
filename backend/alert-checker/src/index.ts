@@ -5,6 +5,10 @@ import { config } from './config';
 import { fetchAllPrices } from './lib/binance';
 import { isTriggered, type EvaluatableAlert } from './services/alert-evaluator';
 import { markTriggered, notifyUser, isInCooldown } from './services/notifier';
+import { detectWhaleActivity } from './services/whale-detector';
+import { checkFundingRates } from './services/funding-rate-monitor';
+import { checkSentimentShift } from './services/sentiment-monitor';
+import { evaluateAutomationRules } from './services/automation-evaluator';
 import { logger } from './logger';
 
 interface AlertRecord extends EvaluatableAlert {
@@ -72,4 +76,45 @@ export const handler: ScheduledHandler = async () => {
     activeAlerts: alerts.length,
     triggered: triggeredCount,
   });
+
+  // ── Smart Notifications (best-effort, failures don't block) ──
+  try {
+    const watchedSymbols = [...new Set(alerts.map((a) => a.symbol))];
+
+    const [whaleAlerts, fundingAlerts, sentimentAlert] = await Promise.all([
+      detectWhaleActivity(watchedSymbols).catch(() => []),
+      checkFundingRates(watchedSymbols).catch(() => []),
+      checkSentimentShift().catch(() => null),
+    ]);
+
+    if (whaleAlerts.length > 0) {
+      logger.info('whale activity detected', { count: whaleAlerts.length });
+    }
+    if (fundingAlerts.length > 0) {
+      logger.info('extreme funding rates', { count: fundingAlerts.length });
+    }
+    if (sentimentAlert) {
+      logger.info('sentiment shift detected', {
+        change: sentimentAlert.change,
+        classification: sentimentAlert.classification,
+      });
+    }
+    // TODO: Send smart notifications to subscribed users via SNS
+  } catch (err) {
+    logger.error('smart notifications check failed', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  // ── Automation Rules (best-effort) ──
+  try {
+    const automationTriggered = await evaluateAutomationRules(prices);
+    if (automationTriggered > 0) {
+      logger.info('automation rules triggered', { count: automationTriggered });
+    }
+  } catch (err) {
+    logger.error('automation rules check failed', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
 };

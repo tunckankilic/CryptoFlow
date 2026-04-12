@@ -42,6 +42,16 @@ Future<void> registerAlertsModule() async {
   getIt.registerLazySingleton(() => ToggleAlert(getIt<AlertRepository>()));
   getIt.registerLazySingleton(() => CheckAlerts(getIt<AlertRepository>()));
 
+  // Faz 7.2 — Automation Rules (AWS only)
+  if (FeatureFlags.useAwsBackend) {
+    getIt.registerLazySingleton<AutomationRemoteDataSource>(
+      () => AutomationRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+    );
+    getIt.registerFactory<AutomationBloc>(
+      () => AutomationBloc(dataSource: getIt<AutomationRemoteDataSource>()),
+    );
+  }
+
   // BLoC
   getIt.registerFactory<AlertBloc>(
     () => AlertBloc(

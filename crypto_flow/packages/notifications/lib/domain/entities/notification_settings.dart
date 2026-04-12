@@ -20,6 +20,15 @@ class NotificationSettings extends Equatable {
   /// Whether notification vibration is enabled
   final bool vibrationEnabled;
 
+  /// Whether whale detection alerts are enabled
+  final bool whaleAlerts;
+
+  /// Whether funding rate alerts are enabled
+  final bool fundingRateAlerts;
+
+  /// Whether sentiment shift alerts are enabled
+  final bool sentimentAlerts;
+
   /// FCM token for this device
   final String? fcmToken;
 
@@ -30,6 +39,9 @@ class NotificationSettings extends Equatable {
     required this.marketUpdates,
     required this.soundEnabled,
     required this.vibrationEnabled,
+    this.whaleAlerts = false,
+    this.fundingRateAlerts = false,
+    this.sentimentAlerts = false,
     this.fcmToken,
   });
 
@@ -42,6 +54,9 @@ class NotificationSettings extends Equatable {
       marketUpdates: false,
       soundEnabled: true,
       vibrationEnabled: true,
+      whaleAlerts: false,
+      fundingRateAlerts: false,
+      sentimentAlerts: false,
       fcmToken: null,
     );
   }
@@ -54,6 +69,9 @@ class NotificationSettings extends Equatable {
     bool? marketUpdates,
     bool? soundEnabled,
     bool? vibrationEnabled,
+    bool? whaleAlerts,
+    bool? fundingRateAlerts,
+    bool? sentimentAlerts,
     String? fcmToken,
   }) {
     return NotificationSettings(
@@ -63,6 +81,9 @@ class NotificationSettings extends Equatable {
       marketUpdates: marketUpdates ?? this.marketUpdates,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+      whaleAlerts: whaleAlerts ?? this.whaleAlerts,
+      fundingRateAlerts: fundingRateAlerts ?? this.fundingRateAlerts,
+      sentimentAlerts: sentimentAlerts ?? this.sentimentAlerts,
       fcmToken: fcmToken ?? this.fcmToken,
     );
   }
@@ -75,6 +96,9 @@ class NotificationSettings extends Equatable {
         marketUpdates,
         soundEnabled,
         vibrationEnabled,
+        whaleAlerts,
+        fundingRateAlerts,
+        sentimentAlerts,
         fcmToken,
       ];
 }

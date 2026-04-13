@@ -52,8 +52,8 @@ Future<void> registerAlertsModule() async {
     );
   }
 
-  // BLoC
-  getIt.registerFactory<AlertBloc>(
+  // BLoC — lazySingleton for global BLoC shared across the app
+  getIt.registerLazySingleton<AlertBloc>(
     () => AlertBloc(
       getAlerts: getIt<GetAlerts>(),
       createAlert: getIt<CreateAlert>(),

@@ -45,8 +45,8 @@ Future<void> registerWatchlistModule() async {
   getIt.registerLazySingleton(
       () => ReorderWatchlist(getIt<WatchlistRepository>()));
 
-  // BLoC
-  getIt.registerFactory<WatchlistBloc>(
+  // BLoC — lazySingleton for global BLoC shared across the app
+  getIt.registerLazySingleton<WatchlistBloc>(
     () => WatchlistBloc(
       getWatchlist: getIt<GetWatchlist>(),
       addToWatchlist: getIt<AddToWatchlist>(),

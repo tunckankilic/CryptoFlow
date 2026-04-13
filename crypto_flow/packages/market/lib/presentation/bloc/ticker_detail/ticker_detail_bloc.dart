@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/ticker.dart';
 import '../../../domain/entities/candle.dart';
@@ -82,8 +83,12 @@ class TickerDetailBloc extends Bloc<TickerDetailEvent, TickerDetailState> {
     // Subscribe to ticker stream
     _tickerSubscription = _wsRepository.getTickerStream(event.symbol).listen(
           (either) => either.fold(
-            (failure) {},
-            (ticker) => add(TickerUpdated(ticker)),
+            (failure) {
+              log('TickerDetailBloc: ticker stream error: ${failure.message}');
+            },
+            (ticker) {
+              if (!isClosed) add(TickerUpdated(ticker));
+            },
           ),
         );
 
@@ -91,8 +96,12 @@ class TickerDetailBloc extends Bloc<TickerDetailEvent, TickerDetailState> {
     _candleSubscription =
         _wsRepository.getCandleStream(event.symbol, _currentInterval).listen(
               (either) => either.fold(
-                (failure) {},
-                (candle) => add(CandleUpdated(candle)),
+                (failure) {
+                  log('TickerDetailBloc: candle stream error: ${failure.message}');
+                },
+                (candle) {
+                  if (!isClosed) add(CandleUpdated(candle));
+                },
               ),
             );
 
@@ -150,8 +159,12 @@ class TickerDetailBloc extends Bloc<TickerDetailEvent, TickerDetailState> {
               .getCandleStream(_currentSymbol!, event.interval)
               .listen(
                 (either) => either.fold(
-                  (failure) {},
-                  (candle) => add(CandleUpdated(candle)),
+                  (failure) {
+                    log('TickerDetailBloc: candle stream error on interval change: ${failure.message}');
+                  },
+                  (candle) {
+                    if (!isClosed) add(CandleUpdated(candle));
+                  },
                 ),
               );
         }

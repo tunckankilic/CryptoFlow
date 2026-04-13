@@ -123,8 +123,8 @@ class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
     // Start timer if not already running
     // This batches multiple rapid updates into a single state emission
     _batchTimer ??= Timer(const Duration(milliseconds: 100), () {
-      // Use add() instead of emit() since emit is not safe in Timer callback
-      if (_pendingUpdates.isNotEmpty) {
+      // Guard: don't call add() on a closed BLoC
+      if (!isClosed && _pendingUpdates.isNotEmpty) {
         add(const FlushBatchedUpdatesEvent());
       }
       _batchTimer = null;

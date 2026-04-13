@@ -81,8 +81,8 @@ Future<void> initNotificationModule(GetIt sl) async {
     () => HandleNotification(sl()),
   );
 
-  // BLoC
-  sl.registerFactory(
+  // BLoC — lazySingleton for global BLoC shared across the app
+  sl.registerLazySingleton(
     () => NotificationBloc(
       initializeNotifications: sl(),
       requestPermission: sl(),

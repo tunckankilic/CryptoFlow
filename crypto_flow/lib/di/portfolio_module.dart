@@ -119,8 +119,8 @@ Future<void> registerPortfolioModule() async {
     );
   }
 
-  // BLoCs
-  getIt.registerFactory<PortfolioBloc>(
+  // BLoCs — lazySingleton for global BLoCs shared across the app
+  getIt.registerLazySingleton<PortfolioBloc>(
     () => PortfolioBloc(
       getHoldings: getIt<GetHoldings>(),
       addTransaction: getIt<AddTransaction>(),
@@ -130,7 +130,7 @@ Future<void> registerPortfolioModule() async {
     ),
   );
 
-  getIt.registerFactory<JournalBloc>(
+  getIt.registerLazySingleton<JournalBloc>(
     () => JournalBloc(
       getJournalEntries: getIt<GetJournalEntries>(),
       addJournalEntry: getIt<AddJournalEntry>(),
@@ -140,7 +140,7 @@ Future<void> registerPortfolioModule() async {
     ),
   );
 
-  getIt.registerFactory<JournalStatsBloc>(
+  getIt.registerLazySingleton<JournalStatsBloc>(
     () => JournalStatsBloc(
       getTradingStats: getIt<GetTradingStats>(),
       getEquityCurve: getIt<GetEquityCurve>(),

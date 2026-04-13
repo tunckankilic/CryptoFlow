@@ -50,8 +50,8 @@ Future<void> registerAuthModule() async {
     () => DeleteAccount(getIt<AuthRepository>()),
   );
 
-  // BLoC
-  getIt.registerFactory<AuthBloc>(
+  // BLoC — lazySingleton because it's a global BLoC shared across the app
+  getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(
       signInWithGoogle: getIt<SignInWithGoogle>(),
       signInWithApple: getIt<SignInWithApple>(),

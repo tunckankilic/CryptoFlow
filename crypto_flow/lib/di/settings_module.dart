@@ -25,8 +25,8 @@ Future<void> registerSettingsModule() async {
   getIt
       .registerLazySingleton(() => UpdateCurrency(getIt<SettingsRepository>()));
 
-  // BLoC
-  getIt.registerFactory<SettingsBloc>(
+  // BLoC — lazySingleton for global BLoC shared across the app
+  getIt.registerLazySingleton<SettingsBloc>(
     () => SettingsBloc(
       getSettings: getIt<GetSettings>(),
       updateTheme: getIt<UpdateTheme>(),

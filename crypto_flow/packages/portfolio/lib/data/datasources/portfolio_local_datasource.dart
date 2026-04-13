@@ -1,4 +1,4 @@
-import 'package:core/error/exceptions.dart';
+import 'package:core/core.dart';
 import 'package:drift/drift.dart';
 import '../../domain/entities/holding.dart';
 import '../../domain/entities/transaction.dart' as domain;
@@ -125,11 +125,8 @@ class PortfolioLocalDataSource {
           final avgBuyPrice = totalCost / totalQuantity;
 
           // Extract base asset from symbol (e.g., "BTC" from "BTCUSDT")
-          final baseAsset = symbol
-              .replaceAll('USDT', '')
-              .replaceAll('BTC', '')
-              .replaceAll('ETH', '')
-              .replaceAll('BNB', '');
+          // Uses shared utility to correctly handle all quote asset suffixes.
+          final baseAsset = SymbolUtils.extractBaseAsset(symbol);
 
           holdings.add(
             Holding(

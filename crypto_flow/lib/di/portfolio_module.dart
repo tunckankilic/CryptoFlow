@@ -23,48 +23,32 @@ Future<void> registerPortfolioModule() async {
     () => TagDao(getIt<PortfolioDatabase>()),
   );
 
-  // Repositories — feature-flag conditional
-  if (FeatureFlags.useAwsBackend) {
-    // Remote data sources
-    getIt.registerLazySingleton<PortfolioRemoteDataSource>(
-      () => PortfolioRemoteDataSourceImpl(
-        apiClient: getIt<AwsApiClient>(),
-      ),
-    );
-    getIt.registerLazySingleton<JournalRemoteDataSource>(
-      () => JournalRemoteDataSourceImpl(
-        apiClient: getIt<AwsApiClient>(),
-      ),
-    );
+  // Remote data sources
+  getIt.registerLazySingleton<PortfolioRemoteDataSource>(
+    () => PortfolioRemoteDataSourceImpl(
+      apiClient: getIt<AwsApiClient>(),
+    ),
+  );
+  getIt.registerLazySingleton<JournalRemoteDataSource>(
+    () => JournalRemoteDataSourceImpl(
+      apiClient: getIt<AwsApiClient>(),
+    ),
+  );
 
-    // AWS repository implementations
-    getIt.registerLazySingleton<PortfolioRepository>(
-      () => PortfolioAwsRepositoryImpl(
-        remoteDataSource: getIt<PortfolioRemoteDataSource>(),
-        localDataSource: getIt<PortfolioLocalDataSource>(),
-      ),
-    );
-    getIt.registerLazySingleton<JournalRepository>(
-      () => JournalAwsRepositoryImpl(
-        remoteDataSource: getIt<JournalRemoteDataSource>(),
-        journalDao: getIt<JournalDao>(),
-        tagDao: getIt<TagDao>(),
-      ),
-    );
-  } else {
-    // Local-only repository implementations (legacy)
-    getIt.registerLazySingleton<PortfolioRepository>(
-      () => PortfolioRepositoryImpl(
-        localDataSource: getIt<PortfolioLocalDataSource>(),
-      ),
-    );
-    getIt.registerLazySingleton<JournalRepository>(
-      () => JournalRepositoryImpl(
-        journalDao: getIt<JournalDao>(),
-        tagDao: getIt<TagDao>(),
-      ),
-    );
-  }
+  // AWS repository implementations
+  getIt.registerLazySingleton<PortfolioRepository>(
+    () => PortfolioAwsRepositoryImpl(
+      remoteDataSource: getIt<PortfolioRemoteDataSource>(),
+      localDataSource: getIt<PortfolioLocalDataSource>(),
+    ),
+  );
+  getIt.registerLazySingleton<JournalRepository>(
+    () => JournalAwsRepositoryImpl(
+      remoteDataSource: getIt<JournalRemoteDataSource>(),
+      journalDao: getIt<JournalDao>(),
+      tagDao: getIt<TagDao>(),
+    ),
+  );
 
   // Portfolio Use cases
   getIt.registerLazySingleton(() => GetHoldings(getIt<PortfolioRepository>()));
@@ -93,31 +77,29 @@ Future<void> registerPortfolioModule() async {
   // Services
   getIt.registerLazySingleton(() => PdfReportService());
 
-  // Faz 6 — Performance Analytics & Tax Reporting (AWS only)
-  if (FeatureFlags.useAwsBackend) {
-    getIt.registerLazySingleton<AnalyticsRemoteDataSource>(
-      () => AnalyticsRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
-    );
-    getIt.registerLazySingleton<TaxRemoteDataSource>(
-      () => TaxRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
-    );
-    getIt.registerFactory<PerformanceBloc>(
-      () => PerformanceBloc(
-        analyticsDataSource: getIt<AnalyticsRemoteDataSource>(),
-      ),
-    );
-    getIt.registerFactory<TaxReportBloc>(
-      () => TaxReportBloc(taxDataSource: getIt<TaxRemoteDataSource>()),
-    );
+  // Performance Analytics & Tax Reporting
+  getIt.registerLazySingleton<AnalyticsRemoteDataSource>(
+    () => AnalyticsRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerLazySingleton<TaxRemoteDataSource>(
+    () => TaxRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerFactory<PerformanceBloc>(
+    () => PerformanceBloc(
+      analyticsDataSource: getIt<AnalyticsRemoteDataSource>(),
+    ),
+  );
+  getIt.registerFactory<TaxReportBloc>(
+    () => TaxReportBloc(taxDataSource: getIt<TaxRemoteDataSource>()),
+  );
 
-    // Faz 7.1 — Risk Management
-    getIt.registerLazySingleton<RiskRemoteDataSource>(
-      () => RiskRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
-    );
-    getIt.registerFactory<RiskBloc>(
-      () => RiskBloc(dataSource: getIt<RiskRemoteDataSource>()),
-    );
-  }
+  // Risk Management
+  getIt.registerLazySingleton<RiskRemoteDataSource>(
+    () => RiskRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerFactory<RiskBloc>(
+    () => RiskBloc(dataSource: getIt<RiskRemoteDataSource>()),
+  );
 
   // BLoCs — lazySingleton for global BLoCs shared across the app
   getIt.registerLazySingleton<PortfolioBloc>(

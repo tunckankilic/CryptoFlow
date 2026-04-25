@@ -24,6 +24,11 @@ variable "notifications_topic_arn" {
   type = string
 }
 
+variable "apns_platform_app_arn" {
+  description = "ARN of the APNs SNS Platform Application (used for CreatePlatformEndpoint and per-device Publish)"
+  type        = string
+}
+
 variable "cognito_user_pool_id" {
   type = string
 }

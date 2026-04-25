@@ -95,7 +95,7 @@ class _TaxReportPageState extends State<TaxReportPage> {
             Text('Tax Year', style: AppTypography.caption),
             const SizedBox(height: AppSpacing.xs),
             DropdownButtonFormField<int>(
-              value: _selectedYear,
+              initialValue: _selectedYear,
               items: List.generate(5, (i) => DateTime.now().year - i)
                   .map((y) =>
                       DropdownMenuItem(value: y, child: Text(y.toString())))
@@ -126,7 +126,7 @@ class _TaxReportPageState extends State<TaxReportPage> {
             Text('Jurisdiction', style: AppTypography.caption),
             const SizedBox(height: AppSpacing.xs),
             DropdownButtonFormField<String>(
-              value: _selectedJurisdiction,
+              initialValue: _selectedJurisdiction,
               items: _jurisdictions
                   .map((j) => DropdownMenuItem(value: j, child: Text(j)))
                   .toList(),
@@ -191,7 +191,8 @@ class _TaxReportPageState extends State<TaxReportPage> {
         if (state is TaxReportListLoaded) ...[
           if (state.reports.isEmpty)
             const Center(
-              child: Text('No past reports', style: TextStyle(color: CryptoColors.textTertiary)),
+              child: Text('No past reports',
+                  style: TextStyle(color: CryptoColors.textTertiary)),
             )
           else
             ...state.reports.map(

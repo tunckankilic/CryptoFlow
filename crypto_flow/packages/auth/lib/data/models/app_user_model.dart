@@ -1,9 +1,8 @@
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart' as cognito;
-import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 
 import '../../domain/entities/app_user.dart';
 
-/// Data model for AppUser with Firebase mapping
+/// Data model for AppUser
 class AppUserModel extends AppUser {
   const AppUserModel({
     required super.uid,
@@ -14,42 +13,6 @@ class AppUserModel extends AppUser {
     required super.createdAt,
     required super.lastLoginAt,
   });
-
-  /// Create from Firebase User
-  factory AppUserModel.fromFirebaseUser(User user, {AuthProvider? provider}) {
-    // Determine provider from Firebase user
-    AuthProvider authProvider = provider ?? AuthProvider.anonymous;
-
-    if (provider == null && user.providerData.isNotEmpty) {
-      final providerId = user.providerData.first.providerId;
-      switch (providerId) {
-        case 'google.com':
-          authProvider = AuthProvider.google;
-          break;
-        case 'apple.com':
-          authProvider = AuthProvider.apple;
-          break;
-        case 'password':
-          authProvider = AuthProvider.email;
-          break;
-        default:
-          authProvider =
-              user.isAnonymous ? AuthProvider.anonymous : AuthProvider.email;
-      }
-    } else if (user.isAnonymous) {
-      authProvider = AuthProvider.anonymous;
-    }
-
-    return AppUserModel(
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoUrl: user.photoURL,
-      provider: authProvider,
-      createdAt: user.metadata.creationTime ?? DateTime.now(),
-      lastLoginAt: user.metadata.lastSignInTime ?? DateTime.now(),
-    );
-  }
 
   /// Create from a Cognito [AuthUser] + the result of `fetchUserAttributes`.
   ///

@@ -40,7 +40,6 @@ export 'models/exchange_source.dart';
 export 'entities/fear_greed_index.dart';
 
 // Services
-export 'services/cloud_sync_service.dart';
 export 'services/share_service.dart';
 export 'services/widget_data_service.dart';
 

@@ -1,16 +1,29 @@
 {
-  "version": "1",
+  "version": "1.4",
   "auth": {
-    "user_pool_id": "eu-central-1_xxxxxxxx",
-    "user_pool_client_id": "<APP_CLIENT_ID>",
-    "identity_pool_id": "eu-central-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "aws_region": "eu-central-1",
+    "aws_region": "<aws-region>",
+    "user_pool_id": "<cognito-user-pool-id>",
+    "user_pool_client_id": "<cognito-app-client-id>",
+    "identity_pool_id": "<cognito-identity-pool-id>",
+    "username_attributes": ["email"],
+    "standard_required_attributes": ["email"],
+    "user_verification_types": ["email"],
+    "unauthenticated_identities_enabled": true,
+    "mfa_configuration": "NONE",
+    "mfa_methods": [],
+    "password_policy": {
+      "min_length": 8,
+      "require_lowercase": true,
+      "require_numbers": true,
+      "require_symbols": false,
+      "require_uppercase": true
+    },
     "oauth": {
-      "domain": "cryptoflow.auth.eu-central-1.amazoncognito.com",
-      "scopes": ["openid", "email", "profile"],
-      "redirect_sign_in_uri": ["cryptoflow://callback"],
-      "redirect_sign_out_uri": ["cryptoflow://signout"],
-      "identity_providers": ["GOOGLE", "SIGN_IN_WITH_APPLE"],
+      "identity_providers": ["SignInWithApple", "Google"],
+      "domain": "<cognito-hosted-ui-domain>",
+      "scopes": ["email", "openid", "profile"],
+      "redirect_sign_in_uri": ["<deep-link-callback>"],
+      "redirect_sign_out_uri": ["<deep-link-signout>"],
       "response_type": "code"
     }
   }

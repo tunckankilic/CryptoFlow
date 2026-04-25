@@ -10,7 +10,7 @@ import 'auth_data_source.dart';
 /// AWS Cognito authentication datasource backed by Amplify Flutter Gen 2.
 ///
 /// Assumes `Amplify.configure()` has already been called from `main.dart`
-/// when `FeatureFlags.useCognitoAuth` is true.
+/// before this datasource is used.
 class CognitoAuthDataSource implements AuthDataSource {
   CognitoAuthDataSource() {
     _authStateController = StreamController<AppUserModel?>.broadcast(

@@ -62,8 +62,13 @@ module "storage" {
 module "messaging" {
   source = "./modules/messaging"
 
-  project_name = var.project_name
-  environment  = var.environment
+  project_name                   = var.project_name
+  environment                    = var.environment
+  apns_team_id                   = var.apns_team_id
+  apns_bundle_id                 = var.apns_bundle_id
+  apns_signing_key_id            = var.apns_signing_key_id
+  apns_signing_key_ssm_parameter = var.apns_signing_key_ssm_parameter
+  apns_use_sandbox               = var.apns_use_sandbox
 }
 
 module "lambda" {
@@ -77,6 +82,7 @@ module "lambda" {
   reports_bucket_arn        = module.storage.reports_bucket_arn
   reports_bucket_name       = module.storage.reports_bucket_name
   notifications_topic_arn   = module.messaging.notifications_topic_arn
+  apns_platform_app_arn     = module.messaging.apns_platform_application_arn
   cognito_user_pool_id      = var.cognito_user_pool_id
   cognito_user_pool_client  = var.cognito_user_pool_client_id
   ws_api_endpoint           = local.ws_api_endpoint

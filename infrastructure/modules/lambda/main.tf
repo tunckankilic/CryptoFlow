@@ -63,16 +63,34 @@ data "aws_iam_policy_document" "lambda_inline" {
   }
 
   statement {
-    sid    = "SNSPublish"
+    sid       = "SNSTopicPublish"
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [var.notifications_topic_arn]
+  }
+
+  statement {
+    sid    = "SNSPlatformEndpointManage"
     effect = "Allow"
     actions = [
-      "sns:Publish",
       "sns:CreatePlatformEndpoint",
       "sns:DeleteEndpoint",
       "sns:GetEndpointAttributes",
       "sns:SetEndpointAttributes",
     ]
-    resources = [var.notifications_topic_arn]
+    resources = [var.apns_platform_app_arn]
+  }
+
+  statement {
+    sid    = "SNSPlatformEndpointPublish"
+    effect = "Allow"
+    actions = [
+      "sns:Publish",
+      "sns:GetEndpointAttributes",
+    ]
+    # Per-device endpoint ARNs are derived from the platform application ARN
+    # (arn:aws:sns:region:account:endpoint/APNS*/<app-name>/<endpoint-uuid>).
+    resources = ["arn:aws:sns:${var.region}:*:endpoint/APNS*/*"]
   }
 
   statement {
@@ -122,7 +140,8 @@ locals {
     AWS_REGION_NAME         = var.region
     COGNITO_USER_POOL_ID    = var.cognito_user_pool_id
     COGNITO_CLIENT_ID       = var.cognito_user_pool_client
-    SNS_NOTIFICATIONS_TOPIC = var.notifications_topic_arn
+    SNS_NOTIFICATIONS_TOPIC    = var.notifications_topic_arn
+    SNS_APPLE_PLATFORM_APP_ARN = var.apns_platform_app_arn
     REPORTS_BUCKET          = var.reports_bucket_name
     DDB_USERS               = var.dynamodb_table_names["users"]
     DDB_USER_SETTINGS       = var.dynamodb_table_names["user_settings"]

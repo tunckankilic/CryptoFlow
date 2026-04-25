@@ -1,7 +1,6 @@
 import 'package:core/core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // Package imports
@@ -15,12 +14,11 @@ Future<void> initNotificationModule(GetIt sl) async {
   }
 
   // External dependencies
-  sl.registerLazySingleton(() => FirebaseMessaging.instance);
   sl.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
 
-  // Datasources (always registered — local push display stays regardless)
-  sl.registerLazySingleton<FCMDatasource>(
-    () => FCMDatasource(sl()),
+  // Datasources
+  sl.registerLazySingleton<ApnsDatasource>(
+    () => ApnsDatasource(sl()),
   );
 
   sl.registerLazySingleton<LocalNotificationDatasource>(
@@ -31,30 +29,20 @@ Future<void> initNotificationModule(GetIt sl) async {
     () => NotificationSettingsLocalDatasource(),
   );
 
-  // Repository — feature-flag conditional
-  if (FeatureFlags.useAwsBackend) {
-    sl.registerLazySingleton<NotificationRemoteDataSource>(
-      () => NotificationRemoteDataSourceImpl(
-        apiClient: sl<AwsApiClient>(),
-      ),
-    );
-    sl.registerLazySingleton<NotificationRepository>(
-      () => NotificationAwsRepositoryImpl(
-        fcmDatasource: sl(),
-        localNotificationDatasource: sl(),
-        settingsLocalDatasource: sl(),
-        remoteDataSource: sl(),
-      ),
-    );
-  } else {
-    sl.registerLazySingleton<NotificationRepository>(
-      () => NotificationRepositoryImpl(
-        fcmDatasource: sl(),
-        localNotificationDatasource: sl(),
-        settingsLocalDatasource: sl(),
-      ),
-    );
-  }
+  // Repository — AWS-only
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(
+      apiClient: sl<AwsApiClient>(),
+    ),
+  );
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationAwsRepositoryImpl(
+      apnsDatasource: sl(),
+      localNotificationDatasource: sl(),
+      settingsLocalDatasource: sl(),
+      remoteDataSource: sl(),
+    ),
+  );
 
   // Use cases
   sl.registerLazySingleton(
@@ -66,7 +54,7 @@ Future<void> initNotificationModule(GetIt sl) async {
   );
 
   sl.registerLazySingleton(
-    () => GetFCMToken(sl()),
+    () => GetPushToken(sl()),
   );
 
   sl.registerLazySingleton(
@@ -86,7 +74,7 @@ Future<void> initNotificationModule(GetIt sl) async {
     () => NotificationBloc(
       initializeNotifications: sl(),
       requestPermission: sl(),
-      getFCMToken: sl(),
+      getPushToken: sl(),
       subscribeToTopic: sl(),
       unsubscribeFromTopic: sl(),
       repository: sl(),

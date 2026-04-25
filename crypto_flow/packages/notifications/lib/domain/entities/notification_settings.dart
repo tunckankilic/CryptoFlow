@@ -29,8 +29,8 @@ class NotificationSettings extends Equatable {
   /// Whether sentiment shift alerts are enabled
   final bool sentimentAlerts;
 
-  /// FCM token for this device
-  final String? fcmToken;
+  /// Push token for this device (APNs token on iOS).
+  final String? pushToken;
 
   const NotificationSettings({
     required this.priceAlerts,
@@ -42,7 +42,7 @@ class NotificationSettings extends Equatable {
     this.whaleAlerts = false,
     this.fundingRateAlerts = false,
     this.sentimentAlerts = false,
-    this.fcmToken,
+    this.pushToken,
   });
 
   /// Default notification settings
@@ -57,7 +57,7 @@ class NotificationSettings extends Equatable {
       whaleAlerts: false,
       fundingRateAlerts: false,
       sentimentAlerts: false,
-      fcmToken: null,
+      pushToken: null,
     );
   }
 
@@ -72,7 +72,7 @@ class NotificationSettings extends Equatable {
     bool? whaleAlerts,
     bool? fundingRateAlerts,
     bool? sentimentAlerts,
-    String? fcmToken,
+    String? pushToken,
   }) {
     return NotificationSettings(
       priceAlerts: priceAlerts ?? this.priceAlerts,
@@ -84,7 +84,7 @@ class NotificationSettings extends Equatable {
       whaleAlerts: whaleAlerts ?? this.whaleAlerts,
       fundingRateAlerts: fundingRateAlerts ?? this.fundingRateAlerts,
       sentimentAlerts: sentimentAlerts ?? this.sentimentAlerts,
-      fcmToken: fcmToken ?? this.fcmToken,
+      pushToken: pushToken ?? this.pushToken,
     );
   }
 
@@ -99,6 +99,6 @@ class NotificationSettings extends Equatable {
         whaleAlerts,
         fundingRateAlerts,
         sentimentAlerts,
-        fcmToken,
+        pushToken,
       ];
 }

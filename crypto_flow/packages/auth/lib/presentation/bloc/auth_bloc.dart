@@ -154,7 +154,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
 
-    // Delete account from Firebase
     final result = await _deleteAccount(const NoParams());
 
     await result.fold(

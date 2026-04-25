@@ -15,7 +15,7 @@ class LocalNotificationDatasource {
 
     // iOS settings
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: false, // We handle this via FCM
+      requestAlertPermission: false, // We request via ApnsDatasource
       requestBadgePermission: false,
       requestSoundPermission: false,
     );

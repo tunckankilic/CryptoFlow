@@ -7,8 +7,8 @@ import '../datasources/auth_data_source.dart';
 
 /// Implementation of [AuthRepository] backed by an injected [AuthDataSource].
 ///
-/// The concrete datasource (Firebase or Cognito) is selected in
-/// `lib/di/auth_module.dart` based on `FeatureFlags.useCognitoAuth`.
+/// The datasource is wired up in `lib/di/auth_module.dart` and is currently
+/// always [CognitoAuthDataSource] (AWS Amplify Auth).
 class AuthRepositoryImpl implements AuthRepository {
   final AuthDataSource _dataSource;
 

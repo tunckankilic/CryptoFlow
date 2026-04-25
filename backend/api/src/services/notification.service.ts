@@ -4,6 +4,11 @@ import {
   GetCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
+import {
+  SNSClient,
+  CreatePlatformEndpointCommand,
+  SetEndpointAttributesCommand,
+} from '@aws-sdk/client-sns';
 import { ddb } from '../lib/ddb';
 import { config } from '../config';
 import { ValidationError } from '../errors';
@@ -13,6 +18,50 @@ import type {
   NotificationPreferences,
   Platform,
 } from '../models/notification';
+
+const sns = new SNSClient({ region: config.region });
+
+// AWS SNS returns InvalidParameter when the device token is already
+// registered as an endpoint. The error message embeds the existing
+// endpoint ARN — parse it so we can update + reuse instead of failing.
+const EXISTING_ENDPOINT_RE = /Endpoint (arn:aws:sns:\S+) already exists/;
+
+async function ensurePlatformEndpoint(
+  platformAppArn: string,
+  deviceToken: string,
+  customUserData: string,
+): Promise<string> {
+  try {
+    const out = await sns.send(
+      new CreatePlatformEndpointCommand({
+        PlatformApplicationArn: platformAppArn,
+        Token: deviceToken,
+        CustomUserData: customUserData,
+      }),
+    );
+    if (!out.EndpointArn) {
+      throw new Error('SNS CreatePlatformEndpoint returned no EndpointArn');
+    }
+    return out.EndpointArn;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const match = msg.match(EXISTING_ENDPOINT_RE);
+    if (!match) throw err;
+    const existingArn = match[1];
+    // Re-enable the endpoint and refresh the token in case it changed.
+    await sns.send(
+      new SetEndpointAttributesCommand({
+        EndpointArn: existingArn,
+        Attributes: {
+          Token: deviceToken,
+          Enabled: 'true',
+          CustomUserData: customUserData,
+        },
+      }),
+    );
+    return existingArn;
+  }
+}
 
 const DEVICE_TTL_DAYS = 60;
 
@@ -29,31 +78,25 @@ export async function registerDevice(
   if (!input.deviceId || !input.token || !input.platform) {
     throw new ValidationError('deviceId, token and platform are required');
   }
-  if (input.platform !== 'ios' && input.platform !== 'android') {
-    throw new ValidationError('platform must be ios or android');
+  if (input.platform !== 'ios') {
+    throw new ValidationError('platform must be ios');
   }
   const now = new Date();
   const expiresAt = Math.floor(now.getTime() / 1000) + DEVICE_TTL_DAYS * 86400;
 
-  // SNS Platform Application stub: when the env var is unset (Faz 2 baseline),
-  // we skip CreatePlatformEndpoint. Real APNs/FCM wiring is a manual step.
-  const platformAppArn =
-    input.platform === 'ios'
-      ? config.snsApplePlatformAppArn
-      : config.snsGooglePlatformAppArn;
-  if (!platformAppArn) {
-    logger.info('SNS platform app not configured — storing device token without endpoint', {
-      userId,
-      platform: input.platform,
-    });
-  }
-  // TODO: when platformAppArn is set, call CreatePlatformEndpoint and store endpointArn
+  const endpointArn = await ensurePlatformEndpoint(
+    config.snsApplePlatformAppArn,
+    input.token,
+    JSON.stringify({ userId, deviceId: input.deviceId }),
+  );
+  logger.info('registered APNs endpoint', { userId, deviceId: input.deviceId, endpointArn });
 
   const item: DeviceToken = {
     userId,
     deviceId: input.deviceId,
     token: input.token,
     platform: input.platform,
+    endpointArn,
     createdAt: now.toISOString(),
     expiresAt,
   };

@@ -7,21 +7,20 @@ import 'package:core/core.dart';
 import '../../domain/entities/notification_settings.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../domain/repositories/notification_repository.dart';
-import '../datasources/fcm_datasource.dart';
+import '../datasources/apns_datasource.dart';
 import '../datasources/local_notification_datasource.dart';
 import '../datasources/notification_settings_local_datasource.dart';
 import '../datasources/notification_remote_datasource.dart';
 
-/// AWS-enhanced [NotificationRepository] implementation.
+/// AWS-backed [NotificationRepository] for iOS / APNs.
 ///
-/// Extends the behaviour of [NotificationRepositoryImpl] by:
-/// - Registering the FCM token with the AWS backend (SNS) on initialise.
-/// - Syncing notification preferences to the AWS backend.
-///
-/// Local notification display (FCM + flutter_local_notifications) remains
-/// unchanged — we still need it for foreground messages.
+/// - Receives APNs token + push payloads from [ApnsDatasource] (native bridge).
+/// - Registers the device token with the SNS-backed CryptoFlow API.
+/// - Syncs notification preferences to the AWS backend.
+/// - Local display continues to use [flutter_local_notifications] via
+///   [LocalNotificationDatasource].
 class NotificationAwsRepositoryImpl implements NotificationRepository {
-  final FCMDatasource fcmDatasource;
+  final ApnsDatasource apnsDatasource;
   final LocalNotificationDatasource localNotificationDatasource;
   final NotificationSettingsLocalDatasource settingsLocalDatasource;
   final NotificationRemoteDataSource remoteDataSource;
@@ -31,7 +30,7 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
   late final StreamController<String> _tokenRefreshController;
 
   NotificationAwsRepositoryImpl({
-    required this.fcmDatasource,
+    required this.apnsDatasource,
     required this.localNotificationDatasource,
     required this.settingsLocalDatasource,
     required this.remoteDataSource,
@@ -40,10 +39,10 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
     _messageOpenedAppController = StreamController<AppNotification>.broadcast();
     _tokenRefreshController = StreamController<String>.broadcast();
 
-    fcmDatasource.onMessage.listen((m) => _messageController.add(m.toEntity()));
-    fcmDatasource.onMessageOpenedApp
+    apnsDatasource.onMessage.listen((m) => _messageController.add(m.toEntity()));
+    apnsDatasource.onMessageOpenedApp
         .listen((m) => _messageOpenedAppController.add(m.toEntity()));
-    fcmDatasource.onTokenRefresh.listen((token) {
+    apnsDatasource.onTokenRefresh.listen((token) {
       _tokenRefreshController.add(token);
       _registerTokenRemotely(token);
     });
@@ -55,11 +54,10 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
   Future<Either<Failure, void>> initialize() async {
     try {
       await settingsLocalDatasource.initialize();
-      await fcmDatasource.initialize();
+      await apnsDatasource.initialize();
       await localNotificationDatasource.initialize();
 
-      // Register token with AWS backend
-      final token = await fcmDatasource.getToken();
+      final token = await apnsDatasource.getToken();
       if (token != null) {
         await _registerTokenRemotely(token);
       }
@@ -87,7 +85,7 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
   @override
   Future<Either<Failure, NotificationSettings>> requestPermission() async {
     try {
-      final settings = await fcmDatasource.requestPermission();
+      final settings = await apnsDatasource.requestPermission();
       await settingsLocalDatasource.saveSettings(settings);
       return Right(settings);
     } catch (e) {
@@ -98,9 +96,9 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
   @override
   Future<Either<Failure, String>> getToken() async {
     try {
-      final token = await fcmDatasource.getToken();
+      final token = await apnsDatasource.getToken();
       if (token == null) {
-        return const Left(CacheFailure(message: 'No FCM token available'));
+        return const Left(CacheFailure(message: 'No push token available'));
       }
       return Right(token);
     } catch (e) {
@@ -113,7 +111,6 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
   @override
   Future<Either<Failure, NotificationSettings>> getSettings() async {
     try {
-      // Try remote first
       final prefs = await remoteDataSource.getPreferences();
       final settings = await settingsLocalDatasource.getSettings();
       final merged = settings.copyWith(
@@ -128,7 +125,6 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
       await settingsLocalDatasource.saveSettings(merged);
       return Right(merged);
     } catch (_) {
-      // Fallback to local
       try {
         return Right(await settingsLocalDatasource.getSettings());
       } catch (e) {
@@ -142,7 +138,6 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
       NotificationSettings settings) async {
     try {
       await settingsLocalDatasource.saveSettings(settings);
-      // Sync to remote
       await remoteDataSource.updatePreferences({
         'priceAlerts': settings.priceAlerts,
         'portfolioAlerts': settings.portfolioAlerts,
@@ -153,32 +148,23 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
       });
       return const Right(null);
     } catch (e) {
-      // Local save succeeded; remote failure is non-fatal.
       return const Right(null);
     }
   }
 
   // ----------------------------------------------------------- Topics
 
+  // SNS architecture publishes per-endpoint, not per-topic. Per-symbol
+  // subscription is handled server-side via alert rules; these calls are
+  // accepted as no-ops so existing UI events keep working.
   @override
   Future<Either<Failure, void>> subscribeToTopic(String topic) async {
-    try {
-      await fcmDatasource.subscribeToTopic(topic);
-      return const Right(null);
-    } catch (e) {
-      return Left(ServerFailure(message: 'Failed to subscribe to topic: $e'));
-    }
+    return const Right(null);
   }
 
   @override
   Future<Either<Failure, void>> unsubscribeFromTopic(String topic) async {
-    try {
-      await fcmDatasource.unsubscribeFromTopic(topic);
-      return const Right(null);
-    } catch (e) {
-      return Left(
-          ServerFailure(message: 'Failed to unsubscribe from topic: $e'));
-    }
+    return const Right(null);
   }
 
   // ------------------------------------------------------- Notifications
@@ -259,6 +245,6 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
     _messageController.close();
     _messageOpenedAppController.close();
     _tokenRefreshController.close();
-    fcmDatasource.dispose();
+    apnsDatasource.dispose();
   }
 }

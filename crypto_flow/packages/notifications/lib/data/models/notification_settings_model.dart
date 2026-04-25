@@ -32,7 +32,7 @@ class NotificationSettingsModel extends NotificationSettings {
 
   @HiveField(6)
   @override
-  final String? fcmToken;
+  final String? pushToken;
 
   @HiveField(7, defaultValue: false)
   @override
@@ -56,7 +56,7 @@ class NotificationSettingsModel extends NotificationSettings {
     this.whaleAlerts = false,
     this.fundingRateAlerts = false,
     this.sentimentAlerts = false,
-    this.fcmToken,
+    this.pushToken,
   }) : super(
           priceAlerts: priceAlerts,
           portfolioAlerts: portfolioAlerts,
@@ -67,7 +67,7 @@ class NotificationSettingsModel extends NotificationSettings {
           whaleAlerts: whaleAlerts,
           fundingRateAlerts: fundingRateAlerts,
           sentimentAlerts: sentimentAlerts,
-          fcmToken: fcmToken,
+          pushToken: pushToken,
         );
 
   /// From domain entity
@@ -82,7 +82,7 @@ class NotificationSettingsModel extends NotificationSettings {
       whaleAlerts: entity.whaleAlerts,
       fundingRateAlerts: entity.fundingRateAlerts,
       sentimentAlerts: entity.sentimentAlerts,
-      fcmToken: entity.fcmToken,
+      pushToken: entity.pushToken,
     );
   }
 
@@ -98,7 +98,7 @@ class NotificationSettingsModel extends NotificationSettings {
       whaleAlerts: json['whaleAlerts'] as bool? ?? false,
       fundingRateAlerts: json['fundingRateAlerts'] as bool? ?? false,
       sentimentAlerts: json['sentimentAlerts'] as bool? ?? false,
-      fcmToken: json['fcmToken'] as String?,
+      pushToken: json['pushToken'] as String?,
     );
   }
 
@@ -114,7 +114,7 @@ class NotificationSettingsModel extends NotificationSettings {
       'whaleAlerts': whaleAlerts,
       'fundingRateAlerts': fundingRateAlerts,
       'sentimentAlerts': sentimentAlerts,
-      'fcmToken': fcmToken,
+      'pushToken': pushToken,
     };
   }
 
@@ -130,7 +130,7 @@ class NotificationSettingsModel extends NotificationSettings {
     bool? whaleAlerts,
     bool? fundingRateAlerts,
     bool? sentimentAlerts,
-    String? fcmToken,
+    String? pushToken,
   }) {
     return NotificationSettingsModel(
       priceAlerts: priceAlerts ?? this.priceAlerts,
@@ -142,7 +142,7 @@ class NotificationSettingsModel extends NotificationSettings {
       whaleAlerts: whaleAlerts ?? this.whaleAlerts,
       fundingRateAlerts: fundingRateAlerts ?? this.fundingRateAlerts,
       sentimentAlerts: sentimentAlerts ?? this.sentimentAlerts,
-      fcmToken: fcmToken ?? this.fcmToken,
+      pushToken: pushToken ?? this.pushToken,
     );
   }
 }

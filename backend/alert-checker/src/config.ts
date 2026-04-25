@@ -14,6 +14,7 @@ export const config = {
   ddb: {
     alerts: required('DDB_ALERTS'),
     wsConnections: required('DDB_WS_CONNECTIONS'),
+    deviceTokens: required('DDB_DEVICE_TOKENS'),
     automationRules: optional('DDB_AUTOMATION_RULES', 'automation-rules'),
     watchlist: optional('DDB_WATCHLIST', 'watchlist'),
   },

@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 // Package imports
 import 'package:alerts/alerts.dart';
@@ -45,9 +44,6 @@ Future<void> configureDependencies() async {
   await Hive.openBox<UserSettingsModel>('settings');
   await Hive.openBox<WatchlistItemModel>('watchlist');
   await Hive.openBox<PriceAlertModel>('alerts');
-
-  // Initialize Firebase
-  await Firebase.initializeApp();
 
   // Register modules
   await registerCoreModule();

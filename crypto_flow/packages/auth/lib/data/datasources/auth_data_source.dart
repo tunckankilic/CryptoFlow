@@ -26,11 +26,6 @@ class AuthException implements Exception {
 }
 
 /// Backend-agnostic authentication data source.
-///
-/// `FirebaseAuthDataSource` and `CognitoAuthDataSource` both implement this
-/// interface so that [AuthRepositoryImpl] can be wired against either one
-/// behind the `FeatureFlags.useCognitoAuth` switch without changing the
-/// domain layer.
 abstract class AuthDataSource {
   /// Emits the current user (or `null` when signed out) and updates whenever
   /// the underlying auth state changes.

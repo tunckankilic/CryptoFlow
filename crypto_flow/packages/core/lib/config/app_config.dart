@@ -1,8 +1,8 @@
 /// Compile-time application configuration.
 ///
 /// All values are injected via `--dart-define` (or `--dart-define-from-file`)
-/// at build time. Defaults keep the app working with the legacy Firebase /
-/// direct-Binance configuration so that the migration can land incrementally.
+/// at build time. Cognito + AWS endpoints must be supplied for non-public
+/// builds; Binance public endpoints have safe defaults.
 class AppConfig {
   AppConfig._();
 

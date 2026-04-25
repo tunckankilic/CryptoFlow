@@ -11,7 +11,7 @@ class MockInitializeNotifications extends Mock
 
 class MockRequestPermission extends Mock implements RequestPermission {}
 
-class MockGetFCMToken extends Mock implements GetFCMToken {}
+class MockGetPushToken extends Mock implements GetPushToken {}
 
 class MockSubscribeToTopic extends Mock implements SubscribeToTopic {}
 
@@ -24,7 +24,7 @@ void main() {
   late NotificationBloc bloc;
   late MockInitializeNotifications mockInitialize;
   late MockRequestPermission mockRequestPermission;
-  late MockGetFCMToken mockGetFCMToken;
+  late MockGetPushToken mockGetPushToken;
   late MockSubscribeToTopic mockSubscribeToTopic;
   late MockUnsubscribeFromTopic mockUnsubscribeFromTopic;
   late MockNotificationRepository mockRepository;
@@ -37,7 +37,7 @@ void main() {
   setUp(() {
     mockInitialize = MockInitializeNotifications();
     mockRequestPermission = MockRequestPermission();
-    mockGetFCMToken = MockGetFCMToken();
+    mockGetPushToken = MockGetPushToken();
     mockSubscribeToTopic = MockSubscribeToTopic();
     mockUnsubscribeFromTopic = MockUnsubscribeFromTopic();
     mockRepository = MockNotificationRepository();
@@ -53,7 +53,7 @@ void main() {
     bloc = NotificationBloc(
       initializeNotifications: mockInitialize,
       requestPermission: mockRequestPermission,
-      getFCMToken: mockGetFCMToken,
+      getPushToken: mockGetPushToken,
       subscribeToTopic: mockSubscribeToTopic,
       unsubscribeFromTopic: mockUnsubscribeFromTopic,
       repository: mockRepository,

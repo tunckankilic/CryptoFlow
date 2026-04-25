@@ -86,3 +86,34 @@ variable "google_client_secret_ssm_parameter" {
   type        = string
   default     = "/cryptoflow/auth/google/client_secret"
 }
+
+# --- APNs (Apple Push Notifications service) ---
+
+variable "apns_team_id" {
+  description = "Apple Developer Team ID owning the APNs Auth Key (defaults to the Sign in with Apple team)"
+  type        = string
+  default     = "J2T55ML92H"
+}
+
+variable "apns_bundle_id" {
+  description = "iOS app bundle identifier (matches Xcode Runner target)"
+  type        = string
+  default     = "site.tunckankilic.cryptoFlow"
+}
+
+variable "apns_signing_key_id" {
+  description = "Apple APNs Auth Key ID (10 chars). Generate at developer.apple.com → Keys → APNs."
+  type        = string
+}
+
+variable "apns_signing_key_ssm_parameter" {
+  description = "SSM Parameter Store name (SecureString) holding the APNs .p8 file contents"
+  type        = string
+  default     = "/cryptoflow/apns/signing_key"
+}
+
+variable "apns_use_sandbox" {
+  description = "true → APNS_SANDBOX (development builds, dev/staging). false → APNS (TestFlight & App Store)."
+  type        = bool
+  default     = true
+}

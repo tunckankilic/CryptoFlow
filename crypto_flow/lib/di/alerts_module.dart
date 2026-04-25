@@ -14,26 +14,18 @@ Future<void> registerAlertsModule() async {
     () => alertDataSource,
   );
 
-  // Repositories — feature-flag conditional
-  if (FeatureFlags.useAwsBackend) {
-    getIt.registerLazySingleton<AlertRemoteDataSource>(
-      () => AlertRemoteDataSourceImpl(
-        apiClient: getIt<AwsApiClient>(),
-      ),
-    );
-    getIt.registerLazySingleton<AlertRepository>(
-      () => AlertAwsRepositoryImpl(
-        remoteDataSource: getIt<AlertRemoteDataSource>(),
-        localDataSource: getIt<AlertLocalDataSource>(),
-      ),
-    );
-  } else {
-    getIt.registerLazySingleton<AlertRepository>(
-      () => AlertRepositoryImpl(
-        localDataSource: getIt<AlertLocalDataSource>(),
-      ),
-    );
-  }
+  // Repositories — AWS-only
+  getIt.registerLazySingleton<AlertRemoteDataSource>(
+    () => AlertRemoteDataSourceImpl(
+      apiClient: getIt<AwsApiClient>(),
+    ),
+  );
+  getIt.registerLazySingleton<AlertRepository>(
+    () => AlertAwsRepositoryImpl(
+      remoteDataSource: getIt<AlertRemoteDataSource>(),
+      localDataSource: getIt<AlertLocalDataSource>(),
+    ),
+  );
 
   // Use cases
   getIt.registerLazySingleton(() => GetAlerts(getIt<AlertRepository>()));
@@ -42,15 +34,13 @@ Future<void> registerAlertsModule() async {
   getIt.registerLazySingleton(() => ToggleAlert(getIt<AlertRepository>()));
   getIt.registerLazySingleton(() => CheckAlerts(getIt<AlertRepository>()));
 
-  // Faz 7.2 — Automation Rules (AWS only)
-  if (FeatureFlags.useAwsBackend) {
-    getIt.registerLazySingleton<AutomationRemoteDataSource>(
-      () => AutomationRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
-    );
-    getIt.registerFactory<AutomationBloc>(
-      () => AutomationBloc(dataSource: getIt<AutomationRemoteDataSource>()),
-    );
-  }
+  // Automation Rules
+  getIt.registerLazySingleton<AutomationRemoteDataSource>(
+    () => AutomationRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerFactory<AutomationBloc>(
+    () => AutomationBloc(dataSource: getIt<AutomationRemoteDataSource>()),
+  );
 
   // BLoC — lazySingleton for global BLoC shared across the app
   getIt.registerLazySingleton<AlertBloc>(

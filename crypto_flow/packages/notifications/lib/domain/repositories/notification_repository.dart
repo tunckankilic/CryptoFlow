@@ -5,13 +5,13 @@ import '../entities/app_notification.dart';
 
 /// Repository interface for notification operations
 abstract class NotificationRepository {
-  /// Initialize FCM and local notifications
+  /// Initialize APNs bridge and local notifications
   Future<Either<Failure, void>> initialize();
 
   /// Request notification permission
   Future<Either<Failure, NotificationSettings>> requestPermission();
 
-  /// Get FCM token
+  /// Get the device push token (APNs on iOS)
   Future<Either<Failure, String>> getToken();
 
   /// Get current notification settings
@@ -43,7 +43,7 @@ abstract class NotificationRepository {
   /// Cancel all notifications
   Future<Either<Failure, void>> cancelAllNotifications();
 
-  /// Stream of FCM token changes
+  /// Stream of push token changes (APNs token rotation)
   Stream<String> get onTokenRefresh;
 
   /// Stream of foreground messages

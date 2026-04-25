@@ -341,7 +341,7 @@ class ProfilePage extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.cloud),
               title: Text('Cloud Sync'),
-              subtitle: Text('Synced data is secured with Firebase'),
+              subtitle: Text('Synced data is secured on AWS'),
               contentPadding: EdgeInsets.zero,
             ),
           ],

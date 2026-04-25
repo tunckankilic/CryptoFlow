@@ -7,25 +7,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # Local packages
   core:
     path: ../core
-  
-  # Firebase
-  firebase_core: ^3.4.0
-  firebase_messaging: ^15.1.0
-  
-  # Local Notifications
+
+  # Local + APNs delivery (iOS only)
   flutter_local_notifications: ^20.0.0
-  
+
   # State management
   flutter_bloc: ^9.1.1
-  
+
   # Utils
   equatable: ^2.0.5
   dartz: ^0.10.1
-  
+
   # Storage
   hive_flutter: ^1.1.0
 

@@ -48,11 +48,9 @@ dependencies:
   dio: any
   connectivity_plus: any
   hive_flutter: any
-  firebase_messaging: any
   flutter_local_notifications: any
-  firebase_core: any
 
-  # AWS Amplify (Cognito auth) — coexists with Firebase behind useCognitoAuth flag
+  # AWS Amplify (Cognito auth)
   amplify_flutter: ^2.6.1
   amplify_auth_cognito: ^2.6.1
 

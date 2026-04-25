@@ -33,47 +33,40 @@ Future<void> registerCoreModule() async {
     ),
   );
 
-  // Cloud Sync Service
-  getIt.registerLazySingleton<CloudSyncService>(
-    () => CloudSyncService(),
-  );
-
   // Widget Data Service (Flutter ↔ iOS WidgetKit bridge)
   getIt.registerLazySingleton<WidgetDataService>(
     () => WidgetDataService(),
   );
 
   // ---------------------------------------------------------------- AWS
-  if (FeatureFlags.useAwsBackend) {
-    // Token provider (Cognito)
-    getIt.registerLazySingleton<TokenProvider>(
-      () => CognitoTokenProvider(),
-    );
+  // Token provider (Cognito)
+  getIt.registerLazySingleton<TokenProvider>(
+    () => CognitoTokenProvider(),
+  );
 
-    // Separate Dio instance for AWS API Gateway
-    getIt.registerLazySingleton<Dio>(
-      () => Dio(BaseOptions(
-        baseUrl: AppConfig.apiBaseUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
-      )),
-      instanceName: 'awsDio',
-    );
+  // Separate Dio instance for AWS API Gateway
+  getIt.registerLazySingleton<Dio>(
+    () => Dio(BaseOptions(
+      baseUrl: AppConfig.apiBaseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    )),
+    instanceName: 'awsDio',
+  );
 
-    // AWS API client (authenticated)
-    getIt.registerLazySingleton<AwsApiClient>(
-      () => AwsApiClient(
-        dio: getIt<Dio>(instanceName: 'awsDio'),
-        networkInfo: getIt<NetworkInfo>(),
-        tokenProvider: getIt<TokenProvider>(),
-      ),
-    );
+  // AWS API client (authenticated)
+  getIt.registerLazySingleton<AwsApiClient>(
+    () => AwsApiClient(
+      dio: getIt<Dio>(instanceName: 'awsDio'),
+      networkInfo: getIt<NetworkInfo>(),
+      tokenProvider: getIt<TokenProvider>(),
+    ),
+  );
 
-    // AWS WebSocket client (alert push notifications)
-    getIt.registerLazySingleton<AwsWebSocketClient>(
-      () => AwsWebSocketClient(
-        tokenProvider: getIt<TokenProvider>(),
-      ),
-    );
-  }
+  // AWS WebSocket client (alert push notifications)
+  getIt.registerLazySingleton<AwsWebSocketClient>(
+    () => AwsWebSocketClient(
+      tokenProvider: getIt<TokenProvider>(),
+    ),
+  );
 }

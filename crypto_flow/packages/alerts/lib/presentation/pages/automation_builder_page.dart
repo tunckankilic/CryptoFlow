@@ -41,13 +41,15 @@ class _AutomationBuilderPageState extends State<AutomationBuilderPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.auto_fix_high, size: 64, color: CryptoColors.textTertiary),
+                    Icon(Icons.auto_fix_high,
+                        size: 64, color: CryptoColors.textTertiary),
                     SizedBox(height: AppSpacing.md),
                     Text('No automation rules yet',
                         style: TextStyle(color: CryptoColors.textTertiary)),
                     SizedBox(height: AppSpacing.sm),
                     Text('Tap + to create your first rule',
-                        style: TextStyle(color: CryptoColors.textTertiary, fontSize: 13)),
+                        style: TextStyle(
+                            color: CryptoColors.textTertiary, fontSize: 13)),
                   ],
                 ),
               );
@@ -55,7 +57,8 @@ class _AutomationBuilderPageState extends State<AutomationBuilderPage> {
             return ListView.builder(
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: state.rules.length,
-              itemBuilder: (context, index) => _RuleTile(rule: state.rules[index]),
+              itemBuilder: (context, index) =>
+                  _RuleTile(rule: state.rules[index]),
             );
           }
           return const SizedBox.shrink();
@@ -86,7 +89,8 @@ class _RuleTile extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           _triggerIcon(rule.trigger.type),
-          color: rule.enabled ? CryptoColors.success : CryptoColors.textTertiary,
+          color:
+              rule.enabled ? CryptoColors.success : CryptoColors.textTertiary,
         ),
         title: Text(rule.name),
         subtitle: Text(
@@ -109,7 +113,9 @@ class _RuleTile extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.delete_outline, color: CryptoColors.error),
               onPressed: () {
-                context.read<AutomationBloc>().add(AutomationRuleDeleted(rule.ruleId));
+                context
+                    .read<AutomationBloc>()
+                    .add(AutomationRuleDeleted(rule.ruleId));
               },
             ),
           ],
@@ -160,8 +166,7 @@ class _CreateRuleSheetState extends State<_CreateRuleSheet> {
       _triggerType == TriggerType.priceBelow ||
       _triggerType == TriggerType.percentChange;
 
-  bool get _needsValue =>
-      _triggerType != TriggerType.timeSchedule;
+  bool get _needsValue => _triggerType != TriggerType.timeSchedule;
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +184,8 @@ class _CreateRuleSheetState extends State<_CreateRuleSheet> {
           children: [
             Center(
               child: Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
                   color: Colors.grey[400],
                   borderRadius: BorderRadius.circular(2),
@@ -201,9 +207,10 @@ class _CreateRuleSheetState extends State<_CreateRuleSheet> {
             Text('IF (Trigger)', style: AppTypography.h6),
             const SizedBox(height: AppSpacing.sm),
             DropdownButtonFormField<TriggerType>(
-              value: _triggerType,
+              initialValue: _triggerType,
               items: TriggerType.values
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t.displayName)))
+                  .map((t) =>
+                      DropdownMenuItem(value: t, child: Text(t.displayName)))
                   .toList(),
               onChanged: (v) => setState(() => _triggerType = v!),
               decoration: const InputDecoration(labelText: 'Trigger Type'),
@@ -247,9 +254,10 @@ class _CreateRuleSheetState extends State<_CreateRuleSheet> {
             Text('THEN (Action)', style: AppTypography.h6),
             const SizedBox(height: AppSpacing.sm),
             DropdownButtonFormField<ActionType>(
-              value: _actionType,
+              initialValue: _actionType,
               items: ActionType.values
-                  .map((a) => DropdownMenuItem(value: a, child: Text(a.displayName)))
+                  .map((a) =>
+                      DropdownMenuItem(value: a, child: Text(a.displayName)))
                   .toList(),
               onChanged: (v) => setState(() => _actionType = v!),
               decoration: const InputDecoration(labelText: 'Action Type'),

@@ -33,11 +33,7 @@ export const config = {
   snsTopicArn: required('SNS_NOTIFICATIONS_TOPIC'),
   reportsBucket: required('REPORTS_BUCKET'),
   wsApiEndpoint: required('WS_API_ENDPOINT'),
-  // Optional — populated only after APNs/FCM platform applications exist.
-  // Until set, register-device endpoint stores the token without creating
-  // an SNS endpoint (Faz 2 stub).
-  snsApplePlatformAppArn: optional('SNS_APPLE_PLATFORM_APP_ARN'),
-  snsGooglePlatformAppArn: optional('SNS_GOOGLE_PLATFORM_APP_ARN'),
+  snsApplePlatformAppArn: required('SNS_APPLE_PLATFORM_APP_ARN'),
 };
 
 export type Config = typeof config;

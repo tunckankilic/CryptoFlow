@@ -13,26 +13,18 @@ Future<void> registerWatchlistModule() async {
     () => watchlistDataSource,
   );
 
-  // Repositories — feature-flag conditional
-  if (FeatureFlags.useAwsBackend) {
-    getIt.registerLazySingleton<WatchlistRemoteDataSource>(
-      () => WatchlistRemoteDataSourceImpl(
-        apiClient: getIt<AwsApiClient>(),
-      ),
-    );
-    getIt.registerLazySingleton<WatchlistRepository>(
-      () => WatchlistAwsRepositoryImpl(
-        remoteDataSource: getIt<WatchlistRemoteDataSource>(),
-        localDataSource: getIt<WatchlistLocalDataSource>(),
-      ),
-    );
-  } else {
-    getIt.registerLazySingleton<WatchlistRepository>(
-      () => WatchlistRepositoryImpl(
-        localDataSource: getIt<WatchlistLocalDataSource>(),
-      ),
-    );
-  }
+  // Repositories — AWS-only
+  getIt.registerLazySingleton<WatchlistRemoteDataSource>(
+    () => WatchlistRemoteDataSourceImpl(
+      apiClient: getIt<AwsApiClient>(),
+    ),
+  );
+  getIt.registerLazySingleton<WatchlistRepository>(
+    () => WatchlistAwsRepositoryImpl(
+      remoteDataSource: getIt<WatchlistRemoteDataSource>(),
+      localDataSource: getIt<WatchlistLocalDataSource>(),
+    ),
+  );
 
   // Use cases
   getIt.registerLazySingleton(() => GetWatchlist(getIt<WatchlistRepository>()));

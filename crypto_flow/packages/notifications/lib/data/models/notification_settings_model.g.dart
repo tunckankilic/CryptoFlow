@@ -24,7 +24,7 @@ class NotificationSettingsModelAdapter
       marketUpdates: fields[3] as bool,
       soundEnabled: fields[4] as bool,
       vibrationEnabled: fields[5] as bool,
-      fcmToken: fields[6] as String?,
+      pushToken: fields[6] as String?,
       whaleAlerts: fields[7] == null ? false : fields[7] as bool,
       fundingRateAlerts: fields[8] == null ? false : fields[8] as bool,
       sentimentAlerts: fields[9] == null ? false : fields[9] as bool,
@@ -48,7 +48,7 @@ class NotificationSettingsModelAdapter
       ..writeByte(5)
       ..write(obj.vibrationEnabled)
       ..writeByte(6)
-      ..write(obj.fcmToken)
+      ..write(obj.pushToken)
       ..writeByte(7)
       ..write(obj.whaleAlerts)
       ..writeByte(8)

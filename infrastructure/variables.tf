@@ -73,20 +73,6 @@ variable "apple_private_key_ssm_parameter" {
   default     = "/cryptoflow/auth/apple/private_key"
 }
 
-# --- Google Sign-In ---
-
-variable "google_client_id_ssm_parameter" {
-  description = "SSM Parameter Store name holding the Google OAuth client_id"
-  type        = string
-  default     = "/cryptoflow/auth/google/client_id"
-}
-
-variable "google_client_secret_ssm_parameter" {
-  description = "SSM Parameter Store name holding the Google OAuth client_secret"
-  type        = string
-  default     = "/cryptoflow/auth/google/client_secret"
-}
-
 # --- APNs (Apple Push Notifications service) ---
 
 variable "apns_team_id" {

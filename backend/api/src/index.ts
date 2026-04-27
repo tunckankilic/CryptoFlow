@@ -11,11 +11,25 @@ const compiled = compileRoutes(allRoutes);
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const requestId = event.requestContext.requestId;
   const method = event.requestContext.http.method;
-  const path = event.requestContext.http.path;
+  const stage = event.requestContext.stage;
+  const rawPath = event.requestContext.http.path;
+  const path =
+    stage && stage !== '$default' && rawPath.startsWith(`/${stage}/`)
+      ? rawPath.slice(stage.length + 1)
+      : rawPath === `/${stage}`
+        ? '/'
+        : rawPath;
 
   try {
     const matched = matchRoute(compiled, method, path);
     if (!matched) {
+      logger.info('route not matched', {
+        requestId,
+        method,
+        path,
+        rawPath: event.rawPath,
+        stage: event.requestContext.stage,
+      });
       return {
         statusCode: 404,
         headers: { 'Content-Type': 'application/json' },

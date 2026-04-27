@@ -34,8 +34,6 @@ abstract class AuthDataSource {
   /// Returns the currently signed-in user, or `null` if there is none.
   Future<AppUserModel?> getCurrentUser();
 
-  Future<AppUserModel> signInWithGoogle();
-
   Future<AppUserModel> signInWithApple();
 
   /// Cognito does not support anonymous user pool users — implementations

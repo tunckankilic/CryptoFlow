@@ -7,7 +7,6 @@ export 'domain/entities/app_user.dart';
 export 'domain/repositories/auth_repository.dart';
 
 // Domain - Use Cases
-export 'domain/usecases/sign_in_with_google.dart';
 export 'domain/usecases/sign_in_with_apple.dart';
 export 'domain/usecases/sign_in_anonymously.dart';
 export 'domain/usecases/sign_out.dart';

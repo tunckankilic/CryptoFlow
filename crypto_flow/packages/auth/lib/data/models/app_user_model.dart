@@ -50,7 +50,7 @@ class AppUserModel extends AppUser {
 
   /// Cognito stores federated identities as a JSON string in the
   /// `identities` attribute, e.g.
-  /// `[{"providerName":"Google","providerType":"Google", ...}]`.
+  /// `[{"providerName":"SignInWithApple","providerType":"SignInWithApple", ...}]`.
   ///
   /// We do a tiny substring match to avoid pulling in `dart:convert` for
   /// such a small need.
@@ -59,9 +59,6 @@ class AppUserModel extends AppUser {
     final lower = identities.toLowerCase();
     if (lower.contains('signinwithapple') || lower.contains('"apple"')) {
       return AuthProvider.apple;
-    }
-    if (lower.contains('"google"')) {
-      return AuthProvider.google;
     }
     return null;
   }

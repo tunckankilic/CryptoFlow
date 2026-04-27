@@ -4,6 +4,36 @@ locals {
 }
 
 # =============================================================================
+# Account-level CloudWatch Logs role
+# API Gateway requires an IAM role at the account/region level before any
+# stage with access logging can be created. This is a singleton per region.
+# =============================================================================
+data "aws_iam_policy_document" "apigw_cw_assume" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["apigateway.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "apigw_cloudwatch" {
+  name               = "${local.prefix}-apigw-cloudwatch"
+  assume_role_policy = data.aws_iam_policy_document.apigw_cw_assume.json
+}
+
+resource "aws_iam_role_policy_attachment" "apigw_cloudwatch" {
+  role       = aws_iam_role.apigw_cloudwatch.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+}
+
+resource "aws_api_gateway_account" "this" {
+  cloudwatch_role_arn = aws_iam_role.apigw_cloudwatch.arn
+}
+
+# =============================================================================
 # REST API (HTTP API v2 — proxy to monolithic Lambda)
 # =============================================================================
 resource "aws_apigatewayv2_api" "rest" {
@@ -66,6 +96,8 @@ resource "aws_apigatewayv2_stage" "rest" {
       responseLength = "$context.responseLength"
     })
   }
+
+  depends_on = [aws_api_gateway_account.this]
 }
 
 resource "aws_lambda_permission" "rest_invoke" {
@@ -133,6 +165,8 @@ resource "aws_apigatewayv2_stage" "ws" {
       connectionId = "$context.connectionId"
     })
   }
+
+  depends_on = [aws_api_gateway_account.this]
 }
 
 resource "aws_lambda_permission" "ws_invoke" {

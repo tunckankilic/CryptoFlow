@@ -76,20 +76,10 @@ class CognitoAuthDataSource implements AuthDataSource {
   }
 
   @override
-  Future<AppUserModel> signInWithGoogle() =>
-      _signInWithProvider(AuthProvider.google, domain.AuthProvider.google);
-
-  @override
-  Future<AppUserModel> signInWithApple() =>
-      _signInWithProvider(AuthProvider.apple, domain.AuthProvider.apple);
-
-  Future<AppUserModel> _signInWithProvider(
-    AuthProvider amplifyProvider,
-    domain.AuthProvider domainProvider,
-  ) async {
+  Future<AppUserModel> signInWithApple() async {
     try {
       final result = await Amplify.Auth.signInWithWebUI(
-        provider: amplifyProvider,
+        provider: AuthProvider.apple,
       );
       if (!result.isSignedIn) {
         throw const AuthException(
@@ -104,14 +94,12 @@ class CognitoAuthDataSource implements AuthDataSource {
           code: 'null-user',
         );
       }
-      // Override provider with the one we requested — Cognito attribute
-      // inference is best-effort and may fail for fresh accounts.
       return AppUserModel(
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
         photoUrl: user.photoUrl,
-        provider: domainProvider,
+        provider: domain.AuthProvider.apple,
         createdAt: user.createdAt,
         lastLoginAt: user.lastLoginAt,
       );

@@ -41,8 +41,6 @@ module "cognito" {
   apple_key_id                       = var.apple_key_id
   apple_service_id                   = var.apple_service_id
   apple_private_key_ssm_parameter    = var.apple_private_key_ssm_parameter
-  google_client_id_ssm_parameter     = var.google_client_id_ssm_parameter
-  google_client_secret_ssm_parameter = var.google_client_secret_ssm_parameter
 }
 
 module "dynamodb" {

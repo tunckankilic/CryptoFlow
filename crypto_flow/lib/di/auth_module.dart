@@ -15,10 +15,6 @@ Future<void> registerAuthModule() async {
   );
 
   // Use cases
-  getIt.registerLazySingleton<SignInWithGoogle>(
-    () => SignInWithGoogle(getIt<AuthRepository>()),
-  );
-
   getIt.registerLazySingleton<SignInWithApple>(
     () => SignInWithApple(getIt<AuthRepository>()),
   );
@@ -46,7 +42,6 @@ Future<void> registerAuthModule() async {
   // BLoC — lazySingleton because it's a global BLoC shared across the app
   getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(
-      signInWithGoogle: getIt<SignInWithGoogle>(),
       signInWithApple: getIt<SignInWithApple>(),
       signInAnonymously: getIt<SignInAnonymously>(),
       signOut: getIt<SignOut>(),

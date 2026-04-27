@@ -8,5 +8,3 @@ variable "apple_team_id" { type = string }
 variable "apple_key_id" { type = string }
 variable "apple_service_id" { type = string }
 variable "apple_private_key_ssm_parameter" { type = string }
-variable "google_client_id_ssm_parameter" { type = string }
-variable "google_client_secret_ssm_parameter" { type = string }

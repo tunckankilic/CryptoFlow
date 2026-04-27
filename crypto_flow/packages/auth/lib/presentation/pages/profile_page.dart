@@ -81,7 +81,7 @@ class ProfilePage extends StatelessWidget {
               context,
               icon: Icons.link,
               title: 'Link Account',
-              subtitle: 'Connect Google or Apple to save your data',
+              subtitle: 'Connect Apple to save your data',
               onTap: () => _showLinkAccountDialog(context),
             ),
 
@@ -288,21 +288,13 @@ class ProfilePage extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Link Account'),
         content: const Text(
-          'Link your guest account to Google or Apple to save your data '
+          'Link your guest account to Apple to save your data '
           'and sync across devices.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Cancel'),
-          ),
-          TextButton.icon(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              context.read<AuthBloc>().add(const AuthGoogleSignInRequested());
-            },
-            icon: const Icon(Icons.g_mobiledata, size: 20),
-            label: const Text('Google'),
           ),
           if (Theme.of(context).platform == TargetPlatform.iOS)
             TextButton.icon(

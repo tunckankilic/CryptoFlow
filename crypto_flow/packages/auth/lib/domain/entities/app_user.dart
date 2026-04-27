@@ -2,9 +2,6 @@ import 'package:equatable/equatable.dart';
 
 /// Authentication provider types
 enum AuthProvider {
-  /// Google Sign In
-  google,
-
   /// Apple Sign In
   apple,
 

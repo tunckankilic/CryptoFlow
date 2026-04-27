@@ -18,30 +18,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<AppUser?> get authStateChanges => _dataSource.authStateChanges;
 
   @override
-  Future<Either<Failure, AppUser>> signInWithGoogle() async {
-    try {
-      final user = await _dataSource.signInWithGoogle();
-      return Right(user);
-    } on AuthException catch (e) {
-      if (e.code == 'cancelled') {
-        return Left(AuthFailure(
-          type: AuthFailureType.cancelled,
-          message: e.message,
-        ));
-      }
-      return Left(AuthFailure(
-        type: AuthFailureType.unknown,
-        message: e.message,
-      ));
-    } catch (e) {
-      return Left(AuthFailure(
-        type: AuthFailureType.unknown,
-        message: e.toString(),
-      ));
-    }
-  }
-
-  @override
   Future<Either<Failure, AppUser>> signInWithApple() async {
     try {
       final user = await _dataSource.signInWithApple();

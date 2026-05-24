@@ -103,3 +103,16 @@ variable "apns_use_sandbox" {
   type        = bool
   default     = true
 }
+
+# --- Cost guardrail ---
+
+variable "billing_alert_email" {
+  description = "Email address that receives AWS Budget alerts at 50/80/100% of the monthly cap."
+  type        = string
+}
+
+variable "monthly_budget_usd" {
+  description = "Monthly USD cap that triggers budget alarm emails. Pure alarm — does not auto-stop."
+  type        = string
+  default     = "10"
+}

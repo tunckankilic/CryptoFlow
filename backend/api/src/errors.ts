@@ -44,3 +44,20 @@ export class ConflictError extends HttpError {
     this.name = 'ConflictError';
   }
 }
+
+export class PayloadTooLargeError extends HttpError {
+  constructor(message = 'Request body too large', details?: unknown) {
+    super(413, 'payload_too_large', message, details);
+    this.name = 'PayloadTooLargeError';
+  }
+}
+
+export class RateLimitError extends HttpError {
+  constructor(
+    public readonly retryAfterSeconds: number,
+    message = 'Too many requests',
+  ) {
+    super(429, 'rate_limited', message, { retryAfterSeconds });
+    this.name = 'RateLimitError';
+  }
+}

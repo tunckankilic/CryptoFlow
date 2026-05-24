@@ -1,6 +1,7 @@
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { config } from '../config';
 import { UnauthorizedError } from '../errors';
+import { logger } from '../logger';
 
 // Mobile clients send the Cognito access token. The verifier validates
 // signature, expiry, issuer, token_use, and client_id automatically.
@@ -33,7 +34,12 @@ export async function authenticate(authHeader?: string): Promise<AuthContext> {
       username: typeof payload.username === 'string' ? payload.username : undefined,
       email: typeof payload.email === 'string' ? payload.email : undefined,
     };
-  } catch {
+  } catch (err) {
+    // Emit a security event so failed token verifications are visible in
+    // CloudWatch. The token itself is never logged; only the reason class is.
+    logger.warn('jwt_verify_failed', {
+      reason: err instanceof Error ? err.name : 'unknown',
+    });
     throw new UnauthorizedError('Invalid or expired token');
   }
 }

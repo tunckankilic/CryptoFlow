@@ -41,3 +41,8 @@ variable "ws_api_endpoint" {
   description = "WebSocket API HTTPS endpoint for @connections POST (e.g. https://abc.execute-api.eu-central-1.amazonaws.com/dev)"
   type        = string
 }
+
+variable "ws_api_id" {
+  description = "WebSocket API ID, used to scope the execute-api:ManageConnections IAM permission to this specific API."
+  type        = string
+}

@@ -84,6 +84,16 @@ module "lambda" {
   cognito_user_pool_id      = var.cognito_user_pool_id
   cognito_user_pool_client  = var.cognito_user_pool_client_id
   ws_api_endpoint           = local.ws_api_endpoint
+  ws_api_id                 = aws_apigatewayv2_api.ws.id
+}
+
+module "budget" {
+  source = "./modules/budget"
+
+  project_name        = var.project_name
+  environment         = var.environment
+  monthly_budget_usd  = var.monthly_budget_usd
+  billing_alert_email = var.billing_alert_email
 }
 
 module "api_gw" {

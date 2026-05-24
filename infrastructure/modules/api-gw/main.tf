@@ -78,9 +78,13 @@ resource "aws_apigatewayv2_stage" "rest" {
   name        = local.stage_name
   auto_deploy = true
 
+  # Tight throttle for cost protection. Rejects at the gateway before invoking
+  # the Lambda, which means rejected requests cost ~nothing. Combined with the
+  # Lambda reserved_concurrent_executions cap, this bounds the worst-case bill
+  # under a flood.
   default_route_settings {
-    throttling_burst_limit = 1000
-    throttling_rate_limit  = 500
+    throttling_burst_limit = 50
+    throttling_rate_limit  = 20
   }
 
   access_log_settings {
@@ -150,8 +154,8 @@ resource "aws_apigatewayv2_stage" "ws" {
   auto_deploy = true
 
   default_route_settings {
-    throttling_burst_limit = 1000
-    throttling_rate_limit  = 500
+    throttling_burst_limit = 50
+    throttling_rate_limit  = 20
   }
 
   access_log_settings {

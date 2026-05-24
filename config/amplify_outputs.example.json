@@ -19,7 +19,7 @@
       "require_uppercase": true
     },
     "oauth": {
-      "identity_providers": ["SignInWithApple", "Google"],
+      "identity_providers": ["SignInWithApple"],
       "domain": "<cognito-hosted-ui-domain>",
       "scopes": ["email", "openid", "profile"],
       "redirect_sign_in_uri": ["<deep-link-callback>"],

@@ -1,5 +1,5 @@
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { HttpError } from '../errors';
+import { HttpError, RateLimitError } from '../errors';
 import { logger } from '../logger';
 
 interface ErrorBody {
@@ -20,9 +20,13 @@ export function mapError(
       requestId,
     };
     if (err.details !== undefined) body.details = err.details;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (err instanceof RateLimitError) {
+      headers['Retry-After'] = String(err.retryAfterSeconds);
+    }
     return {
       statusCode: err.status,
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(body),
     };
   }

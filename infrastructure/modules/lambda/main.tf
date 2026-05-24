@@ -2,6 +2,10 @@ locals {
   prefix = "${var.project_name}-${var.environment}"
 }
 
+# Used to anchor IAM resource ARNs to this account specifically, instead of
+# wildcarding the account ID segment.
+data "aws_caller_identity" "current" {}
+
 # --- Placeholder zip ---
 data "archive_file" "placeholder" {
   type        = "zip"
@@ -90,14 +94,16 @@ data "aws_iam_policy_document" "lambda_inline" {
     ]
     # Per-device endpoint ARNs are derived from the platform application ARN
     # (arn:aws:sns:region:account:endpoint/APNS*/<app-name>/<endpoint-uuid>).
-    resources = ["arn:aws:sns:${var.region}:*:endpoint/APNS*/*"]
+    # Scoped to this account so a misconfigured policy can't reach foreign endpoints.
+    resources = ["arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:endpoint/APNS*/${local.prefix}-apns/*"]
   }
 
   statement {
     sid       = "ApiGwManageConnections"
     effect    = "Allow"
     actions   = ["execute-api:ManageConnections"]
-    resources = ["arn:aws:execute-api:${var.region}:*:*/*/*/@connections/*"]
+    # Scoped to this account and this specific WebSocket API.
+    resources = ["arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${var.ws_api_id}/*/*/@connections/*"]
   }
 
   statement {
@@ -107,7 +113,7 @@ data "aws_iam_policy_document" "lambda_inline" {
       "cognito-idp:GetUser",
       "cognito-idp:AdminGetUser",
     ]
-    resources = ["arn:aws:cognito-idp:${var.region}:*:userpool/${var.cognito_user_pool_id}"]
+    resources = ["arn:aws:cognito-idp:${var.region}:${data.aws_caller_identity.current.account_id}:userpool/${var.cognito_user_pool_id}"]
   }
 }
 
@@ -157,15 +163,19 @@ locals {
 }
 
 # --- API Lambda (monolithic) ---
+# reserved_concurrent_executions caps parallel invocations as a hard blast-radius
+# limit: even under a flood, AWS will throttle to this many concurrent runs.
+# Worst-case bill at 10×30s×512MB ≈ $0.0025/run, capped by API Gateway throttling.
 resource "aws_lambda_function" "api" {
-  function_name    = "${local.prefix}-api"
-  role             = aws_iam_role.lambda_exec.arn
-  runtime          = "nodejs20.x"
-  handler          = "index.handler"
-  filename         = data.archive_file.placeholder.output_path
-  source_code_hash = data.archive_file.placeholder.output_base64sha256
-  memory_size      = 512
-  timeout          = 30
+  function_name                  = "${local.prefix}-api"
+  role                           = aws_iam_role.lambda_exec.arn
+  runtime                        = "nodejs20.x"
+  handler                        = "index.handler"
+  filename                       = data.archive_file.placeholder.output_path
+  source_code_hash               = data.archive_file.placeholder.output_base64sha256
+  memory_size                    = 512
+  timeout                        = 30
+  reserved_concurrent_executions = 10
 
   environment {
     variables = local.common_env
@@ -180,14 +190,15 @@ resource "aws_lambda_function" "api" {
 
 # --- WebSocket handler ---
 resource "aws_lambda_function" "ws_handler" {
-  function_name    = "${local.prefix}-ws-handler"
-  role             = aws_iam_role.lambda_exec.arn
-  runtime          = "nodejs20.x"
-  handler          = "index.handler"
-  filename         = data.archive_file.placeholder.output_path
-  source_code_hash = data.archive_file.placeholder.output_base64sha256
-  memory_size      = 512
-  timeout          = 300
+  function_name                  = "${local.prefix}-ws-handler"
+  role                           = aws_iam_role.lambda_exec.arn
+  runtime                        = "nodejs20.x"
+  handler                        = "index.handler"
+  filename                       = data.archive_file.placeholder.output_path
+  source_code_hash               = data.archive_file.placeholder.output_base64sha256
+  memory_size                    = 512
+  timeout                        = 300
+  reserved_concurrent_executions = 5
 
   environment {
     variables = local.common_env

@@ -98,7 +98,7 @@ class DrawdownChart extends StatelessWidget {
                       dotData: const FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: CryptoColors.error.withOpacity(0.15),
+                        color: CryptoColors.error.withValues(alpha: 0.15),
                       ),
                     ),
                   ],

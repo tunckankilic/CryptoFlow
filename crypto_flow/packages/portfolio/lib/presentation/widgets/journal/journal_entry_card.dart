@@ -207,7 +207,7 @@ class _SideBadge extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
         border: Border.all(color: color),
       ),
@@ -308,7 +308,7 @@ class _RRBadge extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: CryptoColors.primary.withOpacity(0.1),
+        color: CryptoColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
         border: Border.all(color: CryptoColors.primary),
       ),

@@ -47,7 +47,7 @@ class ShareReportBottomSheet extends StatelessWidget {
               height: 4,
               margin: const EdgeInsets.only(bottom: AppSpacing.md),
               decoration: BoxDecoration(
-                color: CryptoColors.textTertiary.withOpacity(0.3),
+                color: CryptoColors.textTertiary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -121,7 +121,7 @@ class ShareReportBottomSheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: CryptoColors.primary.withOpacity(0.1),
+                color: CryptoColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

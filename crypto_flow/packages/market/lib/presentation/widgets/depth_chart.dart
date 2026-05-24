@@ -41,11 +41,11 @@ class DepthChart extends StatelessWidget {
               drawVerticalLine: true,
               horizontalInterval: maxY / 4,
               getDrawingHorizontalLine: (value) => FlLine(
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withValues(alpha: 0.2),
                 strokeWidth: 1,
               ),
               getDrawingVerticalLine: (value) => FlLine(
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withValues(alpha: 0.2),
                 strokeWidth: 1,
               ),
             ),
@@ -92,7 +92,7 @@ class DepthChart extends StatelessWidget {
                 dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
-                  color: CryptoColors.priceUp.withOpacity(0.3),
+                  color: CryptoColors.priceUp.withValues(alpha: 0.3),
                 ),
               ),
               // Asks (right side, red)
@@ -105,7 +105,7 @@ class DepthChart extends StatelessWidget {
                 dotData: const FlDotData(show: false),
                 belowBarData: BarAreaData(
                   show: true,
-                  color: CryptoColors.priceDown.withOpacity(0.3),
+                  color: CryptoColors.priceDown.withValues(alpha: 0.3),
                 ),
               ),
             ],

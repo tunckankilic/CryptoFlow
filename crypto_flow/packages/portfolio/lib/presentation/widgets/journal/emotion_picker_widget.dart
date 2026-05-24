@@ -77,7 +77,7 @@ class _EmotionCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isSelected
-              ? CryptoColors.primary.withOpacity(0.1)
+              ? CryptoColors.primary.withValues(alpha: 0.1)
               : theme.cardColor,
           borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
           border: Border.all(

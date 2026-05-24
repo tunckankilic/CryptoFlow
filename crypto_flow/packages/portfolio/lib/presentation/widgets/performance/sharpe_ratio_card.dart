@@ -87,7 +87,7 @@ class _GaugePainter extends CustomPainter {
 
     // Background arc
     final bgPaint = Paint()
-      ..color = color.withOpacity(0.15)
+      ..color = color.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;

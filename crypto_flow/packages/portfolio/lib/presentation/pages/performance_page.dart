@@ -59,8 +59,7 @@ class _PerformancePageState extends State<PerformancePage> {
                       size: 64, color: CryptoColors.error),
                   const SizedBox(height: AppSpacing.md),
                   Text(state.message,
-                      style: AppTypography.body1,
-                      textAlign: TextAlign.center),
+                      style: AppTypography.body1, textAlign: TextAlign.center),
                   const SizedBox(height: AppSpacing.md),
                   ElevatedButton(
                     onPressed: () => context
@@ -148,7 +147,7 @@ class _PerformancePageState extends State<PerformancePage> {
                     .read<PerformanceBloc>()
                     .add(PerformanceRequested(entry.key));
               },
-              selectedColor: CryptoColors.primary.withOpacity(0.2),
+              selectedColor: CryptoColors.primary.withValues(alpha: 0.2),
             ),
           );
         }).toList(),

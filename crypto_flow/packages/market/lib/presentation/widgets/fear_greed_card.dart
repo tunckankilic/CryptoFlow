@@ -100,7 +100,7 @@ class _FearGreedCardState extends State<FearGreedCard> {
                               .textTheme
                               .bodySmall
                               ?.color
-                              ?.withOpacity(0.7),
+                              ?.withValues(alpha: 0.7),
                         ),
                   ),
                   const SizedBox(height: 24),
@@ -121,7 +121,7 @@ class _FearGreedCardState extends State<FearGreedCard> {
                                 .textTheme
                                 .bodySmall
                                 ?.color
-                                ?.withOpacity(0.6),
+                                ?.withValues(alpha: 0.6),
                           ),
                     ),
                   ),

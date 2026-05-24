@@ -13,9 +13,9 @@ class MonthlyReturnsHeatmap extends StatelessWidget {
 
   Color _cellColor(double pct) {
     if (pct >= 10) return CryptoColors.priceUp;
-    if (pct > 0) return CryptoColors.priceUp.withOpacity(0.5);
+    if (pct > 0) return CryptoColors.priceUp.withValues(alpha: 0.5);
     if (pct == 0) return CryptoColors.borderDark;
-    if (pct > -10) return CryptoColors.priceDown.withOpacity(0.5);
+    if (pct > -10) return CryptoColors.priceDown.withValues(alpha: 0.5);
     return CryptoColors.priceDown;
   }
 
@@ -76,10 +76,10 @@ class MonthlyReturnsHeatmap extends StatelessWidget {
               children: [
                 _LegendItem(color: CryptoColors.priceDown, label: '< -10%'),
                 _LegendItem(
-                    color: CryptoColors.priceDown.withOpacity(0.5),
+                    color: CryptoColors.priceDown.withValues(alpha: 0.5),
                     label: '-10..0%'),
                 _LegendItem(
-                    color: CryptoColors.priceUp.withOpacity(0.5),
+                    color: CryptoColors.priceUp.withValues(alpha: 0.5),
                     label: '0..+10%'),
                 _LegendItem(color: CryptoColors.priceUp, label: '> +10%'),
               ],

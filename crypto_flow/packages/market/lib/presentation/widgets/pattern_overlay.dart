@@ -67,8 +67,9 @@ class PatternOverlay extends StatelessWidget {
               width: width.clamp(20, chartWidth),
               height: chartHeight,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.08),
-                border: Border.all(color: color.withOpacity(0.3), width: 1),
+                color: color.withValues(alpha: 0.08),
+                border:
+                    Border.all(color: color.withValues(alpha: 0.3), width: 1),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Align(
@@ -77,7 +78,7 @@ class PatternOverlay extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.9),
+                    color: color.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
@@ -88,8 +89,8 @@ class PatternOverlay extends StatelessWidget {
                       const SizedBox(width: 2),
                       Text(
                         '${(p.confidence * 100).toInt()}%',
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 9),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 9),
                       ),
                     ],
                   ),
@@ -128,7 +129,8 @@ class PatternOverlay extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _patternColor(pattern.direction).withOpacity(0.15),
+                    color: _patternColor(pattern.direction)
+                        .withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

@@ -220,7 +220,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                       JournalStatsRequested(_mapDaysToPeriod(entry.value)),
                     );
               },
-              selectedColor: CryptoColors.primary.withOpacity(0.2),
+              selectedColor: CryptoColors.primary.withValues(alpha: 0.2),
             ),
           );
         }).toList(),
@@ -370,7 +370,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: CryptoColors.primary.withOpacity(0.1),
+                    color: CryptoColors.primary.withValues(alpha: 0.1),
                   ),
                 ),
               ],

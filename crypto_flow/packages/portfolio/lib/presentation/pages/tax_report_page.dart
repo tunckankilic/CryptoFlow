@@ -164,7 +164,7 @@ class _TaxReportPageState extends State<TaxReportPage> {
 
   Widget _buildDownloadCard(TaxReportGenerated state) {
     return Card(
-      color: CryptoColors.success.withOpacity(0.1),
+      color: CryptoColors.success.withValues(alpha: 0.1),
       child: ListTile(
         leading: const Icon(Icons.download, color: CryptoColors.success),
         title: const Text('Report Ready'),

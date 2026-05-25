@@ -163,19 +163,22 @@ locals {
 }
 
 # --- API Lambda (monolithic) ---
-# reserved_concurrent_executions caps parallel invocations as a hard blast-radius
-# limit: even under a flood, AWS will throttle to this many concurrent runs.
-# Worst-case bill at 10×30s×512MB ≈ $0.0025/run, capped by API Gateway throttling.
+# NOTE: reserved_concurrent_executions intentionally NOT set. AWS requires at
+# least 10 unreserved concurrency to remain in the account, and this account's
+# default quota is 10 — any reservation would drop unreserved below the floor.
+# Cost protection is delegated to API Gateway throttling (50 burst / 20 steady)
+# and the in-Lambda rate limiter middleware. To enable a reservation later,
+# raise the account quota via Service Quotas → Lambda → "Concurrent executions"
+# (request a raise to 1000+), then add `reserved_concurrent_executions = 10`.
 resource "aws_lambda_function" "api" {
-  function_name                  = "${local.prefix}-api"
-  role                           = aws_iam_role.lambda_exec.arn
-  runtime                        = "nodejs20.x"
-  handler                        = "index.handler"
-  filename                       = data.archive_file.placeholder.output_path
-  source_code_hash               = data.archive_file.placeholder.output_base64sha256
-  memory_size                    = 512
-  timeout                        = 30
-  reserved_concurrent_executions = 10
+  function_name    = "${local.prefix}-api"
+  role             = aws_iam_role.lambda_exec.arn
+  runtime          = "nodejs20.x"
+  handler          = "index.handler"
+  filename         = data.archive_file.placeholder.output_path
+  source_code_hash = data.archive_file.placeholder.output_base64sha256
+  memory_size      = 512
+  timeout          = 30
 
   environment {
     variables = local.common_env
@@ -189,16 +192,16 @@ resource "aws_lambda_function" "api" {
 }
 
 # --- WebSocket handler ---
+# Same quota constraint as the api Lambda — see note above.
 resource "aws_lambda_function" "ws_handler" {
-  function_name                  = "${local.prefix}-ws-handler"
-  role                           = aws_iam_role.lambda_exec.arn
-  runtime                        = "nodejs20.x"
-  handler                        = "index.handler"
-  filename                       = data.archive_file.placeholder.output_path
-  source_code_hash               = data.archive_file.placeholder.output_base64sha256
-  memory_size                    = 512
-  timeout                        = 300
-  reserved_concurrent_executions = 5
+  function_name    = "${local.prefix}-ws-handler"
+  role             = aws_iam_role.lambda_exec.arn
+  runtime          = "nodejs20.x"
+  handler          = "index.handler"
+  filename         = data.archive_file.placeholder.output_path
+  source_code_hash = data.archive_file.placeholder.output_base64sha256
+  memory_size      = 512
+  timeout          = 300
 
   environment {
     variables = local.common_env

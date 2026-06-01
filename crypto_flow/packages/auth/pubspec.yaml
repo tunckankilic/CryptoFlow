@@ -27,8 +27,8 @@ dependencies:
   sign_in_with_apple: ^5.0.0
 
   # AWS Amplify (Cognito)
-  amplify_flutter: ^2.6.1
-  amplify_auth_cognito: ^2.6.1
+  amplify_flutter: ^2.11.0
+  amplify_auth_cognito: ^2.11.0
   collection: ^1.18.0
   
   # Secure Storage

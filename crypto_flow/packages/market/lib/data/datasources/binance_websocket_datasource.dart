@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'dart:async';
 import 'package:core/network/websocket_client.dart';
 import 'package:core/constants/api_endpoints.dart';

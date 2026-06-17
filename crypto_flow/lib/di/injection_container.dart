@@ -1,10 +1,11 @@
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 // Package imports
 import 'package:alerts/alerts.dart';
+import 'package:auth/auth.dart';
 import 'package:notifications/notifications.dart';
+import 'package:portfolio/portfolio.dart';
 import 'package:watchlist/watchlist.dart';
 import 'package:settings/settings.dart';
 
@@ -44,9 +45,6 @@ Future<void> configureDependencies() async {
   await Hive.openBox<WatchlistItemModel>('watchlist');
   await Hive.openBox<PriceAlertModel>('alerts');
 
-  // Initialize Firebase
-  await Firebase.initializeApp();
-
   // Register modules
   await registerCoreModule();
   await registerMarketModule();
@@ -58,8 +56,22 @@ Future<void> configureDependencies() async {
   await initNotificationModule(getIt);
 }
 
-/// Dispose all resources
+/// Dispose all resources — close global BLoCs before resetting GetIt
 Future<void> disposeDependencies() async {
+  // Close global singleton BLoCs to cancel their stream subscriptions
+  if (getIt.isRegistered<AuthBloc>()) await getIt<AuthBloc>().close();
+  if (getIt.isRegistered<PortfolioBloc>()) await getIt<PortfolioBloc>().close();
+  if (getIt.isRegistered<JournalBloc>()) await getIt<JournalBloc>().close();
+  if (getIt.isRegistered<JournalStatsBloc>()) {
+    await getIt<JournalStatsBloc>().close();
+  }
+  if (getIt.isRegistered<AlertBloc>()) await getIt<AlertBloc>().close();
+  if (getIt.isRegistered<WatchlistBloc>()) await getIt<WatchlistBloc>().close();
+  if (getIt.isRegistered<SettingsBloc>()) await getIt<SettingsBloc>().close();
+  if (getIt.isRegistered<NotificationBloc>()) {
+    await getIt<NotificationBloc>().close();
+  }
+
   await getIt.reset();
   await Hive.close();
 }

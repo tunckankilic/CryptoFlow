@@ -1,3 +1,4 @@
+import 'package:core/core.dart';
 import 'package:portfolio/portfolio.dart';
 
 import 'injection_container.dart';
@@ -8,7 +9,7 @@ Future<void> registerPortfolioModule() async {
   final database = PortfolioDatabase();
   getIt.registerSingleton<PortfolioDatabase>(database);
 
-  // Data sources
+  // Local data sources (always registered — used as cache even in AWS mode)
   getIt.registerLazySingleton<PortfolioLocalDataSource>(
     () => PortfolioLocalDataSource(getIt<PortfolioDatabase>()),
   );
@@ -22,15 +23,28 @@ Future<void> registerPortfolioModule() async {
     () => TagDao(getIt<PortfolioDatabase>()),
   );
 
-  // Repositories
-  getIt.registerLazySingleton<PortfolioRepository>(
-    () => PortfolioRepositoryImpl(
-      localDataSource: getIt<PortfolioLocalDataSource>(),
+  // Remote data sources
+  getIt.registerLazySingleton<PortfolioRemoteDataSource>(
+    () => PortfolioRemoteDataSourceImpl(
+      apiClient: getIt<AwsApiClient>(),
+    ),
+  );
+  getIt.registerLazySingleton<JournalRemoteDataSource>(
+    () => JournalRemoteDataSourceImpl(
+      apiClient: getIt<AwsApiClient>(),
     ),
   );
 
+  // AWS repository implementations
+  getIt.registerLazySingleton<PortfolioRepository>(
+    () => PortfolioAwsRepositoryImpl(
+      remoteDataSource: getIt<PortfolioRemoteDataSource>(),
+      localDataSource: getIt<PortfolioLocalDataSource>(),
+    ),
+  );
   getIt.registerLazySingleton<JournalRepository>(
-    () => JournalRepositoryImpl(
+    () => JournalAwsRepositoryImpl(
+      remoteDataSource: getIt<JournalRemoteDataSource>(),
       journalDao: getIt<JournalDao>(),
       tagDao: getIt<TagDao>(),
     ),
@@ -63,17 +77,42 @@ Future<void> registerPortfolioModule() async {
   // Services
   getIt.registerLazySingleton(() => PdfReportService());
 
-  // BLoCs
-  getIt.registerFactory<PortfolioBloc>(
+  // Performance Analytics & Tax Reporting
+  getIt.registerLazySingleton<AnalyticsRemoteDataSource>(
+    () => AnalyticsRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerLazySingleton<TaxRemoteDataSource>(
+    () => TaxRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerFactory<PerformanceBloc>(
+    () => PerformanceBloc(
+      analyticsDataSource: getIt<AnalyticsRemoteDataSource>(),
+    ),
+  );
+  getIt.registerFactory<TaxReportBloc>(
+    () => TaxReportBloc(taxDataSource: getIt<TaxRemoteDataSource>()),
+  );
+
+  // Risk Management
+  getIt.registerLazySingleton<RiskRemoteDataSource>(
+    () => RiskRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerFactory<RiskBloc>(
+    () => RiskBloc(dataSource: getIt<RiskRemoteDataSource>()),
+  );
+
+  // BLoCs — lazySingleton for global BLoCs shared across the app
+  getIt.registerLazySingleton<PortfolioBloc>(
     () => PortfolioBloc(
       getHoldings: getIt<GetHoldings>(),
       addTransaction: getIt<AddTransaction>(),
       getPortfolioValue: getIt<GetPortfolioValue>(),
       repository: getIt<PortfolioRepository>(),
+      widgetDataService: getIt<WidgetDataService>(),
     ),
   );
 
-  getIt.registerFactory<JournalBloc>(
+  getIt.registerLazySingleton<JournalBloc>(
     () => JournalBloc(
       getJournalEntries: getIt<GetJournalEntries>(),
       addJournalEntry: getIt<AddJournalEntry>(),
@@ -83,7 +122,7 @@ Future<void> registerPortfolioModule() async {
     ),
   );
 
-  getIt.registerFactory<JournalStatsBloc>(
+  getIt.registerLazySingleton<JournalStatsBloc>(
     () => JournalStatsBloc(
       getTradingStats: getIt<GetTradingStats>(),
       getEquityCurve: getIt<GetEquityCurve>(),

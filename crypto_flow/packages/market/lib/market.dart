@@ -84,3 +84,10 @@ export 'presentation/widgets/depth_chart.dart';
 export 'presentation/widgets/indicator_selector.dart';
 export 'presentation/widgets/rsi_panel.dart';
 export 'presentation/widgets/macd_panel.dart';
+
+// Pattern Recognition (Faz 6.4)
+export 'domain/entities/chart_pattern.dart';
+export 'data/models/chart_pattern_model.dart';
+export 'data/datasources/pattern_remote_datasource.dart';
+export 'presentation/bloc/pattern/pattern_bloc.dart';
+export 'presentation/widgets/pattern_overlay.dart';

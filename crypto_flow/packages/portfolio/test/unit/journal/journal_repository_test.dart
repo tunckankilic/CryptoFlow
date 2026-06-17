@@ -355,8 +355,30 @@ void main() {
 
     test('calculateStats - handles daily period', () async {
       // arrange
+      // The daily period filters by entryDate within the last day (relative to
+      // the real DateTime.now()). Use a freshly-dated entry so the window
+      // includes it; otherwise calculateStats short-circuits to empty stats
+      // before reaching the day-scoped DAO calls.
+      final nowReal = DateTime.now();
+      final recentEntries = [
+        JournalEntryModel(
+          id: 1,
+          symbol: 'BTCUSDT',
+          side: TradeSide.long,
+          entryPrice: 50000.0,
+          exitPrice: 55000.0,
+          quantity: 1.0,
+          pnl: 2000.0,
+          riskRewardRatio: 3.0,
+          emotion: TradeEmotion.confident,
+          entryDate: nowReal.subtract(const Duration(hours: 2)),
+          exitDate: nowReal.subtract(const Duration(hours: 1)),
+          createdAt: nowReal,
+          updatedAt: nowReal,
+        ),
+      ];
       when(() => mockJournalDao.getAllEntries())
-          .thenAnswer((_) async => entries);
+          .thenAnswer((_) async => recentEntries);
       when(() => mockJournalDao.getTotalPnl(days: 1))
           .thenAnswer((_) async => 2000.0);
       when(() => mockJournalDao.getGrossProfit(days: 1))

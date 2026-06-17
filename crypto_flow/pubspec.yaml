@@ -48,9 +48,14 @@ dependencies:
   dio: any
   connectivity_plus: any
   hive_flutter: any
-  firebase_messaging: any
   flutter_local_notifications: any
-  firebase_core: any
+
+  # AWS Amplify (Cognito auth)
+  amplify_flutter: ^2.11.0
+  amplify_auth_cognito: ^2.11.0
+
+  # WidgetKit bridge (iOS home screen widgets)
+  home_widget: ^0.7.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -69,3 +74,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - amplify_outputs.json

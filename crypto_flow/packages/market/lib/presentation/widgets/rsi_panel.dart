@@ -88,16 +88,16 @@ class RSIPanel extends StatelessWidget {
                     if (value == overboughtLevel || value == oversoldLevel) {
                       return FlLine(
                         color: value == overboughtLevel
-                            ? Colors.red.withOpacity(0.5)
-                            : Colors.green.withOpacity(0.5),
+                            ? Colors.red.withValues(alpha: 0.5)
+                            : Colors.green.withValues(alpha: 0.5),
                         strokeWidth: 1,
                         dashArray: [5, 5],
                       );
                     }
                     return FlLine(
                       color: isDark
-                          ? Colors.white.withOpacity(0.05)
-                          : Colors.black.withOpacity(0.05),
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : Colors.black.withValues(alpha: 0.05),
                       strokeWidth: 0.5,
                     );
                   },
@@ -150,8 +150,8 @@ class RSIPanel extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.purple.withOpacity(0.3),
-                          Colors.purple.withOpacity(0.0),
+                          Colors.purple.withValues(alpha: 0.3),
+                          Colors.purple.withValues(alpha: 0.0),
                         ],
                       ),
                     ),

@@ -1,4 +1,7 @@
+// ignore_for_file: unused_field
+
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/candle.dart';
 import '../../../domain/entities/indicator_type.dart';
@@ -29,6 +32,7 @@ class CandleBloc extends Bloc<CandleEvent, CandleState> {
     on<UnsubscribeFromCandleStream>(_onUnsubscribe);
     on<ChangeCandleInterval>(_onChangeInterval);
     on<CandleReceived>(_onCandleReceived);
+    on<CandleStreamError>(_onStreamError);
     on<ToggleIndicator>(_onToggleIndicator);
   }
 
@@ -74,12 +78,32 @@ class CandleBloc extends Bloc<CandleEvent, CandleState> {
     _candleSubscription = _wsRepository
         .getCandleStream(event.symbol, event.interval)
         .listen((either) => either.fold(
-              (failure) {},
-              (candle) => add(CandleReceived(candle)),
+              (failure) {
+                log('CandleBloc: WebSocket stream error: ${failure.message}');
+                if (!isClosed) {
+                  add(CandleStreamError(failure.message));
+                }
+              },
+              (candle) {
+                if (!isClosed) add(CandleReceived(candle));
+              },
             ));
 
     if (state is CandleLoaded) {
       emit((state as CandleLoaded).copyWith(isLive: true));
+    }
+  }
+
+  /// Handle WebSocket stream errors — keep existing candle data visible
+  void _onStreamError(
+    CandleStreamError event,
+    Emitter<CandleState> emit,
+  ) {
+    if (state is CandleLoaded) {
+      // Keep showing stale data but mark stream as disconnected
+      emit((state as CandleLoaded).copyWith(isLive: false));
+    } else {
+      emit(CandleError('Stream error: ${event.message}'));
     }
   }
 

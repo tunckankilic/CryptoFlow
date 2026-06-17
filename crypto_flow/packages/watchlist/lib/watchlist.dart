@@ -20,8 +20,10 @@ export 'domain/usecases/reorder_watchlist.dart';
 export 'data/models/watchlist_item_model.dart';
 
 export 'data/datasources/watchlist_local_datasource.dart';
+export 'data/datasources/watchlist_remote_datasource.dart';
 
 export 'data/repositories/watchlist_repository_impl.dart';
+export 'data/repositories/watchlist_aws_repository_impl.dart';
 
 // Presentation layer
 export 'presentation/bloc/watchlist_bloc.dart';

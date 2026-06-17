@@ -1,3 +1,5 @@
+// ignore_for_file: overridden_fields
+
 import 'package:hive/hive.dart';
 import '../../domain/entities/notification_settings.dart';
 
@@ -32,7 +34,19 @@ class NotificationSettingsModel extends NotificationSettings {
 
   @HiveField(6)
   @override
-  final String? fcmToken;
+  final String? pushToken;
+
+  @HiveField(7, defaultValue: false)
+  @override
+  final bool whaleAlerts;
+
+  @HiveField(8, defaultValue: false)
+  @override
+  final bool fundingRateAlerts;
+
+  @HiveField(9, defaultValue: false)
+  @override
+  final bool sentimentAlerts;
 
   const NotificationSettingsModel({
     required this.priceAlerts,
@@ -41,7 +55,10 @@ class NotificationSettingsModel extends NotificationSettings {
     required this.marketUpdates,
     required this.soundEnabled,
     required this.vibrationEnabled,
-    this.fcmToken,
+    this.whaleAlerts = false,
+    this.fundingRateAlerts = false,
+    this.sentimentAlerts = false,
+    this.pushToken,
   }) : super(
           priceAlerts: priceAlerts,
           portfolioAlerts: portfolioAlerts,
@@ -49,7 +66,10 @@ class NotificationSettingsModel extends NotificationSettings {
           marketUpdates: marketUpdates,
           soundEnabled: soundEnabled,
           vibrationEnabled: vibrationEnabled,
-          fcmToken: fcmToken,
+          whaleAlerts: whaleAlerts,
+          fundingRateAlerts: fundingRateAlerts,
+          sentimentAlerts: sentimentAlerts,
+          pushToken: pushToken,
         );
 
   /// From domain entity
@@ -61,7 +81,10 @@ class NotificationSettingsModel extends NotificationSettings {
       marketUpdates: entity.marketUpdates,
       soundEnabled: entity.soundEnabled,
       vibrationEnabled: entity.vibrationEnabled,
-      fcmToken: entity.fcmToken,
+      whaleAlerts: entity.whaleAlerts,
+      fundingRateAlerts: entity.fundingRateAlerts,
+      sentimentAlerts: entity.sentimentAlerts,
+      pushToken: entity.pushToken,
     );
   }
 
@@ -74,7 +97,10 @@ class NotificationSettingsModel extends NotificationSettings {
       marketUpdates: json['marketUpdates'] as bool? ?? false,
       soundEnabled: json['soundEnabled'] as bool? ?? true,
       vibrationEnabled: json['vibrationEnabled'] as bool? ?? true,
-      fcmToken: json['fcmToken'] as String?,
+      whaleAlerts: json['whaleAlerts'] as bool? ?? false,
+      fundingRateAlerts: json['fundingRateAlerts'] as bool? ?? false,
+      sentimentAlerts: json['sentimentAlerts'] as bool? ?? false,
+      pushToken: json['pushToken'] as String?,
     );
   }
 
@@ -87,7 +113,10 @@ class NotificationSettingsModel extends NotificationSettings {
       'marketUpdates': marketUpdates,
       'soundEnabled': soundEnabled,
       'vibrationEnabled': vibrationEnabled,
-      'fcmToken': fcmToken,
+      'whaleAlerts': whaleAlerts,
+      'fundingRateAlerts': fundingRateAlerts,
+      'sentimentAlerts': sentimentAlerts,
+      'pushToken': pushToken,
     };
   }
 
@@ -100,7 +129,10 @@ class NotificationSettingsModel extends NotificationSettings {
     bool? marketUpdates,
     bool? soundEnabled,
     bool? vibrationEnabled,
-    String? fcmToken,
+    bool? whaleAlerts,
+    bool? fundingRateAlerts,
+    bool? sentimentAlerts,
+    String? pushToken,
   }) {
     return NotificationSettingsModel(
       priceAlerts: priceAlerts ?? this.priceAlerts,
@@ -109,7 +141,10 @@ class NotificationSettingsModel extends NotificationSettings {
       marketUpdates: marketUpdates ?? this.marketUpdates,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
-      fcmToken: fcmToken ?? this.fcmToken,
+      whaleAlerts: whaleAlerts ?? this.whaleAlerts,
+      fundingRateAlerts: fundingRateAlerts ?? this.fundingRateAlerts,
+      sentimentAlerts: sentimentAlerts ?? this.sentimentAlerts,
+      pushToken: pushToken ?? this.pushToken,
     );
   }
 }

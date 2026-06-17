@@ -30,32 +30,6 @@ class SocialLoginButton extends StatelessWidget {
     this.isLoading = false,
   });
 
-  /// Factory constructor for Google Sign In button
-  factory SocialLoginButton.google({
-    Key? key,
-    VoidCallback? onPressed,
-    bool isLoading = false,
-  }) {
-    return SocialLoginButton(
-      key: key,
-      label: 'Continue with Google',
-      icon: Image.network(
-        'https://www.google.com/favicon.ico',
-        width: 24,
-        height: 24,
-        errorBuilder: (_, __, ___) => const Icon(
-          Icons.g_mobiledata,
-          size: 24,
-          color: Colors.red,
-        ),
-      ),
-      backgroundColor: Colors.white,
-      textColor: Colors.black87,
-      onPressed: onPressed,
-      isLoading: isLoading,
-    );
-  }
-
   /// Factory constructor for Apple Sign In button
   factory SocialLoginButton.apple({
     Key? key,

@@ -26,12 +26,20 @@ class CryptoWaveApp extends StatefulWidget {
 
 class _CryptoWaveAppState extends State<CryptoWaveApp> {
   late final GoRouter _router;
+  late final AuthNotifier _authNotifier;
 
   @override
   void initState() {
     super.initState();
-    // Create router once with AuthBloc
-    _router = createAppRouter(getIt<AuthBloc>());
+    // Create AuthNotifier and router once — store notifier for disposal
+    _authNotifier = AuthNotifier(getIt<AuthBloc>());
+    _router = createAppRouter(getIt<AuthBloc>(), authNotifier: _authNotifier);
+  }
+
+  @override
+  void dispose() {
+    _authNotifier.dispose();
+    super.dispose();
   }
 
   @override
@@ -45,30 +53,32 @@ class _CryptoWaveAppState extends State<CryptoWaveApp> {
       ],
       child: MultiBlocProvider(
         providers: [
-          // Global BLoCs (shared across pages)
-          BlocProvider<AuthBloc>(
-            create: (_) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
+          // Global BLoCs — use .value() since they are lazySingletons in GetIt.
+          // Initial events are dispatched once here; subsequent rebuilds reuse
+          // the same instance without re-dispatching.
+          BlocProvider<AuthBloc>.value(
+            value: getIt<AuthBloc>()..add(const AuthCheckRequested()),
           ),
-          BlocProvider<WatchlistBloc>(
-            create: (_) => getIt<WatchlistBloc>()..add(const LoadWatchlist()),
+          BlocProvider<WatchlistBloc>.value(
+            value: getIt<WatchlistBloc>()..add(const LoadWatchlist()),
           ),
-          BlocProvider<PortfolioBloc>(
-            create: (_) => getIt<PortfolioBloc>()..add(const LoadPortfolio()),
+          BlocProvider<PortfolioBloc>.value(
+            value: getIt<PortfolioBloc>()..add(const LoadPortfolio()),
           ),
-          BlocProvider<JournalBloc>(
-            create: (_) => getIt<JournalBloc>(),
+          BlocProvider<JournalBloc>.value(
+            value: getIt<JournalBloc>(),
           ),
-          BlocProvider<JournalStatsBloc>(
-            create: (_) => getIt<JournalStatsBloc>(),
+          BlocProvider<JournalStatsBloc>.value(
+            value: getIt<JournalStatsBloc>(),
           ),
-          BlocProvider<AlertBloc>(
-            create: (_) => getIt<AlertBloc>()..add(const LoadAlerts()),
+          BlocProvider<AlertBloc>.value(
+            value: getIt<AlertBloc>()..add(const LoadAlerts()),
           ),
-          BlocProvider<SettingsBloc>(
-            create: (_) => getIt<SettingsBloc>()..add(const LoadSettings()),
+          BlocProvider<SettingsBloc>.value(
+            value: getIt<SettingsBloc>()..add(const LoadSettings()),
           ),
-          BlocProvider<NotificationBloc>(
-            create: (_) => getIt<NotificationBloc>()
+          BlocProvider<NotificationBloc>.value(
+            value: getIt<NotificationBloc>()
               ..add(const InitializeNotificationsEvent()),
           ),
         ],

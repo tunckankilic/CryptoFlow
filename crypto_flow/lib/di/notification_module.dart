@@ -1,6 +1,6 @@
+import 'package:core/core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // Package imports
@@ -14,12 +14,11 @@ Future<void> initNotificationModule(GetIt sl) async {
   }
 
   // External dependencies
-  sl.registerLazySingleton(() => FirebaseMessaging.instance);
   sl.registerLazySingleton(() => FlutterLocalNotificationsPlugin());
 
   // Datasources
-  sl.registerLazySingleton<FCMDatasource>(
-    () => FCMDatasource(sl()),
+  sl.registerLazySingleton<ApnsDatasource>(
+    () => ApnsDatasource(sl()),
   );
 
   sl.registerLazySingleton<LocalNotificationDatasource>(
@@ -30,12 +29,18 @@ Future<void> initNotificationModule(GetIt sl) async {
     () => NotificationSettingsLocalDatasource(),
   );
 
-  // Repository
+  // Repository — AWS-only
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(
+      apiClient: sl<AwsApiClient>(),
+    ),
+  );
   sl.registerLazySingleton<NotificationRepository>(
-    () => NotificationRepositoryImpl(
-      fcmDatasource: sl(),
+    () => NotificationAwsRepositoryImpl(
+      apnsDatasource: sl(),
       localNotificationDatasource: sl(),
       settingsLocalDatasource: sl(),
+      remoteDataSource: sl(),
     ),
   );
 
@@ -49,7 +54,7 @@ Future<void> initNotificationModule(GetIt sl) async {
   );
 
   sl.registerLazySingleton(
-    () => GetFCMToken(sl()),
+    () => GetPushToken(sl()),
   );
 
   sl.registerLazySingleton(
@@ -64,12 +69,12 @@ Future<void> initNotificationModule(GetIt sl) async {
     () => HandleNotification(sl()),
   );
 
-  // BLoC
-  sl.registerFactory(
+  // BLoC — lazySingleton for global BLoC shared across the app
+  sl.registerLazySingleton(
     () => NotificationBloc(
       initializeNotifications: sl(),
       requestPermission: sl(),
-      getFCMToken: sl(),
+      getPushToken: sl(),
       subscribeToTopic: sl(),
       unsubscribeFromTopic: sl(),
       repository: sl(),

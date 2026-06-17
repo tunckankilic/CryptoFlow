@@ -19,7 +19,7 @@ class RequestPermissionEvent extends NotificationEvent {
   const RequestPermissionEvent();
 }
 
-/// FCM token refreshed
+/// Push token refreshed (APNs token rotation)
 class TokenRefreshed extends NotificationEvent {
   final String token;
 

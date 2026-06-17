@@ -40,6 +40,26 @@ workflows:
           cd crypto_flow
           flutter pub get
           cd ios && pod install --repo-update
+      - name: Inject environment config
+        script: |
+          # Codemagic Environment Variable Group `app_store_credentials` should
+          # provide encrypted overrides for the secrets below. The committed
+          # config/prod.env supplies non-secret defaults.
+          set -a
+          source "$CM_BUILD_DIR/config/prod.env"
+          set +a
+          cp "$CM_BUILD_DIR/config/amplify_outputs.prod.json" \
+             "$CM_BUILD_DIR/crypto_flow/amplify_outputs.json"
+          DART_DEFINES="--dart-define=ENV=$ENV"
+          DART_DEFINES="$DART_DEFINES --dart-define=API_BASE_URL=$API_BASE_URL"
+          DART_DEFINES="$DART_DEFINES --dart-define=WS_BASE_URL=$WS_BASE_URL"
+          DART_DEFINES="$DART_DEFINES --dart-define=BINANCE_REST_URL=$BINANCE_REST_URL"
+          DART_DEFINES="$DART_DEFINES --dart-define=BINANCE_WS_URL=$BINANCE_WS_URL"
+          DART_DEFINES="$DART_DEFINES --dart-define=COGNITO_USER_POOL_ID=$COGNITO_USER_POOL_ID"
+          DART_DEFINES="$DART_DEFINES --dart-define=COGNITO_CLIENT_ID=$COGNITO_CLIENT_ID"
+          DART_DEFINES="$DART_DEFINES --dart-define=COGNITO_IDENTITY_POOL_ID=$COGNITO_IDENTITY_POOL_ID"
+          DART_DEFINES="$DART_DEFINES --dart-define=AWS_REGION=$AWS_REGION"
+          echo "FLUTTER_BUILD_ARGS=$DART_DEFINES" >> $CM_ENV
       - name: Flutter analyze
         script: |
           cd crypto_flow
@@ -65,6 +85,7 @@ workflows:
           flutter build ipa \
             --release \
             --build-number=$BUILD_NUMBER \
+            $FLUTTER_BUILD_ARGS \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - crypto_flow/build/ios/ipa/*.ipa

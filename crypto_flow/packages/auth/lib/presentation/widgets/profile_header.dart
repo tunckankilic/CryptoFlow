@@ -107,8 +107,6 @@ class ProfileHeader extends StatelessWidget {
 
   IconData _getProviderIcon(AuthProvider provider) {
     switch (provider) {
-      case AuthProvider.google:
-        return Icons.g_mobiledata;
       case AuthProvider.apple:
         return Icons.apple;
       case AuthProvider.email:
@@ -120,8 +118,6 @@ class ProfileHeader extends StatelessWidget {
 
   Color _getProviderColor(AuthProvider provider) {
     switch (provider) {
-      case AuthProvider.google:
-        return Colors.red.shade600;
       case AuthProvider.apple:
         return Colors.black;
       case AuthProvider.email:
@@ -133,8 +129,6 @@ class ProfileHeader extends StatelessWidget {
 
   String _getProviderLabel(AuthProvider provider) {
     switch (provider) {
-      case AuthProvider.google:
-        return 'Google Account';
       case AuthProvider.apple:
         return 'Apple Account';
       case AuthProvider.email:

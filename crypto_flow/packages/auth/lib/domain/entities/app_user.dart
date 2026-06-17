@@ -2,9 +2,6 @@ import 'package:equatable/equatable.dart';
 
 /// Authentication provider types
 enum AuthProvider {
-  /// Google Sign In
-  google,
-
   /// Apple Sign In
   apple,
 
@@ -17,7 +14,7 @@ enum AuthProvider {
 
 /// Represents an authenticated user in the application
 class AppUser extends Equatable {
-  /// Firebase user ID
+  /// Unique user ID (Cognito sub)
   final String uid;
 
   /// User's email address (may be null for anonymous users)

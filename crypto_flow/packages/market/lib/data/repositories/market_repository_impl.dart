@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:dartz/dartz.dart';
 import 'package:core/error/failures.dart';
 import 'package:core/error/exceptions.dart';

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/order_book.dart';
 import '../../../domain/repositories/market_repository.dart';
@@ -58,8 +59,12 @@ class OrderBookBloc extends Bloc<OrderBookEvent, OrderBookState> {
     _orderBookSubscription = _wsRepository
         .getOrderBookStream(event.symbol, depth: event.depth)
         .listen((either) => either.fold(
-              (failure) {},
-              (orderBook) => add(OrderBookReceived(orderBook)),
+              (failure) {
+                log('OrderBookBloc: stream error: ${failure.message}');
+              },
+              (orderBook) {
+                if (!isClosed) add(OrderBookReceived(orderBook));
+              },
             ));
 
     if (state is OrderBookLoaded) {

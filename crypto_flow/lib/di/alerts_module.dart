@@ -1,11 +1,12 @@
 import 'package:alerts/alerts.dart';
+import 'package:core/core.dart';
 import 'package:notifications/notifications.dart';
 
 import 'injection_container.dart';
 
 /// Register alerts dependencies
 Future<void> registerAlertsModule() async {
-  // Data sources (no Impl suffix - class is named AlertLocalDataSource)
+  // Local data source (always registered — used as cache even in AWS mode)
   final alertDataSource = AlertLocalDataSource();
   await alertDataSource.init();
 
@@ -13,9 +14,15 @@ Future<void> registerAlertsModule() async {
     () => alertDataSource,
   );
 
-  // Repositories
+  // Repositories — AWS-only
+  getIt.registerLazySingleton<AlertRemoteDataSource>(
+    () => AlertRemoteDataSourceImpl(
+      apiClient: getIt<AwsApiClient>(),
+    ),
+  );
   getIt.registerLazySingleton<AlertRepository>(
-    () => AlertRepositoryImpl(
+    () => AlertAwsRepositoryImpl(
+      remoteDataSource: getIt<AlertRemoteDataSource>(),
       localDataSource: getIt<AlertLocalDataSource>(),
     ),
   );
@@ -27,8 +34,16 @@ Future<void> registerAlertsModule() async {
   getIt.registerLazySingleton(() => ToggleAlert(getIt<AlertRepository>()));
   getIt.registerLazySingleton(() => CheckAlerts(getIt<AlertRepository>()));
 
-  // BLoC
-  getIt.registerFactory<AlertBloc>(
+  // Automation Rules
+  getIt.registerLazySingleton<AutomationRemoteDataSource>(
+    () => AutomationRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerFactory<AutomationBloc>(
+    () => AutomationBloc(dataSource: getIt<AutomationRemoteDataSource>()),
+  );
+
+  // BLoC — lazySingleton for global BLoC shared across the app
+  getIt.registerLazySingleton<AlertBloc>(
     () => AlertBloc(
       getAlerts: getIt<GetAlerts>(),
       createAlert: getIt<CreateAlert>(),
@@ -36,6 +51,7 @@ Future<void> registerAlertsModule() async {
       toggleAlert: getIt<ToggleAlert>(),
       checkAlerts: getIt<CheckAlerts>(),
       repository: getIt<AlertRepository>(),
+      widgetDataService: getIt<WidgetDataService>(),
       notificationRepository: getIt.isRegistered<NotificationRepository>()
           ? getIt<NotificationRepository>()
           : null,

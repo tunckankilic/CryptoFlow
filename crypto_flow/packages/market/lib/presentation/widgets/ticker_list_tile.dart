@@ -68,7 +68,8 @@ class TickerListTile extends StatelessWidget {
                   Text(
                     ticker.quoteAsset,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+                      color: theme.textTheme.bodySmall?.color
+                          ?.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -133,7 +134,7 @@ class _VolumeIndicator extends StatelessWidget {
                     .textTheme
                     .bodySmall
                     ?.color
-                    ?.withOpacity(0.7),
+                    ?.withValues(alpha: 0.7),
               ),
         ),
         const SizedBox(height: 4),
@@ -143,7 +144,7 @@ class _VolumeIndicator extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(2),
             color: (isPositive ? CryptoColors.priceUp : CryptoColors.priceDown)
-                .withOpacity(0.3),
+                .withValues(alpha: 0.3),
           ),
         ),
       ],

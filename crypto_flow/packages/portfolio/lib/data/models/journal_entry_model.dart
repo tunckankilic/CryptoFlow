@@ -157,7 +157,9 @@ class JournalEntryModel extends domain.JournalEntry {
       strategy: driftRow.strategy,
       emotion: TradeEmotionX.fromJson(driftRow.emotion),
       notes: driftRow.notes,
-      tags: List<String>.from(jsonDecode(driftRow.tags)),
+      tags: driftRow.tags.isNotEmpty
+          ? List<String>.from(jsonDecode(driftRow.tags) as List? ?? [])
+          : <String>[],
       screenshotPath: driftRow.screenshotPath,
       entryDate: driftRow.entryDate,
       exitDate: driftRow.exitDate,

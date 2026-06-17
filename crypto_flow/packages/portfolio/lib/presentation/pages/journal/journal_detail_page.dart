@@ -240,7 +240,7 @@ class JournalDetailPage extends StatelessWidget {
                         .map((tag) => Chip(
                               label: Text(tag),
                               backgroundColor:
-                                  CryptoColors.primary.withOpacity(0.1),
+                                  CryptoColors.primary.withValues(alpha: 0.1),
                               side:
                                   const BorderSide(color: CryptoColors.primary),
                             ))

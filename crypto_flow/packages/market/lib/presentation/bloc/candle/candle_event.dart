@@ -73,3 +73,13 @@ class CandleReceived extends CandleEvent {
   @override
   List<Object?> get props => [candle];
 }
+
+/// Internal: WebSocket stream error
+class CandleStreamError extends CandleEvent {
+  final String message;
+
+  const CandleStreamError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

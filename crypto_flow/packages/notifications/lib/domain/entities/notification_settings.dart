@@ -20,8 +20,17 @@ class NotificationSettings extends Equatable {
   /// Whether notification vibration is enabled
   final bool vibrationEnabled;
 
-  /// FCM token for this device
-  final String? fcmToken;
+  /// Whether whale detection alerts are enabled
+  final bool whaleAlerts;
+
+  /// Whether funding rate alerts are enabled
+  final bool fundingRateAlerts;
+
+  /// Whether sentiment shift alerts are enabled
+  final bool sentimentAlerts;
+
+  /// Push token for this device (APNs token on iOS).
+  final String? pushToken;
 
   const NotificationSettings({
     required this.priceAlerts,
@@ -30,7 +39,10 @@ class NotificationSettings extends Equatable {
     required this.marketUpdates,
     required this.soundEnabled,
     required this.vibrationEnabled,
-    this.fcmToken,
+    this.whaleAlerts = false,
+    this.fundingRateAlerts = false,
+    this.sentimentAlerts = false,
+    this.pushToken,
   });
 
   /// Default notification settings
@@ -42,7 +54,10 @@ class NotificationSettings extends Equatable {
       marketUpdates: false,
       soundEnabled: true,
       vibrationEnabled: true,
-      fcmToken: null,
+      whaleAlerts: false,
+      fundingRateAlerts: false,
+      sentimentAlerts: false,
+      pushToken: null,
     );
   }
 
@@ -54,7 +69,10 @@ class NotificationSettings extends Equatable {
     bool? marketUpdates,
     bool? soundEnabled,
     bool? vibrationEnabled,
-    String? fcmToken,
+    bool? whaleAlerts,
+    bool? fundingRateAlerts,
+    bool? sentimentAlerts,
+    String? pushToken,
   }) {
     return NotificationSettings(
       priceAlerts: priceAlerts ?? this.priceAlerts,
@@ -63,7 +81,10 @@ class NotificationSettings extends Equatable {
       marketUpdates: marketUpdates ?? this.marketUpdates,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
-      fcmToken: fcmToken ?? this.fcmToken,
+      whaleAlerts: whaleAlerts ?? this.whaleAlerts,
+      fundingRateAlerts: fundingRateAlerts ?? this.fundingRateAlerts,
+      sentimentAlerts: sentimentAlerts ?? this.sentimentAlerts,
+      pushToken: pushToken ?? this.pushToken,
     );
   }
 
@@ -75,6 +96,9 @@ class NotificationSettings extends Equatable {
         marketUpdates,
         soundEnabled,
         vibrationEnabled,
-        fcmToken,
+        whaleAlerts,
+        fundingRateAlerts,
+        sentimentAlerts,
+        pushToken,
       ];
 }

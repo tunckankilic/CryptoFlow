@@ -14,3 +14,27 @@ build/
 
 # macOS
 .DS_Store
+
+# Environment configs
+config/*.env
+!config/env.example
+config/amplify_outputs.*.json
+!config/amplify_outputs.example.json
+crypto_flow/amplify_outputs.json
+
+# Terraform
+infrastructure/.terraform/
+infrastructure/.terraform.lock.hcl
+infrastructure/*.tfstate
+infrastructure/*.tfstate.*
+infrastructure/terraform.tfvars
+!infrastructure/terraform.tfvars.example
+infrastructure/modules/lambda/placeholder.zip
+
+# Backend Lambda projects
+backend/*/node_modules/
+backend/*/dist/
+backend/*/function.zip
+backend/*/.env
+backend/*/.env.*
+backend/*/coverage/

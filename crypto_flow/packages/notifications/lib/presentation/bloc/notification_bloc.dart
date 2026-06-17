@@ -4,7 +4,7 @@ import 'package:core/core.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../domain/usecases/initialize_notifications.dart';
 import '../../domain/usecases/request_permission.dart';
-import '../../domain/usecases/get_fcm_token.dart';
+import '../../domain/usecases/get_push_token.dart';
 import '../../domain/usecases/subscribe_to_topic.dart';
 import '../../domain/usecases/unsubscribe_from_topic.dart';
 import 'notification_event.dart';
@@ -14,7 +14,7 @@ import 'notification_state.dart';
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final InitializeNotifications initializeNotifications;
   final RequestPermission requestPermission;
-  final GetFCMToken getFCMToken;
+  final GetPushToken getPushToken;
   final SubscribeToTopic subscribeToTopic;
   final UnsubscribeFromTopic unsubscribeFromTopic;
   final NotificationRepository repository;
@@ -26,7 +26,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   NotificationBloc({
     required this.initializeNotifications,
     required this.requestPermission,
-    required this.getFCMToken,
+    required this.getPushToken,
     required this.subscribeToTopic,
     required this.unsubscribeFromTopic,
     required this.repository,
@@ -110,7 +110,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     if (state is NotificationReady) {
       final currentState = state as NotificationReady;
       final updatedSettings = currentState.settings.copyWith(
-        fcmToken: event.token,
+        pushToken: event.token,
       );
       await repository.updateSettings(updatedSettings);
       emit(currentState.copyWith(settings: updatedSettings));

@@ -42,6 +42,9 @@ dependencies:
   # Image selection
   image_picker: ^1.0.7
 
+  # URL launching
+  url_launcher: ^6.2.0
+
   intl: any
 dev_dependencies:
   flutter_test:

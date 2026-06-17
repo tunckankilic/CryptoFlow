@@ -49,8 +49,6 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
-	<key>FirebaseMessagingAutoInitEnabled</key>
-	<false/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>CryptoWave uses Face ID to securely access your account</string>
 	<key>CFBundleURLTypes</key>
@@ -63,6 +61,16 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>cryptowave</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>site.tunckankilic.cryptoFlow.cognito</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>cryptoflow</string>
 			</array>
 		</dict>
 	</array>

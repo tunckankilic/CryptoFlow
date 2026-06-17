@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:core/services/cloud_sync_service.dart';
+import 'package:core/services/widget_data_service.dart';
 import '../../domain/usecases/add_transaction.dart';
 import '../../domain/usecases/get_holdings.dart';
 import '../../domain/usecases/get_portfolio_value.dart';
@@ -16,8 +16,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
   final AddTransaction addTransaction;
   final GetPortfolioValue getPortfolioValue;
   final PortfolioRepository repository;
-  final CloudSyncService? cloudSyncService;
-  final String? userId;
+  final WidgetDataService? widgetDataService;
 
   StreamSubscription? _holdingsSubscription;
   StreamSubscription? _priceSubscription;
@@ -28,8 +27,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     required this.addTransaction,
     required this.getPortfolioValue,
     required this.repository,
-    this.cloudSyncService,
-    this.userId,
+    this.widgetDataService,
   }) : super(const PortfolioInitial()) {
     on<LoadPortfolio>(_onLoadPortfolio);
     on<AddTransactionEvent>(_onAddTransaction);
@@ -94,10 +92,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
         emit(PortfolioError(message: failure.message));
       },
       (_) {
-        // Reload portfolio after adding transaction
         add(const LoadPortfolio());
-        // Auto-sync to cloud if available
-        _syncToCloud();
       },
     );
   }
@@ -114,10 +109,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
         emit(PortfolioError(message: failure.message));
       },
       (_) {
-        // Reload portfolio after deleting transaction
         add(const LoadPortfolio());
-        // Auto-sync to cloud if available
-        _syncToCloud();
       },
     );
   }
@@ -217,10 +209,12 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
           emit(PortfolioError(message: failure.message));
         },
         (summary) {
-          emit(currentState.copyWith(
+          final loaded = currentState.copyWith(
             summary: summary,
             currentPrices: _currentPrices,
-          ));
+          );
+          emit(loaded);
+          _pushPortfolioToWidget(loaded);
         },
       );
     }
@@ -238,32 +232,32 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     }
   }
 
+  /// Push portfolio data to iOS home screen widget.
+  void _pushPortfolioToWidget(PortfolioLoaded loaded) {
+    if (widgetDataService == null) return;
+    final s = loaded.summary;
+    final topHoldings = s.holdings.take(5).map((h) {
+      final pct = s.allocation[h.symbol] ?? 0;
+      final price = _currentPrices[h.symbol] ?? 0;
+      return {
+        'symbol': h.baseAsset,
+        'value': h.quantity * price,
+        'percentage': pct,
+      };
+    }).toList();
+
+    widgetDataService!.updatePortfolioData(
+      totalValue: s.totalValue,
+      pnl: s.totalPnl,
+      pnlPercentage: s.totalPnlPercent,
+      topHoldings: topHoldings,
+    );
+  }
+
   @override
   Future<void> close() {
     _holdingsSubscription?.cancel();
     _priceSubscription?.cancel();
     return super.close();
-  }
-
-  /// Sync portfolio to cloud if service is available
-  Future<void> _syncToCloud() async {
-    if (cloudSyncService == null || userId == null) return;
-    if (state is! PortfolioLoaded) return;
-
-    final loaded = state as PortfolioLoaded;
-    final holdingsJson = loaded.holdings
-        .map((h) => {
-              'symbol': h.symbol,
-              'baseAsset': h.baseAsset,
-              'quantity': h.quantity,
-              'avgBuyPrice': h.avgBuyPrice,
-              'firstBuyDate': h.firstBuyDate.toIso8601String(),
-            })
-        .toList();
-
-    await cloudSyncService!.syncPortfolio(
-      userId: userId!,
-      holdings: holdingsJson,
-    );
   }
 }

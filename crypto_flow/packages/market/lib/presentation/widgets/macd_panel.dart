@@ -65,8 +65,8 @@ class MACDPanel extends StatelessWidget {
               BarChartRodData(
                 toY: value,
                 color: value >= 0
-                    ? Colors.green.withOpacity(0.6)
-                    : Colors.red.withOpacity(0.6),
+                    ? Colors.green.withValues(alpha: 0.6)
+                    : Colors.red.withValues(alpha: 0.6),
                 width: 2,
                 borderRadius: BorderRadius.zero,
               ),
@@ -135,15 +135,15 @@ class MACDPanel extends StatelessWidget {
                         if (value.abs() < 0.001) {
                           return FlLine(
                             color: isDark
-                                ? Colors.white.withOpacity(0.3)
-                                : Colors.black.withOpacity(0.3),
+                                ? Colors.white.withValues(alpha: 0.3)
+                                : Colors.black.withValues(alpha: 0.3),
                             strokeWidth: 0.5,
                           );
                         }
                         return FlLine(
                           color: isDark
-                              ? Colors.white.withOpacity(0.05)
-                              : Colors.black.withOpacity(0.05),
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.05),
                           strokeWidth: 0.5,
                         );
                       },

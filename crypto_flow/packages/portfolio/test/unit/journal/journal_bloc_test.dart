@@ -94,9 +94,12 @@ void main() {
     mockDeleteJournalEntry = MockDeleteJournalEntry();
     mockRepository = MockJournalRepository();
 
-    // Mock the stream to prevent errors
+    // The bloc subscribes to watchEntries() on construction. Use a
+    // non-emitting stream so the auto-reload doesn't fire during tests;
+    // each test drives its own flow via `act`. The stream-reload behavior
+    // is covered explicitly by the "Stream Updates" group.
     when(() => mockRepository.watchEntries())
-        .thenAnswer((_) => Stream.value(testEntries));
+        .thenAnswer((_) => const Stream<List<JournalEntry>>.empty());
 
     bloc = JournalBloc(
       getJournalEntries: mockGetJournalEntries,

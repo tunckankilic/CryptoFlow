@@ -4,21 +4,17 @@ import 'injection_container.dart';
 
 /// Register Auth package dependencies
 Future<void> registerAuthModule() async {
-  // Data sources
-  getIt.registerLazySingleton<FirebaseAuthDataSource>(
-    () => FirebaseAuthDataSource(),
+  // Data source — Cognito (AWS)
+  getIt.registerLazySingleton<AuthDataSource>(
+    () => CognitoAuthDataSource(),
   );
 
   // Repository
   getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(getIt<FirebaseAuthDataSource>()),
+    () => AuthRepositoryImpl(getIt<AuthDataSource>()),
   );
 
   // Use cases
-  getIt.registerLazySingleton<SignInWithGoogle>(
-    () => SignInWithGoogle(getIt<AuthRepository>()),
-  );
-
   getIt.registerLazySingleton<SignInWithApple>(
     () => SignInWithApple(getIt<AuthRepository>()),
   );
@@ -43,10 +39,9 @@ Future<void> registerAuthModule() async {
     () => DeleteAccount(getIt<AuthRepository>()),
   );
 
-  // BLoC
-  getIt.registerFactory<AuthBloc>(
+  // BLoC — lazySingleton because it's a global BLoC shared across the app
+  getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(
-      signInWithGoogle: getIt<SignInWithGoogle>(),
       signInWithApple: getIt<SignInWithApple>(),
       signInAnonymously: getIt<SignInAnonymously>(),
       signOut: getIt<SignOut>(),

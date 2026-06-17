@@ -240,7 +240,7 @@ class PdfReportService {
             color: PdfColors.blue,
             data: List.generate(
               equityCurve.length,
-              (i) => pw.LineChartValue(i.toDouble(), equityCurve[i]),
+              (i) => pw.PointChartValue(i.toDouble(), equityCurve[i]),
             ),
           ),
         ],

@@ -1,0 +1,10 @@
+variable "project_name" { type = string }
+variable "environment" { type = string }
+variable "cognito_user_pool_id" { type = string }
+variable "cognito_user_pool_client_id" { type = string }
+variable "cognito_identity_pool_id" { type = string }
+variable "cognito_domain" { type = string }
+variable "apple_team_id" { type = string }
+variable "apple_key_id" { type = string }
+variable "apple_service_id" { type = string }
+variable "apple_private_key_ssm_parameter" { type = string }

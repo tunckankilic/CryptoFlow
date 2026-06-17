@@ -1,10 +1,11 @@
+import 'package:core/core.dart';
 import 'package:watchlist/watchlist.dart';
 
 import 'injection_container.dart';
 
 /// Register watchlist dependencies
 Future<void> registerWatchlistModule() async {
-  // Data sources (no Impl suffix - class is named WatchlistLocalDataSource)
+  // Local data source (always registered — used as cache even in AWS mode)
   final watchlistDataSource = WatchlistLocalDataSource();
   await watchlistDataSource.init();
 
@@ -12,9 +13,15 @@ Future<void> registerWatchlistModule() async {
     () => watchlistDataSource,
   );
 
-  // Repositories
+  // Repositories — AWS-only
+  getIt.registerLazySingleton<WatchlistRemoteDataSource>(
+    () => WatchlistRemoteDataSourceImpl(
+      apiClient: getIt<AwsApiClient>(),
+    ),
+  );
   getIt.registerLazySingleton<WatchlistRepository>(
-    () => WatchlistRepositoryImpl(
+    () => WatchlistAwsRepositoryImpl(
+      remoteDataSource: getIt<WatchlistRemoteDataSource>(),
       localDataSource: getIt<WatchlistLocalDataSource>(),
     ),
   );
@@ -30,8 +37,8 @@ Future<void> registerWatchlistModule() async {
   getIt.registerLazySingleton(
       () => ReorderWatchlist(getIt<WatchlistRepository>()));
 
-  // BLoC
-  getIt.registerFactory<WatchlistBloc>(
+  // BLoC — lazySingleton for global BLoC shared across the app
+  getIt.registerLazySingleton<WatchlistBloc>(
     () => WatchlistBloc(
       getWatchlist: getIt<GetWatchlist>(),
       addToWatchlist: getIt<AddToWatchlist>(),

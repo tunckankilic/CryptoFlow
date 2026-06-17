@@ -31,10 +31,12 @@ class AuthNotifier extends ChangeNotifier {
   }
 }
 
-/// App router configuration using GoRouter
-GoRouter createAppRouter(AuthBloc authBloc) {
-  final authNotifier = AuthNotifier(authBloc);
-
+/// App router configuration using GoRouter.
+/// The [authNotifier] is owned & disposed by the caller (CryptoWaveApp).
+GoRouter createAppRouter(
+  AuthBloc authBloc, {
+  required AuthNotifier authNotifier,
+}) {
   return GoRouter(
     initialLocation: '/',
     refreshListenable: authNotifier,

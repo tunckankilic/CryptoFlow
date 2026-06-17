@@ -9,6 +9,7 @@ import 'package:portfolio/presentation/bloc/journal/journal_bloc.dart';
 import 'package:portfolio/presentation/bloc/journal/journal_event.dart';
 import 'package:portfolio/presentation/bloc/journal/journal_state.dart';
 import 'package:portfolio/presentation/pages/journal/add_edit_journal_page.dart';
+import 'package:portfolio/presentation/widgets/journal/emotion_picker_widget.dart';
 
 // Mock classes
 class MockJournalBloc extends Mock implements JournalBloc {}
@@ -42,17 +43,27 @@ void main() {
     );
   }
 
+  // The form is a long ListView; widgets below the default 800x600 surface are
+  // lazily built and unfindable. Pump on a tall surface so the whole form
+  // renders (Save button, notes, date pickers, emotion picker, etc.).
+  Future<void> pumpPage(WidgetTester tester, {JournalEntry? entry}) async {
+    tester.view.physicalSize = const Size(1200, 4000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(createWidgetUnderTest(entry: entry));
+  }
+
   group('AddEditJournalPage Widget Tests', () {
     testWidgets('renders form fields correctly for new entry', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
       // assert
       expect(find.text('Add Journal Entry'), findsOneWidget);
-      expect(find.byType(TextField), findsWidgets);
-      expect(find.text('Symbol *'), findsOneWidget);
-      expect(find.text('Entry Price *'), findsOneWidget);
-      expect(find.text('Quantity *'), findsOneWidget);
+      expect(find.byType(TextFormField), findsWidgets);
+      expect(find.text('Symbol'), findsOneWidget);
+      expect(find.text('Entry Price'), findsOneWidget);
+      expect(find.text('Quantity'), findsOneWidget);
     });
 
     testWidgets('renders form fields with existing entry data', (tester) async {
@@ -72,7 +83,7 @@ void main() {
       );
 
       // act
-      await tester.pumpWidget(createWidgetUnderTest(entry: entry));
+      await pumpPage(tester, entry: entry);
       await tester.pumpAndSettle();
 
       // assert
@@ -82,78 +93,79 @@ void main() {
 
     testWidgets('symbol field is required', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
       // Find and tap save button without filling form
-      final saveButton = find.text('Save Entry');
+      final saveButton = find.text('Save');
       expect(saveButton, findsOneWidget);
 
       await tester.tap(saveButton);
       await tester.pumpAndSettle();
 
       // assert - Should show validation error
-      expect(find.text('Please enter a symbol'), findsOneWidget);
+      // The form uses a single shared required-field message.
+      expect(find.text('This field is required'), findsWidgets);
     });
 
     testWidgets('entry price field is required', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
       // Fill symbol but not entry price
       await tester.enterText(
-          find.widgetWithText(TextField, 'Symbol *'), 'BTCUSDT');
+          find.widgetWithText(TextFormField, 'Symbol'), 'BTCUSDT');
 
-      final saveButton = find.text('Save Entry');
+      final saveButton = find.text('Save');
       await tester.tap(saveButton);
       await tester.pumpAndSettle();
 
       // assert - Should show validation error for entry price
-      expect(find.text('Please enter entry price'), findsOneWidget);
+      expect(find.text('This field is required'), findsWidgets);
     });
 
     testWidgets('quantity field is required', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
       // Fill symbol and entry price but not quantity
-      final symbolField = find.widgetWithText(TextField, 'Symbol *');
+      final symbolField = find.widgetWithText(TextFormField, 'Symbol');
       await tester.enterText(symbolField, 'BTCUSDT');
 
-      final entryPriceField = find.widgetWithText(TextField, 'Entry Price *');
+      final entryPriceField = find.widgetWithText(TextFormField, 'Entry Price');
       await tester.enterText(entryPriceField, '50000');
 
-      final saveButton = find.text('Save Entry');
+      final saveButton = find.text('Save');
       await tester.tap(saveButton);
       await tester.pumpAndSettle();
 
       // assert - Should show validation error for quantity
-      expect(find.text('Please enter quantity'), findsOneWidget);
+      expect(find.text('This field is required'), findsWidgets);
     });
 
     testWidgets('P&L auto-calculates for long position', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
       await tester.pumpAndSettle();
 
       // Fill required fields
       await tester.enterText(
-          find.widgetWithText(TextField, 'Symbol *'), 'BTCUSDT');
+          find.widgetWithText(TextFormField, 'Symbol'), 'BTCUSDT');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Entry Price *'), '50000');
+          find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Exit Price'), '55000');
-      await tester.enterText(find.widgetWithText(TextField, 'Quantity *'), '1');
+          find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '55000');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
 
       await tester.pumpAndSettle();
 
       // assert - P&L should be calculated
       // Long: (55000 - 50000) * 1 = 5000
-      expect(find.text('5000.0'), findsAtLeastNWidgets(1));
+      expect(find.textContaining('5000.00'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('P&L auto-calculates for short position', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
       await tester.pumpAndSettle();
 
       // Select short side
@@ -163,23 +175,23 @@ void main() {
 
       // Fill required fields
       await tester.enterText(
-          find.widgetWithText(TextField, 'Symbol *'), 'BTCUSDT');
+          find.widgetWithText(TextFormField, 'Symbol'), 'BTCUSDT');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Entry Price *'), '50000');
+          find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Exit Price'), '45000');
-      await tester.enterText(find.widgetWithText(TextField, 'Quantity *'), '1');
+          find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '45000');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
 
       await tester.pumpAndSettle();
 
       // assert - P&L should be calculated
       // Short: -(45000 - 50000) * 1 = 5000
-      expect(find.text('5000.0'), findsAtLeastNWidgets(1));
+      expect(find.textContaining('5000.00'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('trade side selector works', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
       await tester.pumpAndSettle();
 
       // Find and tap short selector
@@ -196,10 +208,10 @@ void main() {
 
     testWidgets('emotion picker exists', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
-      // assert - Emotion dropdown should exist
-      expect(find.byType(DropdownButton<TradeEmotion>), findsOneWidget);
+      // assert - Emotion picker should exist
+      expect(find.byType(EmotionPickerWidget), findsOneWidget);
     });
 
     testWidgets('save button calls JournalEntryAdded for new entry',
@@ -209,19 +221,19 @@ void main() {
           .thenReturn(const JournalEntrySuccess('Entry added'));
 
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
       await tester.pumpAndSettle();
 
       // Fill form
       await tester.enterText(
-          find.widgetWithText(TextField, 'Symbol *'), 'BTCUSDT');
+          find.widgetWithText(TextFormField, 'Symbol'), 'BTCUSDT');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Entry Price *'), '50000');
-      await tester.enterText(find.widgetWithText(TextField, 'Quantity *'), '1');
+          find.widgetWithText(TextFormField, 'Entry Price'), '50000');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
       await tester.pumpAndSettle();
 
       // Tap save
-      final saveButton = find.text('Save Entry');
+      final saveButton = find.text('Save');
       await tester.tap(saveButton);
       await tester.pumpAndSettle();
 
@@ -248,16 +260,16 @@ void main() {
           .thenReturn(const JournalEntrySuccess('Entry updated'));
 
       // act
-      await tester.pumpWidget(createWidgetUnderTest(entry: entry));
+      await pumpPage(tester, entry: entry);
       await tester.pumpAndSettle();
 
       // Modify a field
-      final symbolField = find.widgetWithText(TextField, 'Symbol *');
+      final symbolField = find.widgetWithText(TextFormField, 'Symbol');
       await tester.enterText(symbolField, 'ETHUSDT');
       await tester.pumpAndSettle();
 
       // Tap save
-      final saveButton = find.text('Save Entry');
+      final saveButton = find.text('Save');
       await tester.tap(saveButton);
       await tester.pumpAndSettle();
 
@@ -268,28 +280,28 @@ void main() {
 
     testWidgets('P&L percentage updates automatically', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
       await tester.pumpAndSettle();
 
       // Fill required fields
       await tester.enterText(
-          find.widgetWithText(TextField, 'Symbol *'), 'BTCUSDT');
+          find.widgetWithText(TextFormField, 'Symbol'), 'BTCUSDT');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Entry Price *'), '50000');
+          find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Exit Price'), '55000');
-      await tester.enterText(find.widgetWithText(TextField, 'Quantity *'), '1');
+          find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '55000');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
 
       await tester.pumpAndSettle();
 
       // assert - P&L percentage should be calculated
       // (55000 - 50000) / 50000 * 100 = 10%
-      expect(find.text('10.0%'), findsAtLeastNWidgets(1));
+      expect(find.textContaining('10.00%'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('entry date picker exists', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
       // assert - Entry date field should exist
       expect(find.text('Entry Date'), findsOneWidget);
@@ -297,15 +309,15 @@ void main() {
 
     testWidgets('exit date picker exists', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
       // assert - Exit date field should exist
-      expect(find.text('Exit Date'), findsOneWidget);
+      expect(find.text('Exit Date (Optional)'), findsOneWidget);
     });
 
     testWidgets('notes field exists', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
       // assert - Notes field should exist
       expect(find.text('Notes'), findsOneWidget);
@@ -313,7 +325,7 @@ void main() {
 
     testWidgets('strategy field exists', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
 
       // assert - Strategy field should exist
       expect(find.text('Strategy'), findsOneWidget);
@@ -321,45 +333,45 @@ void main() {
 
     testWidgets('handles negative P&L correctly', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
       await tester.pumpAndSettle();
 
       // Fill required fields for a losing trade
       await tester.enterText(
-          find.widgetWithText(TextField, 'Symbol *'), 'BTCUSDT');
+          find.widgetWithText(TextFormField, 'Symbol'), 'BTCUSDT');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Entry Price *'), '50000');
+          find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Exit Price'), '45000');
-      await tester.enterText(find.widgetWithText(TextField, 'Quantity *'), '1');
+          find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '45000');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
 
       await tester.pumpAndSettle();
 
       // assert - P&L should be negative
       // Long: (45000 - 50000) * 1 = -5000
-      expect(find.text('-5000.0'), findsAtLeastNWidgets(1));
+      expect(find.textContaining('-5000.00'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('handles decimal quantities', (tester) async {
       // act
-      await tester.pumpWidget(createWidgetUnderTest());
+      await pumpPage(tester);
       await tester.pumpAndSettle();
 
       // Fill required fields with decimal quantity
       await tester.enterText(
-          find.widgetWithText(TextField, 'Symbol *'), 'BTCUSDT');
+          find.widgetWithText(TextFormField, 'Symbol'), 'BTCUSDT');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Entry Price *'), '50000');
+          find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Exit Price'), '55000');
+          find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '55000');
       await tester.enterText(
-          find.widgetWithText(TextField, 'Quantity *'), '0.5');
+          find.widgetWithText(TextFormField, 'Quantity'), '0.5');
 
       await tester.pumpAndSettle();
 
       // assert - P&L should account for decimal quantity
       // (55000 - 50000) * 0.5 = 2500
-      expect(find.text('2500.0'), findsAtLeastNWidgets(1));
+      expect(find.textContaining('2500.00'), findsAtLeastNWidgets(1));
     });
   });
 }

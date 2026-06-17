@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:alerts/domain/entities/price_alert.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:core/services/cloud_sync_service.dart';
+import 'package:core/services/widget_data_service.dart';
 import '../../domain/usecases/get_alerts.dart';
 import '../../domain/usecases/create_alert.dart';
 import '../../domain/usecases/delete_alert.dart';
@@ -21,9 +21,8 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
   final ToggleAlert toggleAlert;
   final CheckAlerts checkAlerts;
   final AlertRepository repository;
-  final CloudSyncService? cloudSyncService;
+  final WidgetDataService? widgetDataService;
   final NotificationRepository? notificationRepository;
-  final String? userId;
 
   StreamSubscription? _alertsSubscription;
 
@@ -34,9 +33,8 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     required this.toggleAlert,
     required this.checkAlerts,
     required this.repository,
-    this.cloudSyncService,
+    this.widgetDataService,
     this.notificationRepository,
-    this.userId,
   }) : super(const AlertInitial()) {
     on<LoadAlerts>(_onLoadAlerts);
     on<CreateAlertEvent>(_onCreateAlert);
@@ -81,7 +79,6 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       (failure) => emit(AlertError(message: failure.message)),
       (_) {
         add(const LoadAlerts());
-        _syncToCloud();
       },
     );
   }
@@ -97,7 +94,6 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       (failure) => emit(AlertError(message: failure.message)),
       (_) {
         add(const LoadAlerts());
-        _syncToCloud();
       },
     );
   }
@@ -115,7 +111,6 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
       (failure) => emit(AlertError(message: failure.message)),
       (_) {
         add(const LoadAlerts());
-        _syncToCloud();
       },
     );
   }
@@ -186,10 +181,29 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
         typedAlerts.where((a) => a.isActive && !a.isTriggered).toList();
     final triggeredAlerts = typedAlerts.where((a) => a.isTriggered).toList();
 
-    return AlertLoaded(
+    final loaded = AlertLoaded(
       alerts: typedAlerts,
       activeAlerts: activeAlerts,
       triggeredAlerts: triggeredAlerts,
+    );
+    _pushAlertDataToWidget(loaded);
+    return loaded;
+  }
+
+  /// Push alert summary to iOS home screen widget.
+  void _pushAlertDataToWidget(AlertLoaded loaded) {
+    if (widgetDataService == null) return;
+    final recentAlerts = loaded.alerts.take(5).map((a) => {
+          'symbol': a.symbol,
+          'type': a.type.toJson(),
+          'targetPrice': a.targetPrice,
+          'status': a.isTriggered ? 'triggered' : (a.isActive ? 'active' : 'disabled'),
+        }).toList();
+
+    widgetDataService!.updateAlertData(
+      activeCount: loaded.activeAlerts.length,
+      triggeredCount: loaded.triggeredAlerts.length,
+      recentAlerts: recentAlerts,
     );
   }
 
@@ -197,29 +211,5 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
   Future<void> close() {
     _alertsSubscription?.cancel();
     return super.close();
-  }
-
-  /// Sync alerts to cloud if service is available
-  Future<void> _syncToCloud() async {
-    if (cloudSyncService == null || userId == null) return;
-    if (state is! AlertLoaded) return;
-
-    final loaded = state as AlertLoaded;
-    final alertsJson = loaded.alerts
-        .map((alert) => {
-              'id': alert.id,
-              'symbol': alert.symbol,
-              'type': alert.type.name,
-              'targetPrice': alert.targetPrice,
-              'isActive': alert.isActive,
-              'isTriggered': alert.isTriggered,
-              'createdAt': alert.createdAt.toIso8601String(),
-            })
-        .toList();
-
-    await cloudSyncService!.syncAlerts(
-      userId: userId!,
-      alerts: alertsJson,
-    );
   }
 }

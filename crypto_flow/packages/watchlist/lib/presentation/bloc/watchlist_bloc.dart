@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:core/services/cloud_sync_service.dart';
 import 'package:watchlist/domain/entities/watchlist_item.dart';
 import '../../domain/usecases/get_watchlist.dart';
 import '../../domain/usecases/add_to_watchlist.dart';
@@ -18,8 +17,6 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
   final RemoveFromWatchlist removeFromWatchlist;
   final ReorderWatchlist reorderWatchlist;
   final WatchlistRepository repository;
-  final CloudSyncService? cloudSyncService;
-  final String? userId;
 
   StreamSubscription? _watchlistSubscription;
 
@@ -29,8 +26,6 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
     required this.removeFromWatchlist,
     required this.reorderWatchlist,
     required this.repository,
-    this.cloudSyncService,
-    this.userId,
   }) : super(const WatchlistInitial()) {
     on<LoadWatchlist>(_onLoadWatchlist);
     on<AddToWatchlistEvent>(_onAddToWatchlist);
@@ -75,7 +70,6 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
       (failure) => emit(WatchlistError(message: failure.message)),
       (_) {
         add(const LoadWatchlist());
-        _syncToCloud();
       },
     );
   }
@@ -93,7 +87,6 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
       (failure) => emit(WatchlistError(message: failure.message)),
       (_) {
         add(const LoadWatchlist());
-        _syncToCloud();
       },
     );
   }
@@ -151,25 +144,5 @@ class WatchlistBloc extends Bloc<WatchlistEvent, WatchlistState> {
   Future<void> close() {
     _watchlistSubscription?.cancel();
     return super.close();
-  }
-
-  /// Sync watchlist to cloud if service is available
-  Future<void> _syncToCloud() async {
-    if (cloudSyncService == null || userId == null) return;
-    if (state is! WatchlistLoaded) return;
-
-    final loaded = state as WatchlistLoaded;
-    final itemsJson = loaded.items
-        .map((item) => {
-              'symbol': item.symbol,
-              'addedAt': item.addedAt.toIso8601String(),
-              'order': item.order,
-            })
-        .toList();
-
-    await cloudSyncService!.syncWatchlist(
-      userId: userId!,
-      items: itemsJson,
-    );
   }
 }

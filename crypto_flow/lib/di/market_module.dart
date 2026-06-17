@@ -57,6 +57,7 @@ Future<void> registerMarketModule() async {
     () => TickerListBloc(
       marketRepository: getIt<MarketRepository>(),
       wsRepository: getIt<WebSocketRepository>(),
+      widgetDataService: getIt<WidgetDataService>(),
     ),
   );
 
@@ -82,6 +83,17 @@ Future<void> registerMarketModule() async {
   );
 
   getIt.registerFactory<FearGreedBloc>(
-    () => FearGreedBloc(getIt<FearGreedDatasource>()),
+    () => FearGreedBloc(
+      getIt<FearGreedDatasource>(),
+      widgetDataService: getIt<WidgetDataService>(),
+    ),
+  );
+
+  // Pattern Recognition
+  getIt.registerLazySingleton<PatternRemoteDataSource>(
+    () => PatternRemoteDataSourceImpl(client: getIt<AwsApiClient>()),
+  );
+  getIt.registerFactory<PatternBloc>(
+    () => PatternBloc(dataSource: getIt<PatternRemoteDataSource>()),
   );
 }

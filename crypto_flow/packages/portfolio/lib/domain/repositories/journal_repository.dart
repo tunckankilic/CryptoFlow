@@ -1,3 +1,5 @@
+// ignore_for_file: unintended_html_in_doc_comment
+
 import 'package:core/error/failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';

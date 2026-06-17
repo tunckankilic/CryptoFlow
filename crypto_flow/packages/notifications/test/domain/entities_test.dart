@@ -13,7 +13,7 @@ void main() {
       expect(settings.marketUpdates, false);
       expect(settings.soundEnabled, true);
       expect(settings.vibrationEnabled, true);
-      expect(settings.fcmToken, null);
+      expect(settings.pushToken, null);
     });
 
     test('should support copyWith', () {
@@ -21,13 +21,13 @@ void main() {
       final updated = settings.copyWith(
         priceAlerts: false,
         soundEnabled: false,
-        fcmToken: 'test-token',
+        pushToken: 'test-token',
       );
 
       expect(updated.priceAlerts, false);
       expect(updated.portfolioAlerts, true); // unchanged
       expect(updated.soundEnabled, false);
-      expect(updated.fcmToken, 'test-token');
+      expect(updated.pushToken, 'test-token');
     });
 
     test('should be equatable', () {

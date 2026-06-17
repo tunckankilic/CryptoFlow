@@ -45,9 +45,13 @@ export 'data/models/journal_tag_model.dart';
 export 'data/models/trading_stats_model.dart';
 
 export 'data/datasources/portfolio_local_datasource.dart';
+export 'data/datasources/portfolio_remote_datasource.dart';
+export 'data/datasources/journal_remote_datasource.dart';
 
 export 'data/repositories/portfolio_repository_impl.dart';
+export 'data/repositories/portfolio_aws_repository_impl.dart';
 export 'data/repositories/journal_repository_impl.dart';
+export 'data/repositories/journal_aws_repository_impl.dart';
 
 export 'data/services/pdf_report_service.dart';
 
@@ -84,3 +88,35 @@ export 'presentation/widgets/holding_tile.dart';
 export 'presentation/widgets/portfolio_chart.dart';
 export 'presentation/widgets/pnl_card.dart';
 export 'presentation/widgets/allocation_pie.dart';
+
+// Performance Analytics (Faz 6.1)
+export 'domain/entities/performance_metrics.dart';
+export 'data/models/performance_metrics_model.dart';
+export 'data/datasources/analytics_remote_datasource.dart';
+export 'presentation/bloc/performance/performance_bloc.dart';
+export 'presentation/bloc/performance/performance_event.dart';
+export 'presentation/bloc/performance/performance_state.dart';
+export 'presentation/pages/performance_page.dart';
+export 'presentation/widgets/performance/sharpe_ratio_card.dart';
+export 'presentation/widgets/performance/drawdown_chart.dart';
+export 'presentation/widgets/performance/monthly_returns_heatmap.dart';
+export 'presentation/widgets/performance/benchmark_comparison_chart.dart';
+
+// Tax Reporting (Faz 6.2)
+export 'domain/entities/tax_report.dart';
+export 'data/models/tax_report_model.dart';
+export 'data/datasources/tax_remote_datasource.dart';
+export 'presentation/bloc/tax/tax_report_bloc.dart';
+export 'presentation/bloc/tax/tax_report_event.dart';
+export 'presentation/bloc/tax/tax_report_state.dart';
+export 'presentation/pages/tax_report_page.dart';
+
+// Risk Management (Faz 7.1)
+export 'domain/entities/risk_metrics.dart';
+export 'data/models/risk_metrics_model.dart';
+export 'data/datasources/risk_remote_datasource.dart';
+export 'presentation/bloc/risk/risk_bloc.dart';
+export 'presentation/pages/risk_tools_page.dart';
+export 'presentation/widgets/risk/position_size_calculator.dart';
+export 'presentation/widgets/risk/correlation_heatmap.dart';
+export 'presentation/widgets/risk/var_display.dart';

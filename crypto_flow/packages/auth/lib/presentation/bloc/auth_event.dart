@@ -13,11 +13,6 @@ class AuthCheckRequested extends AuthEvent {
   const AuthCheckRequested();
 }
 
-/// Request Google Sign In
-class AuthGoogleSignInRequested extends AuthEvent {
-  const AuthGoogleSignInRequested();
-}
-
 /// Request Apple Sign In
 class AuthAppleSignInRequested extends AuthEvent {
   const AuthAppleSignInRequested();

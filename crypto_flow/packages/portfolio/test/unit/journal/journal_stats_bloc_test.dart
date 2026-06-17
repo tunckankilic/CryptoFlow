@@ -29,7 +29,9 @@ class FakeGetPnlAnalysisParams extends Fake implements GetPnlAnalysisParams {}
 class FakeGetJournalEntriesParams extends Fake
     implements GetJournalEntriesParams {}
 
-// Don't create Fake for enums like StatsPeriod
+class FakeTradingStats extends Fake implements TradingStats {}
+
+class FakeJournalEntry extends Fake implements JournalEntry {}
 
 void main() {
   late JournalStatsBloc bloc;
@@ -90,7 +92,14 @@ void main() {
     registerFallbackValue(FakeGetEquityCurveParams());
     registerFallbackValue(FakeGetPnlAnalysisParams());
     registerFallbackValue(FakeGetJournalEntriesParams());
-    // StatsPeriod is an enum, no fake needed
+    // Fallbacks for the generateTradingReport(...) named args matched with `any`.
+    // Enums still need a fallback value when used with `any(named: ...)`.
+    registerFallbackValue(StatsPeriod.weekly);
+    registerFallbackValue(FakeTradingStats());
+    registerFallbackValue(<JournalEntry>[]);
+    registerFallbackValue(<TradeEmotion, double>{});
+    registerFallbackValue(<String, double>{});
+    registerFallbackValue(<double>[]);
   });
 
   setUp(() {
@@ -115,6 +124,21 @@ void main() {
     bloc.close();
   });
 
+  // The bloc requests P&L analysis twice with different types: byEmotion
+  // (TradeEmotion keys) and bySymbol (String keys). Stub each type with the
+  // matching key shape so the bloc's `key as TradeEmotion` / `key as String`
+  // casts succeed.
+  void stubPnlAnalysis() {
+    when(() => mockGetPnlAnalysis(any(
+            that: predicate<GetPnlAnalysisParams>(
+                (p) => p.type == PnlAnalysisType.byEmotion))))
+        .thenAnswer((_) async => Right(testEmotionPnl));
+    when(() => mockGetPnlAnalysis(any(
+            that: predicate<GetPnlAnalysisParams>(
+                (p) => p.type == PnlAnalysisType.bySymbol))))
+        .thenAnswer((_) async => Right(testSymbolPnl));
+  }
+
   group('JournalStatsBloc', () {
     test('initial state is JournalStatsInitial', () {
       expect(bloc.state, equals(const JournalStatsInitial()));
@@ -128,13 +152,7 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any()))
               .thenAnswer((_) async => Right(testEquityCurve));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right({
-              TradeEmotion.confident: 3000.0,
-              TradeEmotion.fearful: -500.0,
-              TradeEmotion.neutral: 1000.0,
-            }),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           return bloc;
@@ -177,9 +195,7 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any()))
               .thenAnswer((_) async => Right(testEquityCurve));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           return bloc;
@@ -201,9 +217,7 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any()))
               .thenAnswer((_) async => Right(testEquityCurve));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           return bloc;
@@ -226,9 +240,7 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any()))
               .thenAnswer((_) async => Right(testEquityCurve));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           return bloc;
@@ -251,9 +263,7 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any()))
               .thenAnswer((_) async => Right(testEquityCurve));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           return bloc;
@@ -278,9 +288,7 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any())).thenAnswer(
               (_) async => const Left(CacheFailure(message: 'Error')));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           return bloc;
@@ -354,9 +362,7 @@ void main() {
       blocTest<JournalStatsBloc, JournalStatsState>(
         'updates emotion P&L in loaded state',
         build: () {
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           return bloc;
         },
         seed: () => JournalStatsLoaded(
@@ -403,9 +409,7 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any()))
               .thenAnswer((_) async => Right(testEquityCurve));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           when(() => mockPdfReportService.generateTradingReport(
@@ -464,9 +468,7 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any()))
               .thenAnswer((_) async => Right(testEquityCurve));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           when(() => mockPdfReportService.generateTradingReport(
@@ -501,15 +503,17 @@ void main() {
               .thenAnswer((_) async => Right(testStats));
           when(() => mockGetEquityCurve(any()))
               .thenAnswer((_) async => Right(testEquityCurve));
-          when(() => mockGetPnlAnalysis(any())).thenAnswer(
-            (_) async => Right(testEmotionPnl),
-          );
+          stubPnlAnalysis();
           when(() => mockRepository.getMaxDrawdown(days: any(named: 'days')))
               .thenAnswer((_) async => const Right(testMaxDrawdown));
           return bloc;
         },
-        act: (bloc) {
+        // Two period changes happen at different times, not simultaneously.
+        // Await between them so the first request fully completes before the
+        // second starts (the handler uses the default concurrent transformer).
+        act: (bloc) async {
           bloc.add(const JournalStatsRequested(StatsPeriod.weekly));
+          await Future<void>.delayed(const Duration(milliseconds: 10));
           bloc.add(const JournalStatsRequested(StatsPeriod.monthly));
         },
         expect: () => [

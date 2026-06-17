@@ -3,46 +3,19 @@ import 'package:core/core.dart' hide AuthException;
 
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../datasources/firebase_auth_datasource.dart';
-import '../models/app_user_model.dart';
+import '../datasources/auth_data_source.dart';
 
-/// Implementation of AuthRepository using Firebase
+/// Implementation of [AuthRepository] backed by an injected [AuthDataSource].
+///
+/// The datasource is wired up in `lib/di/auth_module.dart` and is currently
+/// always [CognitoAuthDataSource] (AWS Amplify Auth).
 class AuthRepositoryImpl implements AuthRepository {
-  final FirebaseAuthDataSource _dataSource;
+  final AuthDataSource _dataSource;
 
   AuthRepositoryImpl(this._dataSource);
 
   @override
-  Stream<AppUser?> get authStateChanges {
-    return _dataSource.authStateChanges.map((user) {
-      if (user == null) return null;
-      return AppUserModel.fromFirebaseUser(user);
-    });
-  }
-
-  @override
-  Future<Either<Failure, AppUser>> signInWithGoogle() async {
-    try {
-      final user = await _dataSource.signInWithGoogle();
-      return Right(user);
-    } on AuthException catch (e) {
-      if (e.code == 'cancelled') {
-        return Left(AuthFailure(
-          type: AuthFailureType.cancelled,
-          message: e.message,
-        ));
-      }
-      return Left(AuthFailure(
-        type: AuthFailureType.unknown,
-        message: e.message,
-      ));
-    } catch (e) {
-      return Left(AuthFailure(
-        type: AuthFailureType.unknown,
-        message: e.toString(),
-      ));
-    }
-  }
+  Stream<AppUser?> get authStateChanges => _dataSource.authStateChanges;
 
   @override
   Future<Either<Failure, AppUser>> signInWithApple() async {
@@ -107,7 +80,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, AppUser?>> getCurrentUser() async {
     try {
-      final user = _dataSource.getCurrentUser();
+      final user = await _dataSource.getCurrentUser();
       return Right(user);
     } catch (e) {
       return Left(AuthFailure(

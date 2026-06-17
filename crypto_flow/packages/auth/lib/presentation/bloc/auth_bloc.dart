@@ -5,7 +5,6 @@ import 'package:core/core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../domain/entities/app_user.dart';
-import '../../domain/usecases/sign_in_with_google.dart';
 import '../../domain/usecases/sign_in_with_apple.dart';
 import '../../domain/usecases/sign_in_anonymously.dart';
 import '../../domain/usecases/sign_out.dart';
@@ -17,7 +16,6 @@ import 'auth_state.dart';
 
 /// BLoC for handling authentication
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final SignInWithGoogle _signInWithGoogle;
   final SignInWithApple _signInWithApple;
   final SignInAnonymously _signInAnonymously;
   final SignOut _signOut;
@@ -28,15 +26,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   StreamSubscription<AppUser?>? _authStateSubscription;
 
   AuthBloc({
-    required SignInWithGoogle signInWithGoogle,
     required SignInWithApple signInWithApple,
     required SignInAnonymously signInAnonymously,
     required SignOut signOut,
     required GetCurrentUser getCurrentUser,
     required WatchAuthState watchAuthState,
     required DeleteAccount deleteAccount,
-  })  : _signInWithGoogle = signInWithGoogle,
-        _signInWithApple = signInWithApple,
+  })  : _signInWithApple = signInWithApple,
         _signInAnonymously = signInAnonymously,
         _signOut = signOut,
         _getCurrentUser = getCurrentUser,
@@ -44,7 +40,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         _deleteAccount = deleteAccount,
         super(const AuthInitial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
-    on<AuthGoogleSignInRequested>(_onGoogleSignInRequested);
     on<AuthAppleSignInRequested>(_onAppleSignInRequested);
     on<AuthAnonymousSignInRequested>(_onAnonymousSignInRequested);
     on<AuthSignOutRequested>(_onSignOutRequested);
@@ -74,28 +69,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(const AuthUnauthenticated());
         }
       },
-    );
-  }
-
-  Future<void> _onGoogleSignInRequested(
-    AuthGoogleSignInRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(const AuthLoading());
-
-    final result = await _signInWithGoogle(const NoParams());
-
-    result.fold(
-      (failure) {
-        if (failure is AuthFailure &&
-            failure.type == AuthFailureType.cancelled) {
-          // User cancelled, return to unauthenticated
-          emit(const AuthUnauthenticated());
-        } else {
-          emit(AuthError(failure.message));
-        }
-      },
-      (user) => emit(AuthAuthenticated(user)),
     );
   }
 
@@ -154,7 +127,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
 
-    // Delete account from Firebase
     final result = await _deleteAccount(const NoParams());
 
     await result.fold(

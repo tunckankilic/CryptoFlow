@@ -115,15 +115,22 @@ workflows:
           cd crypto_flow
           flutter test --coverage
         ignore_failure: true
-      - name: Increment build number
+      - name: Set build number
         script: |
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" 2>/dev/null || true)
-          if [ -z "$LATEST_BUILD" ] || [ "$LATEST_BUILD" = "0" ]; then
-            LATEST_BUILD=1
-          fi
-          NEW_BUILD=$((LATEST_BUILD + 1))
-          echo "BUILD_NUMBER=$NEW_BUILD" >> $CM_ENV
-          echo "Latest build: $LATEST_BUILD -> New build: $NEW_BUILD"
+          # App Store Connect requires CFBundleVersion to be strictly higher
+          # than any previously uploaded build. The previous step called
+          # get-latest-testflight-build-number with the BUNDLE_ID, but that
+          # command expects the *numeric App Store App ID*. It failed, the error
+          # was swallowed by `|| true`, the number fell back to 1 -> 2, and
+          # collided with the existing build 2 (409 DUPLICATE).
+          #
+          # Use a Unix-timestamp build number: monotonically increasing, always
+          # greater than any prior build, and needs no App Store Connect lookup.
+          # A 10-digit epoch (~1.7e9) stays well under the 2^32 per-component
+          # limit until the year 2106.
+          BUILD_NUMBER=$(date +%s)
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $CM_ENV
+          echo "Using build number: $BUILD_NUMBER"
       - name: Build iOS
         script: |
           cd crypto_flow

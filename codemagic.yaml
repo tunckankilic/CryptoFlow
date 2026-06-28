@@ -40,16 +40,61 @@ workflows:
           cd crypto_flow
           flutter pub get
           cd ios && pod install --repo-update
-      - name: Inject environment config
+      - name: Generate runtime config
         script: |
-          # Codemagic Environment Variable Group `app_store_credentials` should
-          # provide encrypted overrides for the secrets below. The committed
-          # config/prod.env supplies non-secret defaults.
-          set -a
-          source "$CM_BUILD_DIR/config/prod.env"
-          set +a
-          cp "$CM_BUILD_DIR/config/amplify_outputs.prod.json" \
-             "$CM_BUILD_DIR/crypto_flow/amplify_outputs.json"
+          # amplify_outputs.json and config/*.env are gitignored, so they are
+          # NOT in the CI checkout. We generate amplify_outputs.json here and
+          # build the dart-defines from environment variables. Each value falls
+          # back to the known production default, so the build works with zero
+          # Codemagic setup; override any of them in the `app_store_credentials`
+          # environment variable group when values change.
+          set -euo pipefail
+          ENV="${ENV:-prod}"
+          AWS_REGION="${AWS_REGION:-eu-central-1}"
+          API_BASE_URL="${API_BASE_URL:-https://yj088qs3o6.execute-api.eu-central-1.amazonaws.com/dev}"
+          WS_BASE_URL="${WS_BASE_URL:-wss://9bvkaoqkd1.execute-api.eu-central-1.amazonaws.com/dev}"
+          BINANCE_REST_URL="${BINANCE_REST_URL:-https://api.binance.com}"
+          BINANCE_WS_URL="${BINANCE_WS_URL:-wss://stream.binance.com:9443}"
+          COGNITO_USER_POOL_ID="${COGNITO_USER_POOL_ID:-eu-central-1_tcCDzZ2mW}"
+          COGNITO_CLIENT_ID="${COGNITO_CLIENT_ID:-ce38mk4k08iib39on8elprsll}"
+          COGNITO_IDENTITY_POOL_ID="${COGNITO_IDENTITY_POOL_ID:-eu-central-1:26ad2164-44a2-48ac-a11b-1c1db9884944}"
+          COGNITO_DOMAIN="${COGNITO_DOMAIN:-eu-central-1tccdz2mw.auth.eu-central-1.amazoncognito.com}"
+          COGNITO_REDIRECT_SIGN_IN="${COGNITO_REDIRECT_SIGN_IN:-cryptoflow://callback}"
+          COGNITO_REDIRECT_SIGN_OUT="${COGNITO_REDIRECT_SIGN_OUT:-cryptoflow://signout}"
+
+          cat > "$CM_BUILD_DIR/crypto_flow/amplify_outputs.json" <<EOF
+          {
+            "version": "1.4",
+            "auth": {
+              "aws_region": "${AWS_REGION}",
+              "user_pool_id": "${COGNITO_USER_POOL_ID}",
+              "user_pool_client_id": "${COGNITO_CLIENT_ID}",
+              "identity_pool_id": "${COGNITO_IDENTITY_POOL_ID}",
+              "username_attributes": ["email"],
+              "standard_required_attributes": ["email"],
+              "user_verification_types": ["email"],
+              "unauthenticated_identities_enabled": true,
+              "mfa_configuration": "NONE",
+              "mfa_methods": [],
+              "password_policy": {
+                "min_length": 8,
+                "require_lowercase": true,
+                "require_numbers": true,
+                "require_symbols": false,
+                "require_uppercase": true
+              },
+              "oauth": {
+                "identity_providers": ["SignInWithApple"],
+                "domain": "${COGNITO_DOMAIN}",
+                "scopes": ["email", "openid", "profile"],
+                "redirect_sign_in_uri": ["${COGNITO_REDIRECT_SIGN_IN}"],
+                "redirect_sign_out_uri": ["${COGNITO_REDIRECT_SIGN_OUT}"],
+                "response_type": "code"
+              }
+            }
+          }
+          EOF
+
           DART_DEFINES="--dart-define=ENV=$ENV"
           DART_DEFINES="$DART_DEFINES --dart-define=API_BASE_URL=$API_BASE_URL"
           DART_DEFINES="$DART_DEFINES --dart-define=WS_BASE_URL=$WS_BASE_URL"

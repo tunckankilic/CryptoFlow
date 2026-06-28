@@ -6,7 +6,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../domain/entities/app_user.dart';
 import '../../domain/usecases/sign_in_with_apple.dart';
-import '../../domain/usecases/sign_in_anonymously.dart';
 import '../../domain/usecases/sign_out.dart';
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/watch_auth_state.dart';
@@ -17,7 +16,6 @@ import 'auth_state.dart';
 /// BLoC for handling authentication
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInWithApple _signInWithApple;
-  final SignInAnonymously _signInAnonymously;
   final SignOut _signOut;
   final GetCurrentUser _getCurrentUser;
   final WatchAuthState _watchAuthState;
@@ -27,13 +25,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc({
     required SignInWithApple signInWithApple,
-    required SignInAnonymously signInAnonymously,
     required SignOut signOut,
     required GetCurrentUser getCurrentUser,
     required WatchAuthState watchAuthState,
     required DeleteAccount deleteAccount,
   })  : _signInWithApple = signInWithApple,
-        _signInAnonymously = signInAnonymously,
         _signOut = signOut,
         _getCurrentUser = getCurrentUser,
         _watchAuthState = watchAuthState,
@@ -41,7 +37,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         super(const AuthInitial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthAppleSignInRequested>(_onAppleSignInRequested);
-    on<AuthAnonymousSignInRequested>(_onAnonymousSignInRequested);
     on<AuthSignOutRequested>(_onSignOutRequested);
     on<AuthDeleteAccountRequested>(_onDeleteAccountRequested);
     on<AuthStateChanged>(_onAuthStateChanged);
@@ -89,20 +84,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthError(failure.message));
         }
       },
-      (user) => emit(AuthAuthenticated(user)),
-    );
-  }
-
-  Future<void> _onAnonymousSignInRequested(
-    AuthAnonymousSignInRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(const AuthLoading());
-
-    final result = await _signInAnonymously(const NoParams());
-
-    result.fold(
-      (failure) => emit(AuthError(failure.message)),
       (user) => emit(AuthAuthenticated(user)),
     );
   }

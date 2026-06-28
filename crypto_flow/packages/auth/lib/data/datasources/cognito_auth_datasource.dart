@@ -114,14 +114,6 @@ class CognitoAuthDataSource implements AuthDataSource {
   }
 
   @override
-  Future<AppUserModel> signInAnonymously() async {
-    throw const AuthException(
-      'Anonymous sign-in is not supported on Cognito',
-      code: 'unsupported',
-    );
-  }
-
-  @override
   Future<void> signOut() async {
     try {
       final result = await Amplify.Auth.signOut();

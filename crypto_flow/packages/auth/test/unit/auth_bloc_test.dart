@@ -24,7 +24,6 @@ void main() {
   // Builds a real AuthBloc wired to real use cases over the mock repository.
   AuthBloc buildBloc() => AuthBloc(
         signInWithApple: SignInWithApple(repository),
-        signInAnonymously: SignInAnonymously(repository),
         signOut: SignOut(repository),
         getCurrentUser: GetCurrentUser(repository),
         watchAuthState: WatchAuthState(repository),

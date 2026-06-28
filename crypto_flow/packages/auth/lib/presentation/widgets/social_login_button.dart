@@ -51,27 +51,6 @@ class SocialLoginButton extends StatelessWidget {
     );
   }
 
-  /// Factory constructor for Anonymous Sign In button
-  factory SocialLoginButton.anonymous({
-    Key? key,
-    VoidCallback? onPressed,
-    bool isLoading = false,
-  }) {
-    return SocialLoginButton(
-      key: key,
-      label: 'Continue as Guest',
-      icon: const Icon(
-        Icons.person_outline,
-        size: 24,
-        color: Colors.white70,
-      ),
-      backgroundColor: Colors.grey.shade800,
-      textColor: Colors.white,
-      onPressed: onPressed,
-      isLoading: isLoading,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(

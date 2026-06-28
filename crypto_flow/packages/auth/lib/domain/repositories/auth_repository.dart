@@ -13,10 +13,6 @@ abstract class AuthRepository {
   /// Returns Either<Failure, AppUser> on success or failure
   Future<Either<Failure, AppUser>> signInWithApple();
 
-  /// Sign in anonymously
-  /// Returns Either<Failure, AppUser> on success or failure
-  Future<Either<Failure, AppUser>> signInAnonymously();
-
   /// Sign out current user
   /// Returns Either<Failure, void> on success or failure
   Future<Either<Failure, void>> signOut();

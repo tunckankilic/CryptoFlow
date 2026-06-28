@@ -115,7 +115,7 @@ class LoginPage extends StatelessWidget {
                     const SizedBox(height: 32),
 
                     // Apple Sign In (iOS only)
-                    if (Platform.isIOS) ...[
+                    if (Platform.isIOS)
                       SocialLoginButton.apple(
                         onPressed: isLoading
                             ? null
@@ -124,57 +124,6 @@ class LoginPage extends StatelessWidget {
                                 .add(const AuthAppleSignInRequested()),
                         isLoading: isLoading,
                       ),
-                      const SizedBox(height: 12),
-                    ],
-
-                    // Divider
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              color: theme.colorScheme.outline.withOpacity(0.3),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'or',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface
-                                    .withOpacity(0.5),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: theme.colorScheme.outline.withOpacity(0.3),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Anonymous Sign In
-                    SocialLoginButton.anonymous(
-                      onPressed: isLoading
-                          ? null
-                          : () => context
-                              .read<AuthBloc>()
-                              .add(const AuthAnonymousSignInRequested()),
-                      isLoading: isLoading,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Skip text
-                    Text(
-                      'You can sign in later from Settings',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
-                      ),
-                    ),
 
                     const SizedBox(height: 40),
 

@@ -8,7 +8,6 @@ export 'domain/repositories/auth_repository.dart';
 
 // Domain - Use Cases
 export 'domain/usecases/sign_in_with_apple.dart';
-export 'domain/usecases/sign_in_anonymously.dart';
 export 'domain/usecases/sign_out.dart';
 export 'domain/usecases/get_current_user.dart';
 export 'domain/usecases/watch_auth_state.dart';

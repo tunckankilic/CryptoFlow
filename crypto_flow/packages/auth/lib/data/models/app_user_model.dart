@@ -40,12 +40,23 @@ class AppUserModel extends AppUser {
       email: attr('email'),
       displayName: attr('name') ??
           attr('preferred_username') ??
-          attr('given_name'),
+          _composeName(attr('given_name'), attr('family_name')),
       photoUrl: attr('picture'),
       provider: inferredProvider,
       createdAt: DateTime.now(),
       lastLoginAt: DateTime.now(),
     );
+  }
+
+  /// Apple exposes the user's name only as separate `firstName` / `lastName`
+  /// values (mapped to `given_name` / `family_name` in the user pool), so we
+  /// join whatever is present into a single display name. Returns `null` when
+  /// both parts are missing so the caller's fallbacks still apply.
+  static String? _composeName(String? givenName, String? familyName) {
+    final parts = [givenName, familyName]
+        .where((p) => p != null && p.trim().isNotEmpty)
+        .map((p) => p!.trim());
+    return parts.isEmpty ? null : parts.join(' ');
   }
 
   /// Cognito stores federated identities as a JSON string in the

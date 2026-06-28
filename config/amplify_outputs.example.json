@@ -19,9 +19,9 @@
       "require_uppercase": true
     },
     "oauth": {
-      "identity_providers": ["SignInWithApple"],
+      "identity_providers": ["SIGN_IN_WITH_APPLE"],
       "domain": "<cognito-hosted-ui-domain>",
-      "scopes": ["email", "openid", "profile"],
+      "scopes": ["email", "openid", "profile", "aws.cognito.signin.user.admin"],
       "redirect_sign_in_uri": ["<deep-link-callback>"],
       "redirect_sign_out_uri": ["<deep-link-signout>"],
       "response_type": "code"

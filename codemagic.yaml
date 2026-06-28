@@ -58,7 +58,7 @@ workflows:
           COGNITO_USER_POOL_ID="${COGNITO_USER_POOL_ID:-eu-central-1_tcCDzZ2mW}"
           COGNITO_CLIENT_ID="${COGNITO_CLIENT_ID:-ce38mk4k08iib39on8elprsll}"
           COGNITO_IDENTITY_POOL_ID="${COGNITO_IDENTITY_POOL_ID:-eu-central-1:26ad2164-44a2-48ac-a11b-1c1db9884944}"
-          COGNITO_DOMAIN="${COGNITO_DOMAIN:-eu-central-1tccdz2mw.auth.eu-central-1.amazoncognito.com}"
+          COGNITO_DOMAIN="${COGNITO_DOMAIN:-eu-central-1tccdzz2mw.auth.eu-central-1.amazoncognito.com}"
           COGNITO_REDIRECT_SIGN_IN="${COGNITO_REDIRECT_SIGN_IN:-cryptoflow://callback}"
           COGNITO_REDIRECT_SIGN_OUT="${COGNITO_REDIRECT_SIGN_OUT:-cryptoflow://signout}"
 
@@ -84,9 +84,9 @@ workflows:
                 "require_uppercase": true
               },
               "oauth": {
-                "identity_providers": ["SignInWithApple"],
+                "identity_providers": ["SIGN_IN_WITH_APPLE"],
                 "domain": "${COGNITO_DOMAIN}",
-                "scopes": ["email", "openid", "profile"],
+                "scopes": ["email", "openid", "profile", "aws.cognito.signin.user.admin"],
                 "redirect_sign_in_uri": ["${COGNITO_REDIRECT_SIGN_IN}"],
                 "redirect_sign_out_uri": ["${COGNITO_REDIRECT_SIGN_OUT}"],
                 "response_type": "code"

@@ -19,10 +19,6 @@ Future<void> registerAuthModule() async {
     () => SignInWithApple(getIt<AuthRepository>()),
   );
 
-  getIt.registerLazySingleton<SignInAnonymously>(
-    () => SignInAnonymously(getIt<AuthRepository>()),
-  );
-
   getIt.registerLazySingleton<SignOut>(
     () => SignOut(getIt<AuthRepository>()),
   );
@@ -43,7 +39,6 @@ Future<void> registerAuthModule() async {
   getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(
       signInWithApple: getIt<SignInWithApple>(),
-      signInAnonymously: getIt<SignInAnonymously>(),
       signOut: getIt<SignOut>(),
       getCurrentUser: getIt<GetCurrentUser>(),
       watchAuthState: getIt<WatchAuthState>(),

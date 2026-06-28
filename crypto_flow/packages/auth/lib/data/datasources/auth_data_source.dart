@@ -36,10 +36,6 @@ abstract class AuthDataSource {
 
   Future<AppUserModel> signInWithApple();
 
-  /// Cognito does not support anonymous user pool users — implementations
-  /// targeting Cognito must throw [AuthException] with `code: 'unsupported'`.
-  Future<AppUserModel> signInAnonymously();
-
   Future<void> signOut();
 
   Future<void> deleteAccount();

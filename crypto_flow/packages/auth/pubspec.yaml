@@ -23,7 +23,6 @@ dependencies:
     path: ../settings
   
   # Social Sign In
-  google_sign_in: ^6.2.2
   sign_in_with_apple: ^5.0.0
 
   # AWS Amplify (Cognito)

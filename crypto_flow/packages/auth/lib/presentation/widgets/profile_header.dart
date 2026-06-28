@@ -42,8 +42,10 @@ class ProfileHeader extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
 
-          // Email (if different from display name)
-          if (user.email != null &&
+          // Email — only when there's a real name shown above, so we don't
+          // print the email twice (top falls back to email when name is null).
+          if (user.displayName != null &&
+              user.email != null &&
               user.email != user.displayName &&
               !user.isAnonymous)
             Padding(

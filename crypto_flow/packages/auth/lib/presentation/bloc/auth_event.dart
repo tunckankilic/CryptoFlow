@@ -18,11 +18,6 @@ class AuthAppleSignInRequested extends AuthEvent {
   const AuthAppleSignInRequested();
 }
 
-/// Request Anonymous Sign In
-class AuthAnonymousSignInRequested extends AuthEvent {
-  const AuthAnonymousSignInRequested();
-}
-
 /// Request Sign Out
 class AuthSignOutRequested extends AuthEvent {
   const AuthSignOutRequested();

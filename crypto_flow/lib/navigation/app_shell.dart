@@ -43,6 +43,11 @@ class AppShell extends StatelessWidget {
             selectedIcon: Icon(Icons.settings, color: Colors.grey),
             label: 'Settings',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.view_in_ar_outlined),
+            selectedIcon: Icon(Icons.view_in_ar, color: Colors.deepPurple),
+            label: '3D Market',
+          ),
         ],
       ),
     );
@@ -51,6 +56,7 @@ class AppShell extends StatelessWidget {
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
 
+    if (location.startsWith('/market3d')) return 5;
     if (location.startsWith('/settings')) return 4;
     if (location.startsWith('/alerts')) return 3;
     if (location.startsWith('/portfolio')) return 2;
@@ -74,6 +80,9 @@ class AppShell extends StatelessWidget {
         break;
       case 4:
         context.go('/settings');
+        break;
+      case 5:
+        context.go('/market3d');
         break;
     }
   }

@@ -29,4 +29,11 @@ export 'domain/adapters/depth_scene_adapter.dart';
 
 // Data layer - Engine backends (the only code here that imports an engine)
 export 'data/renderers/thermion_market_scene_renderer.dart';
-export 'data/spike/thermion_spike_page.dart';
+
+// Presentation layer - Bloc
+export 'presentation/bloc/market3d/market3d_bloc.dart';
+export 'presentation/bloc/market3d/market3d_event.dart';
+export 'presentation/bloc/market3d/market3d_state.dart';
+
+// Presentation layer - Pages
+export 'presentation/pages/market3d_page.dart';

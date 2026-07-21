@@ -6,30 +6,22 @@ import '../../domain/models/scene_color.dart';
 import '../../domain/models/vec3.dart';
 import '../renderers/thermion_market_scene_renderer.dart';
 
-/// Debug-only page proving the engine builds and renders on real hardware.
+/// Hosts the thermion viewport for the "3D Market" tab.
 ///
-/// Session 2 proved the engine comes up at all: a lit ground plane and one
-/// procedurally generated cube, orbitable, on simulator and device.
-///
-/// Session 3 replaces the cubes with the real thing — candles built from raw
-/// vertex data, body and wick merged into one mesh — and adds the rebuild
-/// stress test, because the city will tear down and rebuild its geometry on
-/// every rescale and a leak there is invisible at this scale but fatal at the
-/// city's.
-///
-/// Reachable only from the `/dev/3d-spike` debug route; not part of the tab bar.
-class ThermionSpikePage extends StatefulWidget {
-  const ThermionSpikePage({super.key});
+/// Carries the S2/S3 spike's fixed test scene (one bullish, one bearish
+/// candle) and its rebuild stress test over verbatim now that
+/// `/dev/3d-spike` is gone — this is the only place in `presentation/` that
+/// is allowed to touch it, per the engine-agnostic renderer rule. Rendering
+/// the real candlestick city from loaded data is session 5.
+class Market3DViewport extends StatefulWidget {
+  const Market3DViewport({super.key});
 
   @override
-  State<ThermionSpikePage> createState() => _ThermionSpikePageState();
+  State<Market3DViewport> createState() => _Market3DViewportState();
 }
 
-class _ThermionSpikePageState extends State<ThermionSpikePage> {
-  /// How many build/destroy cycles the stress test runs.
-  ///
-  /// High enough that a per-candle leak of either the Dart-side vertex buffer
-  /// or the engine-side asset shows up as a memory climb or a crash.
+class _Market3DViewportState extends State<Market3DViewport> {
+  /// How many build/destroy cycles the stress test runs (see session 3).
   static const int _stressIterations = 100;
 
   ThermionMarketSceneRenderer? _renderer;
@@ -42,7 +34,7 @@ class _ThermionSpikePageState extends State<ThermionSpikePage> {
       final renderer = ThermionMarketSceneRenderer(viewer);
       await renderer.initialize();
 
-      for (final block in _spikeBlocks()) {
+      for (final block in _testBlocks()) {
         await renderer.addCandle(block);
       }
 
@@ -60,11 +52,6 @@ class _ThermionSpikePageState extends State<ThermionSpikePage> {
     }
   }
 
-  /// Builds and destroys a candle [_stressIterations] times.
-  ///
-  /// Runs against the same viewer that is actively rendering, so it also
-  /// exercises the case the city cares about: geometry churning underneath a
-  /// live render loop rather than in a paused scene.
   Future<void> _runStressTest() async {
     final renderer = _renderer;
     if (renderer == null || _isStressing) return;
@@ -76,7 +63,7 @@ class _ThermionSpikePageState extends State<ThermionSpikePage> {
 
     final stopwatch = Stopwatch()..start();
     try {
-      final block = _spikeBlocks().first;
+      final block = _testBlocks().first;
       for (var i = 0; i < _stressIterations; i++) {
         final asset = await renderer.addCandle(block);
         await renderer.removeAsset(asset);
@@ -101,11 +88,7 @@ class _ThermionSpikePageState extends State<ThermionSpikePage> {
   }
 
   /// One bullish and one bearish candle, sized like real ones.
-  ///
-  /// The bearish candle deliberately has a long lower wick and a short body:
-  /// wick and body are separate boxes in one mesh, and that only shows if the
-  /// two differ enough to tell apart.
-  List<CandleBlock> _spikeBlocks() {
+  List<CandleBlock> _testBlocks() {
     final openTime = DateTime.utc(2026, 1, 1);
     return [
       CandleBlock(
@@ -143,48 +126,44 @@ class _ThermionSpikePageState extends State<ThermionSpikePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('3D spike')),
-      floatingActionButton: _renderer == null
-          ? null
-          : FloatingActionButton.extended(
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: ViewerWidget(
+            initialCameraPosition: Vector3(6, 4, 7),
+            background: const Color(0xFF0B0D12),
+            onViewerAvailable: _onViewerAvailable,
+          ),
+        ),
+        Positioned(
+          left: 12,
+          bottom: 12,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Text(
+                _error == null ? _status : '$_status: $_error',
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ),
+        ),
+        if (_renderer != null)
+          Positioned(
+            right: 12,
+            bottom: 12,
+            child: FloatingActionButton.extended(
+              heroTag: 'market3d-stress-test',
               onPressed: _isStressing ? null : _runStressTest,
               icon: const Icon(Icons.refresh),
               label: Text('rebuild ×$_stressIterations'),
             ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: ViewerWidget(
-              // Three-quarter view: a head-on camera hides the side faces,
-              // which are exactly what the lighting has to prove it reaches.
-              initialCameraPosition: Vector3(6, 4, 7),
-              background: const Color(0xFF0B0D12),
-              onViewerAvailable: _onViewerAvailable,
-            ),
           ),
-          Positioned(
-            left: 12,
-            bottom: 12,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                child: Text(
-                  _error == null ? _status : '$_status: $_error',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

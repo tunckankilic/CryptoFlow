@@ -12,6 +12,9 @@ dependencies:
   market:
     path: ../market
 
+  # State management
+  flutter_bloc: ^9.1.1
+
   # Utils
   equatable: ^2.0.5
 
@@ -22,3 +25,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  core:
+    path: ../core
+  dartz: ^0.10.1
+  mocktail: ^1.0.0
+  bloc_test: ^10.0.0

@@ -67,8 +67,7 @@ class AwsWebSocketClient implements WebSocketClient {
   }
 
   @override
-  bool get isConnected =>
-      _statusController.value == WebSocketStatus.connected;
+  bool get isConnected => _statusController.value == WebSocketStatus.connected;
 
   @override
   Stream<WebSocketStatus> get statusStream => _statusController.stream;

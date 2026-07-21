@@ -36,9 +36,7 @@ class SymbolUtils {
       }
     }
     // Fallback: take first 3-4 characters
-    return symbol.length > 4
-        ? symbol.substring(0, symbol.length - 4)
-        : symbol;
+    return symbol.length > 4 ? symbol.substring(0, symbol.length - 4) : symbol;
   }
 
   /// Extract the quote asset from a trading pair symbol.

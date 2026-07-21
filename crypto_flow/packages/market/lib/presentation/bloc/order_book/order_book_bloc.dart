@@ -13,7 +13,6 @@ class OrderBookBloc extends Bloc<OrderBookEvent, OrderBookState> {
   final WebSocketRepository _wsRepository;
 
   StreamSubscription? _orderBookSubscription;
-  String? _currentSymbol;
 
   OrderBookBloc({
     required MarketRepository marketRepository,
@@ -34,8 +33,6 @@ class OrderBookBloc extends Bloc<OrderBookEvent, OrderBookState> {
   ) async {
     emit(const OrderBookLoading());
 
-    _currentSymbol = event.symbol;
-
     final result = await _marketRepository.getOrderBook(
       event.symbol,
       limit: event.depth,
@@ -53,8 +50,6 @@ class OrderBookBloc extends Bloc<OrderBookEvent, OrderBookState> {
     Emitter<OrderBookState> emit,
   ) async {
     await _orderBookSubscription?.cancel();
-
-    _currentSymbol = event.symbol;
 
     _orderBookSubscription = _wsRepository
         .getOrderBookStream(event.symbol, depth: event.depth)

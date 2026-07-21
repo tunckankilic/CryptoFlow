@@ -20,7 +20,8 @@ class VaRDisplay extends StatelessWidget {
             Text(
               '${result.confidence.toStringAsFixed(0)}% confidence, '
               '${result.holdingPeriodDays}-day holding period',
-              style: const TextStyle(color: CryptoColors.textTertiary, fontSize: 12),
+              style: const TextStyle(
+                  color: CryptoColors.textTertiary, fontSize: 12),
             ),
             const SizedBox(height: AppSpacing.md),
             // Main VaR card
@@ -30,7 +31,8 @@ class VaRDisplay extends StatelessWidget {
               decoration: BoxDecoration(
                 color: CryptoColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: CryptoColors.error.withValues(alpha: 0.3)),
+                border: Border.all(
+                    color: CryptoColors.error.withValues(alpha: 0.3)),
               ),
               child: Column(
                 children: [
@@ -45,7 +47,8 @@ class VaRDisplay extends StatelessWidget {
                   ),
                   Text(
                     '${(result.historicalVaRPct * 100).toStringAsFixed(2)}% of portfolio',
-                    style: const TextStyle(color: CryptoColors.error, fontSize: 13),
+                    style: const TextStyle(
+                        color: CryptoColors.error, fontSize: 13),
                   ),
                 ],
               ),
@@ -55,8 +58,10 @@ class VaRDisplay extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Portfolio Value', style: TextStyle(color: CryptoColors.textSecondary)),
-                Text('\$${result.portfolioValue.toStringAsFixed(2)}', style: AppTypography.label),
+                const Text('Portfolio Value',
+                    style: TextStyle(color: CryptoColors.textSecondary)),
+                Text('\$${result.portfolioValue.toStringAsFixed(2)}',
+                    style: AppTypography.label),
               ],
             ),
             const Divider(height: AppSpacing.lg),
@@ -76,7 +81,8 @@ class VaRDisplay extends StatelessWidget {
                           flex: 2,
                           child: Text(
                             '${(c.weight * 100).toStringAsFixed(1)}%',
-                            style: const TextStyle(color: CryptoColors.textSecondary),
+                            style: const TextStyle(
+                                color: CryptoColors.textSecondary),
                           ),
                         ),
                         Expanded(

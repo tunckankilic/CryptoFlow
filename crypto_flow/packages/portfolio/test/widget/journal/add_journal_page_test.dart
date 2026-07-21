@@ -154,7 +154,8 @@ void main() {
           find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '55000');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Quantity'), '1');
 
       await tester.pumpAndSettle();
 
@@ -180,7 +181,8 @@ void main() {
           find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '45000');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Quantity'), '1');
 
       await tester.pumpAndSettle();
 
@@ -229,7 +231,8 @@ void main() {
           find.widgetWithText(TextFormField, 'Symbol'), 'BTCUSDT');
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Entry Price'), '50000');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Quantity'), '1');
       await tester.pumpAndSettle();
 
       // Tap save
@@ -290,7 +293,8 @@ void main() {
           find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '55000');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Quantity'), '1');
 
       await tester.pumpAndSettle();
 
@@ -343,7 +347,8 @@ void main() {
           find.widgetWithText(TextFormField, 'Entry Price'), '50000');
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Exit Price (Optional)'), '45000');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Quantity'), '1');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Quantity'), '1');
 
       await tester.pumpAndSettle();
 

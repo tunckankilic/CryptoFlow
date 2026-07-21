@@ -35,8 +35,7 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
   @override
   Future<PriceAlert> updateAlert(PriceAlert alert) async {
     final body = _alertToApiJson(alert);
-    final response =
-        await _api.put(AwsEndpoints.alert(alert.id), data: body);
+    final response = await _api.put(AwsEndpoints.alert(alert.id), data: body);
     return _alertFromApiJson(response.data as Map<String, dynamic>);
   }
 
@@ -61,12 +60,14 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
       symbol: json['symbol'] as String? ?? '',
       type: alertType,
       targetPrice: _toDouble(json['targetPrice'] ?? json['targetValue']),
-      percentChange:
-          json['percentChange'] != null ? _toDouble(json['percentChange']) : null,
+      percentChange: json['percentChange'] != null
+          ? _toDouble(json['percentChange'])
+          : null,
       basePrice:
           json['basePrice'] != null ? _toDouble(json['basePrice']) : null,
       isActive: status == 'active',
-      isTriggered: status == 'triggered' || (json['isTriggered'] as bool? ?? false),
+      isTriggered:
+          status == 'triggered' || (json['isTriggered'] as bool? ?? false),
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
@@ -94,8 +95,7 @@ class AlertRemoteDataSourceImpl implements AlertRemoteDataSource {
 
   // ---------------------------------------------------------------- Helpers
 
-  static double _toDouble(dynamic v) =>
-      v == null ? 0.0 : (v as num).toDouble();
+  static double _toDouble(dynamic v) => v == null ? 0.0 : (v as num).toDouble();
 
   /// Backend uses `percentUp` / `percentDown` (no underscore), whereas the
   /// local Hive model uses `percent_up` / `percent_down`. Map accordingly.

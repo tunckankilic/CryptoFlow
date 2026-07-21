@@ -17,7 +17,10 @@ workflows:
         XCODE_WORKSPACE: "crypto_flow/ios/Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
         BUNDLE_ID: "site.tunckankilic.cryptoFlow"
-      flutter: stable
+      # Pinned to match .github/workflows/ci.yml. `stable` would float, and a
+      # new Flutter release introducing a deprecation info could then block a
+      # release build that passed CI unchanged.
+      flutter: 3.44.0
       xcode: latest
       cocoapods: default
     integrations:
@@ -108,13 +111,11 @@ workflows:
       - name: Flutter analyze
         script: |
           cd crypto_flow
-          flutter analyze --no-fatal-warnings
-        ignore_failure: true
+          flutter analyze --fatal-infos
       - name: Run tests
         script: |
           cd crypto_flow
           flutter test --coverage
-        ignore_failure: true
       - name: Set build number
         script: |
           # App Store Connect requires CFBundleVersion to be strictly higher
@@ -151,40 +152,3 @@ workflows:
         notify:
           success: true
           failure: true
-
-  ios-debug:
-    name: iOS Debug Build (PR Check)
-    max_build_duration: 30
-    instance_type: mac_mini_m2
-    triggering:
-      events:
-        - pull_request
-      cancel_previous_builds: true
-      branch_patterns:
-        - pattern: 'main'
-          include: true
-        - pattern: 'develop'
-          include: true
-        - pattern: 'feature/*'
-          include: true
-        - pattern: 'fix/*'
-          include: true
-    environment:
-      flutter: stable
-      xcode: latest
-      cocoapods: default
-    scripts:
-      - name: Dependencies
-        script: |
-          cd crypto_flow
-          flutter pub get
-      - name: Flutter analyze
-        script: |
-          cd crypto_flow
-          flutter analyze --no-fatal-warnings
-        ignore_failure: true
-      - name: Test
-        script: |
-          cd crypto_flow
-          flutter test
-        ignore_failure: true

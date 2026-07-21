@@ -193,12 +193,17 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
   /// Push alert summary to iOS home screen widget.
   void _pushAlertDataToWidget(AlertLoaded loaded) {
     if (widgetDataService == null) return;
-    final recentAlerts = loaded.alerts.take(5).map((a) => {
-          'symbol': a.symbol,
-          'type': a.type.toJson(),
-          'targetPrice': a.targetPrice,
-          'status': a.isTriggered ? 'triggered' : (a.isActive ? 'active' : 'disabled'),
-        }).toList();
+    final recentAlerts = loaded.alerts
+        .take(5)
+        .map((a) => {
+              'symbol': a.symbol,
+              'type': a.type.toJson(),
+              'targetPrice': a.targetPrice,
+              'status': a.isTriggered
+                  ? 'triggered'
+                  : (a.isActive ? 'active' : 'disabled'),
+            })
+        .toList();
 
     widgetDataService!.updateAlertData(
       activeCount: loaded.activeAlerts.length,

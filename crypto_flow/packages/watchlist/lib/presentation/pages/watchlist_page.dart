@@ -65,8 +65,7 @@ class WatchlistPage extends StatelessWidget {
 
             return ReorderableListView.builder(
               itemCount: state.items.length,
-              onReorder: (oldIndex, newIndex) {
-                if (newIndex > oldIndex) newIndex--;
+              onReorderItem: (oldIndex, newIndex) {
                 final items = List.of(state.items);
                 final item = items.removeAt(oldIndex);
                 items.insert(newIndex, item);

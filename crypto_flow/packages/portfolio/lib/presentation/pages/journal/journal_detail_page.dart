@@ -28,7 +28,6 @@ class JournalDetailPage extends StatelessWidget {
   static const String _notesLabel = 'Notes';
   static const String _screenshotLabel = 'Chart Screenshot';
   static const String _tagsLabel = 'Tags';
-  static const String _noNotes = 'No notes added';
   static const String _noStrategy = 'No strategy specified';
   static const String _noTags = 'No tags';
   static const String _durationLabel = 'Duration';
@@ -45,8 +44,6 @@ class JournalDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(_title),

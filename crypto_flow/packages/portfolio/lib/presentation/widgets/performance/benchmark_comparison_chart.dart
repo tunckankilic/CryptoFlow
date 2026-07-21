@@ -108,8 +108,7 @@ class BenchmarkComparisonChart extends StatelessWidget {
               children: [
                 _LegendDot(color: CryptoColors.primary, label: 'Portfolio'),
                 const SizedBox(width: AppSpacing.md),
-                _LegendDot(
-                    color: CryptoColors.chartOrange, label: 'Benchmark'),
+                _LegendDot(color: CryptoColors.chartOrange, label: 'Benchmark'),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),

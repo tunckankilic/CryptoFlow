@@ -11,8 +11,8 @@ class FearGreedBloc extends Bloc<FearGreedEvent, FearGreedState> {
   FearGreedBloc(
     this._datasource, {
     WidgetDataService? widgetDataService,
-  }) : _widgetDataService = widgetDataService,
-       super(const FearGreedInitial()) {
+  })  : _widgetDataService = widgetDataService,
+        super(const FearGreedInitial()) {
     on<LoadFearGreedIndex>(_onLoad);
   }
 

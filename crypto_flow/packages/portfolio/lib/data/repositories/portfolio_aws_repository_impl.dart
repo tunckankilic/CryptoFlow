@@ -44,7 +44,8 @@ class PortfolioAwsRepositoryImpl implements PortfolioRepository {
     }
   }
 
-  Future<Either<Failure, List<Holding>>> _holdingsFallback(String reason) async {
+  Future<Either<Failure, List<Holding>>> _holdingsFallback(
+      String reason) async {
     try {
       final cached = await localDataSource.calculateHoldings();
       return Right(cached);

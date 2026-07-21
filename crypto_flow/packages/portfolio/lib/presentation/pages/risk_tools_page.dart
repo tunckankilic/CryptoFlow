@@ -69,10 +69,14 @@ class _PositionSizeTab extends StatelessWidget {
             onCalculate: (params) {
               context.read<RiskBloc>().add(PositionSizeRequested(
                     symbol: params['symbol'] ?? '',
-                    accountSize: double.tryParse(params['accountSize'] ?? '') ?? 0,
-                    riskPercentage: double.tryParse(params['riskPercentage'] ?? '') ?? 1,
-                    entryPrice: double.tryParse(params['entryPrice'] ?? '') ?? 0,
-                    stopLossPrice: double.tryParse(params['stopLossPrice'] ?? '') ?? 0,
+                    accountSize:
+                        double.tryParse(params['accountSize'] ?? '') ?? 0,
+                    riskPercentage:
+                        double.tryParse(params['riskPercentage'] ?? '') ?? 1,
+                    entryPrice:
+                        double.tryParse(params['entryPrice'] ?? '') ?? 0,
+                    stopLossPrice:
+                        double.tryParse(params['stopLossPrice'] ?? '') ?? 0,
                   ));
             },
           ),

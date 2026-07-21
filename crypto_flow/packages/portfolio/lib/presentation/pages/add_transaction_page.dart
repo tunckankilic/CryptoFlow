@@ -172,7 +172,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   lastDate: DateTime.now(),
                 );
 
-                if (date != null && mounted) {
+                if (date != null && context.mounted) {
                   final time = await showTimePicker(
                     context: context,
                     initialTime: TimeOfDay.fromDateTime(_selectedDate),

@@ -39,7 +39,8 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
     _messageOpenedAppController = StreamController<AppNotification>.broadcast();
     _tokenRefreshController = StreamController<String>.broadcast();
 
-    apnsDatasource.onMessage.listen((m) => _messageController.add(m.toEntity()));
+    apnsDatasource.onMessage
+        .listen((m) => _messageController.add(m.toEntity()));
     apnsDatasource.onMessageOpenedApp
         .listen((m) => _messageOpenedAppController.add(m.toEntity()));
     apnsDatasource.onTokenRefresh.listen((token) {
@@ -203,8 +204,8 @@ class NotificationAwsRepositoryImpl implements NotificationRepository {
       );
       return const Right(null);
     } catch (e) {
-      return Left(CacheFailure(
-          message: 'Failed to show price alert notification: $e'));
+      return Left(
+          CacheFailure(message: 'Failed to show price alert notification: $e'));
     }
   }
 

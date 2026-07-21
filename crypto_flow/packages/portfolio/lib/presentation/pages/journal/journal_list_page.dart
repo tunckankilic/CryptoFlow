@@ -25,7 +25,6 @@ class _JournalListPageState extends State<JournalListPage> {
   static const String _searchHint = 'Search symbol, strategy, or tags';
   static const String _emptyStateTitle = 'No trades logged yet';
   static const String _emptyStateSubtitle = 'Start journaling!';
-  static const String _addButton = 'Add Entry';
   static const String _allFilter = 'All';
   static const String _winsFilter = 'Wins';
   static const String _lossesFilter = 'Losses';

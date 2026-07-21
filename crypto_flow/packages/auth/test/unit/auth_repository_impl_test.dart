@@ -26,8 +26,7 @@ void main() {
 
   group('signInWithApple', () {
     test('returns Right(user) when datasource succeeds', () async {
-      when(() => dataSource.signInWithApple())
-          .thenAnswer((_) async => tUser);
+      when(() => dataSource.signInWithApple()).thenAnswer((_) async => tUser);
 
       final result = await repository.signInWithApple();
 
@@ -61,8 +60,7 @@ void main() {
     });
 
     test('maps unexpected error to AuthFailure.unknown', () async {
-      when(() => dataSource.signInWithApple())
-          .thenThrow(Exception('boom'));
+      when(() => dataSource.signInWithApple()).thenThrow(Exception('boom'));
 
       final result = await repository.signInWithApple();
 
@@ -95,8 +93,7 @@ void main() {
 
   group('getCurrentUser', () {
     test('returns Right(user) when signed in', () async {
-      when(() => dataSource.getCurrentUser())
-          .thenAnswer((_) async => tUser);
+      when(() => dataSource.getCurrentUser()).thenAnswer((_) async => tUser);
 
       final result = await repository.getCurrentUser();
 
@@ -104,8 +101,7 @@ void main() {
     });
 
     test('returns Right(null) when signed out', () async {
-      when(() => dataSource.getCurrentUser())
-          .thenAnswer((_) async => null);
+      when(() => dataSource.getCurrentUser()).thenAnswer((_) async => null);
 
       final result = await repository.getCurrentUser();
 

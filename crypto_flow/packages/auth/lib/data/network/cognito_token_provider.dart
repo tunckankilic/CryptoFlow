@@ -16,9 +16,7 @@ class CognitoTokenProvider implements TokenProvider {
       if (!session.isSignedIn) return null;
 
       final cognitoSession = session as CognitoAuthSession;
-      return cognitoSession
-          .userPoolTokensResult.value.accessToken
-          .toJson();
+      return cognitoSession.userPoolTokensResult.value.accessToken.toJson();
     } on SignedOutException {
       return null;
     } on AmplifyException {
@@ -35,9 +33,7 @@ class CognitoTokenProvider implements TokenProvider {
       if (!session.isSignedIn) return null;
 
       final cognitoSession = session as CognitoAuthSession;
-      return cognitoSession
-          .userPoolTokensResult.value.accessToken
-          .toJson();
+      return cognitoSession.userPoolTokensResult.value.accessToken.toJson();
     } on SignedOutException {
       return null;
     } on AmplifyException {

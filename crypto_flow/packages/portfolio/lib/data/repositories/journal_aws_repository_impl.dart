@@ -150,11 +150,14 @@ class JournalAwsRepositoryImpl implements JournalRepository {
     } on AuthException {
       return Left(ServerFailure(message: 'Authentication required'));
     } on ServerException catch (_) {
-      return _entriesFallback(symbol: symbol, side: side, range: range, tag: tag, limit: limit);
+      return _entriesFallback(
+          symbol: symbol, side: side, range: range, tag: tag, limit: limit);
     } on NetworkException {
-      return _entriesFallback(symbol: symbol, side: side, range: range, tag: tag, limit: limit);
+      return _entriesFallback(
+          symbol: symbol, side: side, range: range, tag: tag, limit: limit);
     } catch (e) {
-      return _entriesFallback(symbol: symbol, side: side, range: range, tag: tag, limit: limit);
+      return _entriesFallback(
+          symbol: symbol, side: side, range: range, tag: tag, limit: limit);
     }
   }
 
@@ -235,8 +238,8 @@ class JournalAwsRepositoryImpl implements JournalRepository {
       final entries = await journalDao.getAllEntries();
       final periodEntries = days != null
           ? entries
-              .where(
-                  (e) => e.entryDate.isAfter(now.subtract(Duration(days: days))))
+              .where((e) =>
+                  e.entryDate.isAfter(now.subtract(Duration(days: days))))
               .toList()
           : entries;
 
@@ -255,8 +258,7 @@ class JournalAwsRepositoryImpl implements JournalRepository {
       return Right(TradingStats(
         id: 0,
         period: period,
-        periodStart:
-            days != null ? now.subtract(Duration(days: days)) : now,
+        periodStart: days != null ? now.subtract(Duration(days: days)) : now,
         periodEnd: now,
         totalTrades: closed.length,
         winCount: winCount,

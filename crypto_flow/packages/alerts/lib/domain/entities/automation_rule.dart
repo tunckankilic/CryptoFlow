@@ -76,5 +76,6 @@ class AutomationRule extends Equatable {
       );
 
   @override
-  List<Object?> get props => [ruleId, name, enabled, trigger, action, lastTriggeredAt, createdAt];
+  List<Object?> get props =>
+      [ruleId, name, enabled, trigger, action, lastTriggeredAt, createdAt];
 }

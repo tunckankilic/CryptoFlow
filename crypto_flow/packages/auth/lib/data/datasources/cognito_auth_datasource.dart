@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart' hide AuthException;
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart'
+    hide AuthException;
 import 'package:amplify_flutter/amplify_flutter.dart' hide AuthException;
 
 import '../../domain/entities/app_user.dart' as domain;
@@ -166,5 +167,6 @@ AuthException mapAmplifyException(
   if (e is NetworkException) {
     return AuthException(e.message, code: 'network');
   }
-  return AuthException(e.message.isEmpty ? fallback : e.message, code: 'unknown');
+  return AuthException(e.message.isEmpty ? fallback : e.message,
+      code: 'unknown');
 }

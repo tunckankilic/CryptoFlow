@@ -13,10 +13,10 @@ import '../renderers/thermion_market_scene_renderer.dart';
 class Market3DViewport extends StatefulWidget {
   const Market3DViewport({super.key, required this.scene});
 
-  /// The city to render. [Market3DPage] only mounts this widget once
-  /// [Market3DBloc] has a non-empty loaded scene, so this is static for the
-  /// widget's lifetime — live updates (session 6) will need to make it
-  /// reactive to a changing scene instead of a one-shot build.
+  /// The city to render. [Market3DPage] rebuilds this widget with a new
+  /// `scene` on every live tick (it's the same `BlocBuilder` that decides
+  /// whether to mount it at all); [didUpdateWidget] below is what turns that
+  /// into engine calls.
   final MarketScene scene;
 
   @override
@@ -27,6 +27,12 @@ class _Market3DViewportState extends State<Market3DViewport> {
   ThermionMarketSceneRenderer? _renderer;
   String _status = 'initialising engine…';
   Object? _error;
+
+  /// Serialises calls into the renderer so two live ticks arriving close
+  /// together (or a rescale racing a tick) can't interleave `_cityAssets`
+  /// mutations — `didUpdateWidget` fires-and-forgets `_applySceneUpdate`
+  /// rather than awaiting it, since a build method can't be async.
+  Future<void> _engineQueue = Future.value();
 
   Future<void> _onViewerAvailable(ThermionViewer viewer) async {
     try {
@@ -44,6 +50,62 @@ class _Market3DViewportState extends State<Market3DViewport> {
       setState(() {
         _error = e;
         _status = 'failed';
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant Market3DViewport oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final renderer = _renderer;
+    if (renderer == null || identical(oldWidget.scene, widget.scene)) return;
+    final previous = oldWidget.scene;
+    final next = widget.scene;
+    _engineQueue = _engineQueue.then(
+      (_) => _applySceneUpdate(renderer, previous, next),
+    );
+  }
+
+  /// Applies a scene change to the engine without re-rendering the whole
+  /// city on every tick.
+  ///
+  /// [CandleSceneAdapter.applyLiveCandle] always reuses the previous scene's
+  /// [PriceScale] instance; [CandleSceneAdapter.buildScene] always builds a
+  /// new one. That difference is a reliable, purely-derived signal for which
+  /// path [Market3DBloc] took, so this widget doesn't need a separate flag on
+  /// the state to tell a rescale from a single-tick update.
+  Future<void> _applySceneUpdate(
+    ThermionMarketSceneRenderer renderer,
+    MarketScene previous,
+    MarketScene next,
+  ) async {
+    try {
+      if (previous.scale != next.scale) {
+        await renderer.setScene(next);
+        if (!mounted) return;
+        setState(() => _status = '${next.blocks.length} candles rendered');
+        return;
+      }
+
+      // Cheap path: only the live block changed, or a new one just opened —
+      // which also freezes the block right before it (see
+      // `CandleSceneAdapter.applyLiveCandle`). Both land in this range.
+      final start = previous.blocks.isEmpty ? 0 : previous.blocks.length - 1;
+      for (var i = start; i < next.blocks.length; i++) {
+        final block = next.blockAt(i);
+        if (block == null) continue;
+        if (i < previous.blocks.length && block == previous.blocks[i]) {
+          continue;
+        }
+        await renderer.updateLiveBlock(block);
+      }
+      if (!mounted) return;
+      setState(() => _status = '${next.blocks.length} candles rendered');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _status = 'live update failed';
       });
     }
   }

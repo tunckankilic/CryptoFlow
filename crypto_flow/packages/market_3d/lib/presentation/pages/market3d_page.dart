@@ -8,10 +8,10 @@ import '../bloc/market3d/market3d_state.dart';
 
 /// The "3D Market" tab.
 ///
-/// Dispatches [LoadMarket3DCandles] on mount, shows a loading/error
-/// placeholder until history arrives, then hands the loaded scene to
-/// [Market3DViewport] for the static candlestick-city render. Live updates
-/// are session 6.
+/// Dispatches [LoadMarket3DCandles] and [SubscribeToMarket3DStream] on
+/// mount, shows a loading/error placeholder until history arrives, then
+/// hands the loaded scene to [Market3DViewport] — which stays mounted and
+/// picks up every live tick as `state.scene` changes underneath it.
 class Market3DPage extends StatefulWidget {
   const Market3DPage({super.key});
 
@@ -20,11 +20,17 @@ class Market3DPage extends StatefulWidget {
 }
 
 class _Market3DPageState extends State<Market3DPage> {
+  static const _symbol = 'BTCUSDT';
+  static const _interval = '1m';
+
   @override
   void initState() {
     super.initState();
+    context
+        .read<Market3DBloc>()
+        .add(const LoadMarket3DCandles(symbol: _symbol, interval: _interval));
     context.read<Market3DBloc>().add(
-          const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'),
+          const SubscribeToMarket3DStream(symbol: _symbol, interval: _interval),
         );
   }
 
@@ -42,7 +48,17 @@ class _Market3DPageState extends State<Market3DPage> {
                 Positioned(
                   right: 12,
                   top: 12,
-                  child: _Badge('${state.blockCount} blocks loaded'),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _Badge('${state.blockCount} blocks loaded'),
+                      const SizedBox(height: 6),
+                      _Badge(
+                        state.isLive ? 'live' : 'reconnecting…',
+                        color: state.isLive ? Colors.greenAccent : Colors.orangeAccent,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             );
@@ -62,9 +78,10 @@ class _Market3DPageState extends State<Market3DPage> {
 }
 
 class _Badge extends StatelessWidget {
-  const _Badge(this.text);
+  const _Badge(this.text, {this.color = Colors.white});
 
   final String text;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +94,7 @@ class _Badge extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Text(
           text,
-          style: const TextStyle(color: Colors.white, fontSize: 12),
+          style: TextStyle(color: color, fontSize: 12),
         ),
       ),
     );

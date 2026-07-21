@@ -44,15 +44,37 @@ class Market3DLoaded extends Market3DState {
   /// Number of blocks adapted — the debug count shown on the tab.
   int get blockCount => blocks.length;
 
+  /// Whether the live stream is currently connected.
+  ///
+  /// Mirrors `CandleLoaded.isLive`: true once `SubscribeToMarket3DStream` has
+  /// been handled, false again on a stream error, so a reconnect drop is
+  /// visible without tearing down the rendered city.
+  final bool isLive;
+
   const Market3DLoaded({
     required this.symbol,
     required this.interval,
     required this.candles,
     required this.scene,
+    this.isLive = false,
   });
 
+  Market3DLoaded copyWith({
+    List<Candle>? candles,
+    MarketScene? scene,
+    bool? isLive,
+  }) {
+    return Market3DLoaded(
+      symbol: symbol,
+      interval: interval,
+      candles: candles ?? this.candles,
+      scene: scene ?? this.scene,
+      isLive: isLive ?? this.isLive,
+    );
+  }
+
   @override
-  List<Object?> get props => [symbol, interval, candles, scene];
+  List<Object?> get props => [symbol, interval, candles, scene, isLive];
 }
 
 /// History fetch failed.

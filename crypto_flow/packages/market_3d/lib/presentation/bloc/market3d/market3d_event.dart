@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:market/market.dart';
 
 /// Events for [Market3DBloc].
 abstract class Market3DEvent extends Equatable {
@@ -25,4 +26,40 @@ class LoadMarket3DCandles extends Market3DEvent {
 
   @override
   List<Object?> get props => [symbol, interval, limit];
+}
+
+/// Subscribes to live candle updates for the loaded series.
+///
+/// Mirrors `CandleBloc`'s `SubscribeToCandleStream`.
+class SubscribeToMarket3DStream extends Market3DEvent {
+  final String symbol;
+  final String interval;
+
+  const SubscribeToMarket3DStream({
+    required this.symbol,
+    required this.interval,
+  });
+
+  @override
+  List<Object?> get props => [symbol, interval];
+}
+
+/// Internal: a candle update arrived from the WebSocket stream.
+class Market3DCandleReceived extends Market3DEvent {
+  final Candle candle;
+
+  const Market3DCandleReceived(this.candle);
+
+  @override
+  List<Object?> get props => [candle];
+}
+
+/// Internal: the WebSocket stream reported an error.
+class Market3DStreamError extends Market3DEvent {
+  final String message;
+
+  const Market3DStreamError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

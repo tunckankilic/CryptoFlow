@@ -24,6 +24,7 @@ Future<void> registerMarket3DModule() async {
   getIt.registerFactory<Market3DBloc>(
     () => Market3DBloc(
       getCandlesUseCase: getIt<GetCandlesUseCase>(),
+      getCandleStreamUseCase: getIt<GetCandleStreamUseCase>(),
       adapter: CandleSceneAdapter(layout: _market3DCityLayout),
     ),
   );

@@ -45,8 +45,19 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   final List<ThermionAsset> _cityAssets = [];
 
   /// The scene last handed to [setScene], used by [applyCamera] to frame the
-  /// city without needing the scene passed again.
+  /// city without needing the scene passed again. [updateLiveBlock] keeps this
+  /// in sync too, so a later [applyCamera] call sees live growth.
   MarketScene _scene = MarketScene.empty();
+
+  /// The x offset baked into every asset currently in [_cityAssets].
+  ///
+  /// Frozen at the value [setScene] computed for the block count at that
+  /// time. [updateLiveBlock] reuses it rather than recomputing
+  /// [MarketScene.seriesCenterOffsetX] from the growing scene: per
+  /// [MarketScene]'s own contract, appending a candle must never move blocks
+  /// already on screen, so a newly opened candle is placed with the same
+  /// frozen offset and the city recentres only on the next full [setScene].
+  double _seriesOffsetX = 0;
 
   @override
   bool get isInitialized => _isInitialized;
@@ -197,20 +208,44 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     }
     _cityAssets.clear();
 
-    final offsetX = scene.seriesCenterOffsetX;
+    _seriesOffsetX = scene.seriesCenterOffsetX;
     for (final block in scene.blocks) {
-      _cityAssets.add(await addCandle(block, offsetX: offsetX));
+      _cityAssets.add(await addCandle(block, offsetX: _seriesOffsetX));
     }
 
     _scene = scene;
     await applyCamera(const FrameScene());
   }
 
+  /// Mutates a single candle's geometry without touching the rest of the
+  /// city: `block.index` inside [_cityAssets] replaces that asset (the
+  /// steady-state tick — OHLC and colour move but the series doesn't grow),
+  /// `block.index == _cityAssets.length` appends the newly opened candle.
+  ///
+  /// Thermion has no API to rewrite an existing asset's vertex buffer in
+  /// place, and a live candle's body/wick height genuinely changes every
+  /// tick, not just its transform — so "mutate in place" here means destroy
+  /// and recreate the one asset at this index, the same per-candle
+  /// build+destroy [addCandle]/[removeAsset] already cost ~1ms each (S3). The
+  /// new asset is created before the old one is destroyed so there is no
+  /// frame where the live candle is briefly missing.
   @override
-  Future<void> updateLiveBlock(CandleBlock block) {
-    throw UnimplementedError(
-      'updateLiveBlock lands in session 6 (live updates)',
-    );
+  Future<void> updateLiveBlock(CandleBlock block) async {
+    if (block.index < 0 || block.index > _cityAssets.length) {
+      throw RangeError.index(block.index, _cityAssets, 'block.index');
+    }
+
+    final asset = await addCandle(block, offsetX: _seriesOffsetX);
+
+    if (block.index == _cityAssets.length) {
+      _cityAssets.add(asset);
+    } else {
+      final previous = _cityAssets[block.index];
+      _cityAssets[block.index] = asset;
+      await _viewer.destroyAsset(previous);
+    }
+
+    _scene = _scene.withBlock(block);
   }
 
   @override

@@ -53,7 +53,7 @@ class ProfileHeader extends StatelessWidget {
               child: Text(
                 user.email!,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -68,7 +68,7 @@ class ProfileHeader extends StatelessWidget {
               vertical: 6,
             ),
             decoration: BoxDecoration(
-              color: _getProviderColor(user.provider).withOpacity(0.1),
+              color: _getProviderColor(user.provider).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -98,7 +98,7 @@ class ProfileHeader extends StatelessWidget {
             child: Text(
               'Member since ${_formatDate(user.createdAt)}',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
           ),

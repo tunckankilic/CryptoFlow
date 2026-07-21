@@ -87,7 +87,8 @@ class LoginPage extends StatelessWidget {
                       Text(
                         'Real-time Cryptocurrency Tracker',
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.7),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -107,7 +108,8 @@ class LoginPage extends StatelessWidget {
                       Text(
                         'Sign in to sync your portfolio and alerts across devices',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.6),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -133,7 +135,7 @@ class LoginPage extends StatelessWidget {
                             horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surfaceContainerHighest
-                              .withOpacity(0.5),
+                              .withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -141,8 +143,8 @@ class LoginPage extends StatelessWidget {
                             Icon(
                               Icons.info_outline,
                               size: 16,
-                              color:
-                                  theme.colorScheme.onSurface.withOpacity(0.5),
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.5),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -150,7 +152,7 @@ class LoginPage extends StatelessWidget {
                                 'This app is for informational purposes only and does not constitute financial advice.',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurface
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                   fontSize: 11,
                                 ),
                               ),
@@ -168,8 +170,8 @@ class LoginPage extends StatelessWidget {
                           textAlign: TextAlign.center,
                           text: TextSpan(
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color:
-                                  theme.colorScheme.onSurface.withOpacity(0.4),
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.4),
                             ),
                             children: [
                               const TextSpan(

@@ -160,7 +160,7 @@ class ProfilePage extends StatelessWidget {
             Icon(
               Icons.person_outline,
               size: 80,
-              color: theme.colorScheme.onSurface.withOpacity(0.3),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 24),
             Text(
@@ -171,7 +171,7 @@ class ProfilePage extends StatelessWidget {
             Text(
               'Sign in to sync your data across devices',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               textAlign: TextAlign.center,
             ),
@@ -196,7 +196,7 @@ class ProfilePage extends StatelessWidget {
         child: Text(
           title.toUpperCase(),
           style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.5),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
             fontWeight: FontWeight.w600,
             letterSpacing: 1.2,
           ),

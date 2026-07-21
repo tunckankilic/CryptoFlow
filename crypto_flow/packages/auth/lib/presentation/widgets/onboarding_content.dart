@@ -115,7 +115,7 @@ class _OnboardingContentState extends State<OnboardingContent>
                           .textTheme
                           .bodyLarge
                           ?.color
-                          ?.withOpacity(0.7),
+                          ?.withValues(alpha: 0.7),
                     ),
                 textAlign: TextAlign.center,
               ),

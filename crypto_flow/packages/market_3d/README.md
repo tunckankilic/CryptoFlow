@@ -27,7 +27,13 @@ Why, over the alternative of scaling a shared unit cube per box:
   the others.
 
 The cost is that changing a candle's *shape* means rebuilding its buffer rather
-than editing a matrix. That is fine for history, which is static, and is the
-open question for the live block in session 6: if per-tick rebuilds prove too
-expensive there, the live candle alone can keep a unit-cube body scaled by
-transform while history stays merged.
+than editing a matrix. That is fine for history, which is static.
+
+Measured on a physical iPhone (iPhone14,5, iOS 27) with the render loop live: one
+build + destroy cycle costs **0.94–1.21 ms**, stable across repeated runs of
+100 cycles, so nothing leaks. At that rate a 200-candle city rebuilds in
+roughly 200 ms — fine for a one-off rescale, far too slow to do on every
+market tick. The live block therefore has to be updated in place rather than
+rebuilt (session 6); if editing its vertices proves awkward, the live candle
+alone can fall back to a unit-cube body scaled by transform while history
+stays merged.

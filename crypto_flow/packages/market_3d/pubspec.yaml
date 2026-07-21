@@ -1,0 +1,24 @@
+name: market_3d
+description: Engine-agnostic 3D market scene models, renderer contract and adapters for CryptoWave
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Local packages
+  market:
+    path: ../market
+
+  # Utils
+  equatable: ^2.0.5
+
+  # 3D engine (data layer only — domain/ must never import this)
+  thermion_flutter: ^0.4.1
+  vector_math: ^2.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Pages
 import 'package:market/market.dart';
+import 'package:market_3d/market_3d.dart';
 import 'package:portfolio/portfolio.dart';
 import 'package:alerts/alerts.dart';
 import 'package:watchlist/watchlist.dart';
@@ -31,6 +33,12 @@ class AuthNotifier extends ChangeNotifier {
   }
 }
 
+/// Debug-only route hosting the thermion build spike (session 2).
+///
+/// Not linked from any UI — open it with `context.go('/dev/3d-spike')` from a
+/// debug build, or launch with `flutter run` and navigate manually.
+const _kSpikeRoute = '/dev/3d-spike';
+
 /// App router configuration using GoRouter.
 /// The [authNotifier] is owned & disposed by the caller (CryptoWaveApp).
 GoRouter createAppRouter(
@@ -41,6 +49,12 @@ GoRouter createAppRouter(
     initialLocation: '/',
     refreshListenable: authNotifier,
     redirect: (context, state) async {
+      // Debug-only 3D spike route: reachable without auth/onboarding so the
+      // engine can be exercised on a clean device. Compiled out in release.
+      if (kDebugMode && state.matchedLocation == _kSpikeRoute) {
+        return null;
+      }
+
       final authState = authBloc.state;
       final isGoingToLogin = state.matchedLocation == '/login';
       final isGoingToOnboarding = state.matchedLocation == '/onboarding';
@@ -211,6 +225,13 @@ GoRouter createAppRouter(
           settingsRepository: getIt<SettingsRepository>(),
         ),
       ),
+      // Debug-only 3D engine spike. Outside the shell: full screen, no tabs.
+      if (kDebugMode)
+        GoRoute(
+          path: _kSpikeRoute,
+          name: 'devThreeDSpike',
+          builder: (context, state) => const ThermionSpikePage(),
+        ),
     ],
   );
 }

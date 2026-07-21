@@ -10,11 +10,11 @@ abstract class AuthRepository {
   Stream<AppUser?> get authStateChanges;
 
   /// Sign in with Apple (iOS only)
-  /// Returns Either<Failure, AppUser> on success or failure
+  /// Returns `Either<Failure, AppUser>` on success or failure
   Future<Either<Failure, AppUser>> signInWithApple();
 
   /// Sign out current user
-  /// Returns Either<Failure, void> on success or failure
+  /// Returns `Either<Failure, void>` on success or failure
   Future<Either<Failure, void>> signOut();
 
   /// Get current authenticated user
@@ -22,6 +22,6 @@ abstract class AuthRepository {
   Future<Either<Failure, AppUser?>> getCurrentUser();
 
   /// Delete current user account
-  /// Returns Either<Failure, void> on success or failure
+  /// Returns `Either<Failure, void>` on success or failure
   Future<Either<Failure, void>> deleteAccount();
 }

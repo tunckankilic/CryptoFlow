@@ -50,7 +50,7 @@ class _BiometricSettingTileState extends State<BiometricSettingTile> {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.7),
+                          .withValues(alpha: 0.7),
                     ),
               ),
               trailing: Switch.adaptive(

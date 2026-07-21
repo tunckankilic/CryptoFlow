@@ -64,7 +64,7 @@ class _LockScreenState extends State<LockScreen> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.1),
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Icon(
@@ -88,7 +88,7 @@ class _LockScreenState extends State<LockScreen> {
                 Text(
                   'Devam etmek için kimliğinizi doğrulayın',
                   style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   textAlign: TextAlign.center,
                 ),

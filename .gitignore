@@ -27,6 +27,8 @@ infrastructure/.terraform/
 infrastructure/.terraform.lock.hcl
 infrastructure/*.tfstate
 infrastructure/*.tfstate.*
+infrastructure/tfplan
+infrastructure/*.tfplan
 infrastructure/terraform.tfvars
 !infrastructure/terraform.tfvars.example
 infrastructure/modules/lambda/placeholder.zip

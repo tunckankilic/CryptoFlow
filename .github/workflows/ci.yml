@@ -1,20 +1,18 @@
 name: CI
 
 on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to build'
-        required: true
-        default: 'main'
-        type: string
 
 env:
-  FLUTTER_VERSION: '3.19.0'
+  FLUTTER_VERSION: '3.44.0'
 
 jobs:
-  build_ios:
-    name: Build iOS
+  analyze_and_test:
+    name: Analyze & Test
     runs-on: macos-latest
     defaults:
       run:
@@ -23,8 +21,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.branch }}
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -32,17 +28,25 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      - name: Get Dependencies
+      - name: Generate runtime config
+        # amplify_outputs.json is gitignored, so it is not in the CI checkout.
+        # It is declared as an asset in pubspec.yaml, which makes `flutter
+        # analyze` and `flutter build` fail without it. These are public client
+        # identifiers, not secrets; the release build gets the same values from
+        # codemagic.yaml.
+        run: cp ../config/amplify_outputs.example.json amplify_outputs.json
+
+      - name: Get dependencies
         run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze
         run: flutter analyze --fatal-infos
 
-      - name: Format
-        run: dart format --output=none --set-exit-if-changed .
-
-      - name: Run Tests
+      - name: Run tests
         run: flutter test
 
-      - name: Build iOS Release (No CodeSign)
+      - name: Build iOS (no codesign)
         run: flutter build ios --release --no-codesign

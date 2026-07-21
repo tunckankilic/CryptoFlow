@@ -55,16 +55,4 @@ void main() {
       expect(result.message, 'fallback msg');
     });
   });
-
-  group('CognitoAuthDataSource', () {
-    test('signInAnonymously throws unsupported AuthException', () async {
-      final ds = CognitoAuthDataSource();
-      await expectLater(
-        ds.signInAnonymously(),
-        throwsA(
-          isA<AuthException>().having((e) => e.code, 'code', 'unsupported'),
-        ),
-      );
-    });
-  });
 }

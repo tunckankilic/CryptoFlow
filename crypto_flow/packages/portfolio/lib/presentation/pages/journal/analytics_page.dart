@@ -27,8 +27,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   static const String _equityCurveTitle = 'Equity Curve';
   static const String _pnlBySymbolTitle = 'P&L by Symbol';
   static const String _emotionAnalysisTitle = 'Emotion Analysis';
-  static const String _bestTradeLabel = 'Best Trade';
-  static const String _worstTradeLabel = 'Worst Trade';
   static const String _noDataLabel = 'No data available';
 
   int? _selectedPeriodDays;

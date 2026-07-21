@@ -41,7 +41,6 @@ class _AddEditJournalPageState extends State<AddEditJournalPage> {
   static const String _exitDateLabel = 'Exit Date (Optional)';
   static const String _saveButton = 'Save';
   static const String _pickImageButton = 'Pick Image';
-  static const String _removeImageButton = 'Remove';
   static const String _calculatedLabel = 'Calculated Values';
   static const String _requiredError = 'This field is required';
   static const String _invalidNumberError = 'Please enter a valid number';

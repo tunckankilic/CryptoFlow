@@ -9,6 +9,7 @@ import '../../domain/models/market_scene.dart';
 import '../../domain/models/scene_color.dart';
 import '../../domain/models/scene_tap.dart';
 import '../../domain/renderer/market_scene_renderer.dart';
+import 'candle_mesh.dart';
 
 /// Thermion (Filament) implementation of [MarketSceneRenderer].
 ///
@@ -99,6 +100,20 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     required Vector3 position,
     required Vector3 size,
   }) async {
+    final material = await _createMaterial(color);
+
+    final asset = await _viewer.createGeometry(
+      GeometryUtils.cube(),
+      materialInstances: [material.materialInstance],
+    );
+    await asset.setTransform(
+      Matrix4.translation(position)..scaleByVector3(size / 2.0),
+    );
+    return asset;
+  }
+
+  /// Creates the standard surface material for [color].
+  Future<UbershaderMaterialInstance> _createMaterial(SceneColor color) async {
     final material = await FilamentApp.instance!.createUbershaderMaterial();
     await material.setBaseColorFactor(color.r, color.g, color.b, color.a);
     await material.setMetallicFactor(0.0);
@@ -116,31 +131,41 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
       1.0,
     );
 
-    final asset = await _viewer.createGeometry(
-      GeometryUtils.cube(),
-      materialInstances: [material.materialInstance],
-    );
-    await asset.setTransform(
-      Matrix4.translation(position)..scaleByVector3(size / 2.0),
-    );
-    return asset;
+    return material;
   }
 
-  /// Adds a single lit test cube to the scene.
+  /// Adds [block] to the scene as one merged body + wick mesh.
   ///
-  /// Spike-only helper that exists to prove the engine renders on device;
-  /// [setScene] replaces it with the candlestick city in session 3.
-  Future<ThermionAsset> addSpikeCube({
-    required Vector3 position,
-    required double size,
-    required SceneColor color,
-  }) {
-    return _createBox(
-      color,
-      position: position,
-      size: Vector3(size, size, size),
-    );
+  /// The mesh carries the candle's true dimensions in its vertices (see
+  /// [CandleMesh]); the transform only moves it to its slot in the series, so
+  /// no scale factor is ever applied to the geometry.
+  ///
+  /// Both boxes share one material, so the wick takes the body's colour. That
+  /// is deliberate: a per-box material would need a second material instance
+  /// and a second primitive, doubling the cost of the thing this proves cheap.
+  Future<ThermionAsset> addCandle(CandleBlock block) async {
+    final material = await _createMaterial(block.bodyColor);
+    final geometry = CandleMesh.build(block);
+
+    try {
+      final asset = await _viewer.createGeometry(
+        geometry,
+        materialInstances: [material.materialInstance],
+      );
+      await asset.setTransform(
+        Matrix4.translation(CandleMesh.originOf(block)),
+      );
+      return asset;
+    } finally {
+      // The engine copies the buffers, so the Dart-side allocation is dead the
+      // moment `createGeometry` returns. Leaking it once per candle would be
+      // invisible in the spike and fatal in a city rebuilt on every tick.
+      geometry.dispose();
+    }
   }
+
+  /// Removes [asset] from the scene and destroys it.
+  Future<void> removeAsset(ThermionAsset asset) => _viewer.destroyAsset(asset);
 
   @override
   Future<void> setScene(MarketScene scene) {

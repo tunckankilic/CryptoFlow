@@ -42,10 +42,8 @@ class BenchmarkComparisonModel {
   factory BenchmarkComparisonModel.fromJson(Map<String, dynamic> json) {
     return BenchmarkComparisonModel(
       symbol: json['symbol'] as String? ?? '',
-      portfolioReturnPct:
-          (json['portfolioReturnPct'] as num?)?.toDouble() ?? 0,
-      benchmarkReturnPct:
-          (json['benchmarkReturnPct'] as num?)?.toDouble() ?? 0,
+      portfolioReturnPct: (json['portfolioReturnPct'] as num?)?.toDouble() ?? 0,
+      benchmarkReturnPct: (json['benchmarkReturnPct'] as num?)?.toDouble() ?? 0,
       alpha: (json['alpha'] as num?)?.toDouble() ?? 0,
     );
   }
@@ -97,8 +95,8 @@ class PerformanceMetricsModel {
       winRate: (json['winRate'] as num?)?.toDouble() ?? 0,
       profitFactor: (json['profitFactor'] as num?)?.toDouble() ?? 0,
       monthlyReturns: (json['monthlyReturns'] as List<dynamic>?)
-              ?.map((e) =>
-                  MonthlyReturnModel.fromJson(e as Map<String, dynamic>))
+              ?.map(
+                  (e) => MonthlyReturnModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       benchmarks: (json['benchmarks'] as List<dynamic>?)

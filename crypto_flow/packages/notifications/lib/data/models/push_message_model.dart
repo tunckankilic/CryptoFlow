@@ -16,7 +16,8 @@ class PushMessageModel {
     final aps = _asMap(payload['aps']);
     final alert = _asMap(aps?['alert']);
 
-    final title = (alert?['title'] ?? payload['title']) as String? ?? 'CryptoFlow';
+    final title =
+        (alert?['title'] ?? payload['title']) as String? ?? 'CryptoFlow';
     final body = (alert?['body'] ?? payload['body']) as String? ?? '';
 
     final typeString = payload['type'] as String? ?? 'system';

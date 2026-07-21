@@ -178,12 +178,15 @@ class TickerListBloc extends Bloc<TickerListEvent, TickerListState> {
     }
     _lastWidgetUpdate = now;
 
-    final top = loaded.filteredTickers.take(10).map((t) => {
-          'symbol': t.symbol,
-          'price': t.price,
-          'change24h': t.priceChange,
-          'changePercent24h': t.priceChangePercent,
-        }).toList();
+    final top = loaded.filteredTickers
+        .take(10)
+        .map((t) => {
+              'symbol': t.symbol,
+              'price': t.price,
+              'change24h': t.priceChange,
+              'changePercent24h': t.priceChangePercent,
+            })
+        .toList();
     _widgetDataService!.updateTickerData(top);
   }
 

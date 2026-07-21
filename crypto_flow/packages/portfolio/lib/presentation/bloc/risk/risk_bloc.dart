@@ -27,7 +27,8 @@ class PositionSizeRequested extends RiskEvent {
   });
 
   @override
-  List<Object?> get props => [symbol, accountSize, riskPercentage, entryPrice, stopLossPrice];
+  List<Object?> get props =>
+      [symbol, accountSize, riskPercentage, entryPrice, stopLossPrice];
 }
 
 class CorrelationRequested extends RiskEvent {

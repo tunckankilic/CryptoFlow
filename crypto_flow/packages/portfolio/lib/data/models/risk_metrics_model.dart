@@ -27,9 +27,8 @@ class CorrelationMatrixModel {
         [];
     final rawMatrix = (_json['matrix'] as List<dynamic>?) ?? [];
     final matrix = rawMatrix
-        .map((row) => (row as List<dynamic>)
-            .map((v) => (v as num).toDouble())
-            .toList())
+        .map((row) =>
+            (row as List<dynamic>).map((v) => (v as num).toDouble()).toList())
         .toList();
 
     return CorrelationMatrix(
@@ -46,7 +45,8 @@ class VaRResultModel {
 
   VaRResult toEntity() {
     final components = (_json['componentVaR'] as List<dynamic>?)
-            ?.map((e) => ComponentVaRModel.fromJson(e as Map<String, dynamic>).toEntity())
+            ?.map((e) => ComponentVaRModel.fromJson(e as Map<String, dynamic>)
+                .toEntity())
             .toList() ??
         [];
 

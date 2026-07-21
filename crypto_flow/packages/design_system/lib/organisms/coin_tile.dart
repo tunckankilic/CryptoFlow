@@ -88,7 +88,8 @@ class CoinTile extends StatelessWidget {
                 height: AppSpacing.coinIconSize,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => _buildPlaceholderIcon(context),
-                errorWidget: (context, url, error) => _buildPlaceholderIcon(context),
+                errorWidget: (context, url, error) =>
+                    _buildPlaceholderIcon(context),
               ),
             )
           : _buildPlaceholderIcon(context),

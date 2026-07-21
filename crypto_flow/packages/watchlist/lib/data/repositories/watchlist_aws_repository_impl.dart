@@ -73,7 +73,8 @@ class WatchlistAwsRepositoryImpl implements WatchlistRepository {
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
     } catch (e) {
-      return Left(ServerFailure(message: 'Failed to remove from watchlist: $e'));
+      return Left(
+          ServerFailure(message: 'Failed to remove from watchlist: $e'));
     }
   }
 

@@ -41,16 +41,19 @@ class RiskRemoteDataSourceImpl implements RiskRemoteDataSource {
         'stopLossPrice': stopLossPrice.toString(),
       },
     );
-    return PositionSizeResultModel.fromJson(response.data as Map<String, dynamic>);
+    return PositionSizeResultModel.fromJson(
+        response.data as Map<String, dynamic>);
   }
 
   @override
-  Future<CorrelationMatrixModel> getCorrelation({String period = 'monthly'}) async {
+  Future<CorrelationMatrixModel> getCorrelation(
+      {String period = 'monthly'}) async {
     final response = await _client.get(
       AwsEndpoints.riskCorrelation,
       queryParameters: {'period': period},
     );
-    return CorrelationMatrixModel.fromJson(response.data as Map<String, dynamic>);
+    return CorrelationMatrixModel.fromJson(
+        response.data as Map<String, dynamic>);
   }
 
   @override

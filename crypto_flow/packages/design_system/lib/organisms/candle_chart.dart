@@ -131,7 +131,8 @@ class CandleChart extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderButton(BuildContext context, String label, bool active, {Color? color}) {
+  Widget _buildHeaderButton(BuildContext context, String label, bool active,
+      {Color? color}) {
     final buttonColor = color ?? CryptoColors.primary;
     return Container(
       margin: const EdgeInsets.only(left: AppSpacing.sm),

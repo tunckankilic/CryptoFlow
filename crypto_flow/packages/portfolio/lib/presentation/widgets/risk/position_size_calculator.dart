@@ -103,9 +103,14 @@ class PositionSizeCalculator extends StatelessWidget {
             ),
             if (result != null) ...[
               const Divider(height: AppSpacing.xl),
-              _ResultRow(label: 'Position Size', value: '${result!.positionSize}'),
-              _ResultRow(label: 'Position Value', value: '\$${result!.positionValue.toStringAsFixed(2)}'),
-              _ResultRow(label: 'Risk Amount', value: '\$${result!.riskAmount.toStringAsFixed(2)}'),
+              _ResultRow(
+                  label: 'Position Size', value: '${result!.positionSize}'),
+              _ResultRow(
+                  label: 'Position Value',
+                  value: '\$${result!.positionValue.toStringAsFixed(2)}'),
+              _ResultRow(
+                  label: 'Risk Amount',
+                  value: '\$${result!.riskAmount.toStringAsFixed(2)}'),
             ],
           ],
         ),
@@ -126,7 +131,8 @@ class _ResultRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: CryptoColors.textSecondary)),
+          Text(label,
+              style: const TextStyle(color: CryptoColors.textSecondary)),
           Text(value, style: AppTypography.label),
         ],
       ),

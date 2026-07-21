@@ -43,7 +43,8 @@ class CorrelationHeatmap extends StatelessWidget {
             Text('Correlation Matrix', style: AppTypography.h5),
             const SizedBox(height: AppSpacing.sm),
             Text('Period: ${matrix.period}',
-                style: const TextStyle(color: CryptoColors.textTertiary, fontSize: 12)),
+                style: const TextStyle(
+                    color: CryptoColors.textTertiary, fontSize: 12)),
             const SizedBox(height: AppSpacing.md),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -57,7 +58,10 @@ class CorrelationHeatmap extends StatelessWidget {
                       ...matrix.symbols.map((s) => SizedBox(
                             width: cellSize,
                             child: Center(
-                              child: Text(s, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                              child: Text(s,
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold)),
                             ),
                           )),
                     ],
@@ -69,7 +73,8 @@ class CorrelationHeatmap extends StatelessWidget {
                         SizedBox(
                           width: cellSize,
                           child: Text(matrix.symbols[i],
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                              style: const TextStyle(
+                                  fontSize: 10, fontWeight: FontWeight.bold)),
                         ),
                         ...List.generate(size, (j) {
                           final val = matrix.matrix[i][j];
@@ -84,7 +89,8 @@ class CorrelationHeatmap extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 val.toStringAsFixed(2),
-                                style: const TextStyle(fontSize: 10, color: Colors.white),
+                                style: const TextStyle(
+                                    fontSize: 10, color: Colors.white),
                               ),
                             ),
                           );

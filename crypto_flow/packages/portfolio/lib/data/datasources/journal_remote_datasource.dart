@@ -33,8 +33,7 @@ class JournalRemoteDataSourceImpl implements JournalRemoteDataSource {
   @override
   Future<JournalEntry> createEntry(JournalEntry entry) async {
     final body = _journalEntryToApiJson(entry);
-    final response =
-        await _api.post(AwsEndpoints.journalEntries, data: body);
+    final response = await _api.post(AwsEndpoints.journalEntries, data: body);
     return _journalEntryFromApiJson(response.data as Map<String, dynamic>);
   }
 
@@ -73,7 +72,8 @@ class JournalRemoteDataSourceImpl implements JournalRemoteDataSource {
       symbol: json['symbol'] as String? ?? '',
       side: _parseSide(json['side'] as String?),
       entryPrice: _toDouble(json['entryPrice']),
-      exitPrice: json['exitPrice'] != null ? _toDouble(json['exitPrice']) : null,
+      exitPrice:
+          json['exitPrice'] != null ? _toDouble(json['exitPrice']) : null,
       quantity: _toDouble(json['quantity']),
       pnl: json['pnl'] != null ? _toDouble(json['pnl']) : null,
       pnlPercentage: json['pnlPercentage'] != null
@@ -140,8 +140,7 @@ class JournalRemoteDataSourceImpl implements JournalRemoteDataSource {
 
   // ---------------------------------------------------------------- Helpers
 
-  static double _toDouble(dynamic v) =>
-      v == null ? 0.0 : (v as num).toDouble();
+  static double _toDouble(dynamic v) => v == null ? 0.0 : (v as num).toDouble();
 
   static TradeSide _parseSide(String? s) {
     if (s == 'short') return TradeSide.short;

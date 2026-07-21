@@ -9,7 +9,8 @@ abstract class PatternRemoteDataSource {
 class PatternRemoteDataSourceImpl implements PatternRemoteDataSource {
   final AwsApiClient _client;
 
-  PatternRemoteDataSourceImpl({required AwsApiClient client}) : _client = client;
+  PatternRemoteDataSourceImpl({required AwsApiClient client})
+      : _client = client;
 
   @override
   Future<List<ChartPatternModel>> getPatterns(String symbol) async {

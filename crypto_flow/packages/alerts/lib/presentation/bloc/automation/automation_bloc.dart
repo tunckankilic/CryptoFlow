@@ -89,7 +89,8 @@ class AutomationBloc extends Bloc<AutomationEvent, AutomationState> {
     on<AutomationRuleDeleted>(_onDelete);
   }
 
-  Future<void> _onLoad(AutomationLoadRequested event, Emitter<AutomationState> emit) async {
+  Future<void> _onLoad(
+      AutomationLoadRequested event, Emitter<AutomationState> emit) async {
     emit(const AutomationLoading());
     try {
       final models = await _dataSource.listRules();
@@ -99,7 +100,8 @@ class AutomationBloc extends Bloc<AutomationEvent, AutomationState> {
     }
   }
 
-  Future<void> _onCreate(AutomationRuleCreated event, Emitter<AutomationState> emit) async {
+  Future<void> _onCreate(
+      AutomationRuleCreated event, Emitter<AutomationState> emit) async {
     try {
       await _dataSource.createRule(
         name: event.name,
@@ -112,13 +114,16 @@ class AutomationBloc extends Bloc<AutomationEvent, AutomationState> {
     }
   }
 
-  Future<void> _onToggle(AutomationRuleToggled event, Emitter<AutomationState> emit) async {
+  Future<void> _onToggle(
+      AutomationRuleToggled event, Emitter<AutomationState> emit) async {
     try {
       await _dataSource.toggleRule(event.ruleId, event.enabled);
       // Optimistic update
       if (state is AutomationLoaded) {
         final rules = (state as AutomationLoaded).rules.map((r) {
-          return r.ruleId == event.ruleId ? r.copyWith(enabled: event.enabled) : r;
+          return r.ruleId == event.ruleId
+              ? r.copyWith(enabled: event.enabled)
+              : r;
         }).toList();
         emit(AutomationLoaded(rules));
       }
@@ -127,7 +132,8 @@ class AutomationBloc extends Bloc<AutomationEvent, AutomationState> {
     }
   }
 
-  Future<void> _onDelete(AutomationRuleDeleted event, Emitter<AutomationState> emit) async {
+  Future<void> _onDelete(
+      AutomationRuleDeleted event, Emitter<AutomationState> emit) async {
     try {
       await _dataSource.deleteRule(event.ruleId);
       if (state is AutomationLoaded) {

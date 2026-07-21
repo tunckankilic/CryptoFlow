@@ -49,155 +49,158 @@ class LoginPage extends StatelessWidget {
 
             return Center(
               child: SingleChildScrollView(
-              child: Container(
-                constraints: BoxConstraints(
-                  minHeight: size.height - 100,
-                  maxWidth: 480,
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 60),
+                child: Container(
+                  constraints: BoxConstraints(
+                    minHeight: size.height - 100,
+                    maxWidth: 480,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 60),
 
-                    // Logo
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Image.asset(
-                        'assets/1024.png',
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // App Name
-                    Text(
-                      'CryptoWave',
-                      style: theme.textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // Tagline
-                    Text(
-                      'Real-time Cryptocurrency Tracker',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // Welcome text
-                    Text(
-                      'Welcome',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Text(
-                      'Sign in to sync your portfolio and alerts across devices',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Apple Sign In (iOS only)
-                    if (Platform.isIOS)
-                      SocialLoginButton.apple(
-                        onPressed: isLoading
-                            ? null
-                            : () => context
-                                .read<AuthBloc>()
-                                .add(const AuthAppleSignInRequested()),
-                        isLoading: isLoading,
+                      // Logo
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Image.asset(
+                          'assets/1024.png',
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                        ),
                       ),
 
-                    const SizedBox(height: 40),
+                      const SizedBox(height: 32),
 
-                    // Financial Disclaimer
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest
-                            .withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(8),
+                      // App Name
+                      Text(
+                        'CryptoWave',
+                        style: theme.textTheme.headlineLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            size: 16,
-                            color: theme.colorScheme.onSurface.withOpacity(0.5),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'This app is for informational purposes only and does not constitute financial advice.',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface
-                                    .withOpacity(0.5),
-                                fontSize: 11,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 8),
 
-                    // Terms and Privacy — tappable links
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: RichText(
+                      // Tagline
+                      Text(
+                        'Real-time Cryptocurrency Tracker',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        ),
                         textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.4),
-                          ),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      // Welcome text
+                      Text(
+                        'Welcome',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        'Sign in to sync your portfolio and alerts across devices',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Apple Sign In (iOS only)
+                      if (Platform.isIOS)
+                        SocialLoginButton.apple(
+                          onPressed: isLoading
+                              ? null
+                              : () => context
+                                  .read<AuthBloc>()
+                                  .add(const AuthAppleSignInRequested()),
+                          isLoading: isLoading,
+                        ),
+
+                      const SizedBox(height: 40),
+
+                      // Financial Disclaimer
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest
+                              .withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
                           children: [
-                            const TextSpan(
-                                text: 'By continuing, you agree to our '),
-                            TextSpan(
-                              text: 'Terms of Service',
-                              style: TextStyle(
-                                color: theme.colorScheme.primary,
-                                decoration: TextDecoration.underline,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => _launchUrl(_termsOfServiceUrl),
+                            Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.5),
                             ),
-                            const TextSpan(text: ' and '),
-                            TextSpan(
-                              text: 'Privacy Policy',
-                              style: TextStyle(
-                                color: theme.colorScheme.primary,
-                                decoration: TextDecoration.underline,
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'This app is for informational purposes only and does not constitute financial advice.',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.5),
+                                  fontSize: 11,
+                                ),
                               ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => _launchUrl(_privacyPolicyUrl),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
+
+                      const SizedBox(height: 16),
+
+                      // Terms and Privacy — tappable links
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.4),
+                            ),
+                            children: [
+                              const TextSpan(
+                                  text: 'By continuing, you agree to our '),
+                              TextSpan(
+                                text: 'Terms of Service',
+                                style: TextStyle(
+                                  color: theme.colorScheme.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap =
+                                      () => _launchUrl(_termsOfServiceUrl),
+                              ),
+                              const TextSpan(text: ' and '),
+                              TextSpan(
+                                text: 'Privacy Policy',
+                                style: TextStyle(
+                                  color: theme.colorScheme.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () => _launchUrl(_privacyPolicyUrl),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               ),
             );
           },

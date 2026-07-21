@@ -16,7 +16,8 @@ abstract class AutomationRemoteDataSource {
 class AutomationRemoteDataSourceImpl implements AutomationRemoteDataSource {
   final AwsApiClient _client;
 
-  AutomationRemoteDataSourceImpl({required AwsApiClient client}) : _client = client;
+  AutomationRemoteDataSourceImpl({required AwsApiClient client})
+      : _client = client;
 
   static const _basePath = '/api/v1/automation/rules';
 

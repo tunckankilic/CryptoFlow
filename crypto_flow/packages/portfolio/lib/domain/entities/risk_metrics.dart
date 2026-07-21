@@ -24,8 +24,14 @@ class PositionSizeResult extends Equatable {
 
   @override
   List<Object?> get props => [
-        symbol, accountSize, riskPercentage, entryPrice,
-        stopLossPrice, positionSize, positionValue, riskAmount,
+        symbol,
+        accountSize,
+        riskPercentage,
+        entryPrice,
+        stopLossPrice,
+        positionSize,
+        positionValue,
+        riskAmount,
       ];
 }
 
@@ -65,8 +71,12 @@ class VaRResult extends Equatable {
 
   @override
   List<Object?> get props => [
-        portfolioValue, confidence, holdingPeriodDays,
-        historicalVaR, historicalVaRPct, componentVaR,
+        portfolioValue,
+        confidence,
+        holdingPeriodDays,
+        historicalVaR,
+        historicalVaRPct,
+        componentVaR,
       ];
 }
 

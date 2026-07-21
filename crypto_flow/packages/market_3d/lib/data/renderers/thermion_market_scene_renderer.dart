@@ -37,6 +37,17 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
 
   bool _isInitialized = false;
 
+  /// Assets for the currently rendered city, in block-index order.
+  ///
+  /// Tracked so [setScene] can tear down the previous city before building
+  /// the next one — a full rebuild, per the renderer contract's docs on
+  /// [setScene], not the per-tick in-place update session 6 adds.
+  final List<ThermionAsset> _cityAssets = [];
+
+  /// The scene last handed to [setScene], used by [applyCamera] to frame the
+  /// city without needing the scene passed again.
+  MarketScene _scene = MarketScene.empty();
+
   @override
   bool get isInitialized => _isInitialized;
 
@@ -143,7 +154,11 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   /// Both boxes share one material, so the wick takes the body's colour. That
   /// is deliberate: a per-box material would need a second material instance
   /// and a second primitive, doubling the cost of the thing this proves cheap.
-  Future<ThermionAsset> addCandle(CandleBlock block) async {
+  ///
+  /// [offsetX] shifts the placement along x without touching the mesh — it is
+  /// how [setScene] applies [MarketScene.seriesCenterOffsetX] to centre the
+  /// whole city while keeping each block's vertices in series-local space.
+  Future<ThermionAsset> addCandle(CandleBlock block, {double offsetX = 0}) async {
     final material = await _createMaterial(block.bodyColor);
     final geometry = CandleMesh.build(block);
 
@@ -153,7 +168,9 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
         materialInstances: [material.materialInstance],
       );
       await asset.setTransform(
-        Matrix4.translation(CandleMesh.originOf(block)),
+        Matrix4.translation(
+          CandleMesh.originOf(block) + Vector3(offsetX, 0, 0),
+        ),
       );
       return asset;
     } finally {
@@ -167,9 +184,26 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   /// Removes [asset] from the scene and destroys it.
   Future<void> removeAsset(ThermionAsset asset) => _viewer.destroyAsset(asset);
 
+  /// Replaces the city: destroys every existing candle asset, adds one per
+  /// [MarketScene.blocks], then frames the camera on the result.
+  ///
+  /// Whole-city rebuild, same cost profile the S3 stress test measured
+  /// (~1ms per candle) — fine for a load or a rescale, not for a per-tick
+  /// live update (session 6 mutates the live block's transform instead).
   @override
-  Future<void> setScene(MarketScene scene) {
-    throw UnimplementedError('setScene lands in session 3 (candlestick city)');
+  Future<void> setScene(MarketScene scene) async {
+    for (final asset in _cityAssets) {
+      await _viewer.destroyAsset(asset);
+    }
+    _cityAssets.clear();
+
+    final offsetX = scene.seriesCenterOffsetX;
+    for (final block in scene.blocks) {
+      _cityAssets.add(await addCandle(block, offsetX: offsetX));
+    }
+
+    _scene = scene;
+    await applyCamera(const FrameScene());
   }
 
   @override
@@ -200,13 +234,48 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     );
   }
 
+  /// Only [FrameScene] is implemented so far: a fixed shot that fits the
+  /// whole city, computed from the scene [setScene] last received. Gesture
+  /// commands (orbit/zoom/reset) land in session 7 and can call this same
+  /// path for their "reset" case instead of duplicating the framing math.
   @override
-  Future<void> applyCamera(CameraCommand command) {
-    throw UnimplementedError('applyCamera lands in session 4 (camera control)');
+  Future<void> applyCamera(CameraCommand command) async {
+    if (command is FrameScene) {
+      await _frameScene(command);
+      return;
+    }
+    throw UnimplementedError(
+      'applyCamera($command) lands in session 7 (camera controls)',
+    );
+  }
+
+  /// Positions the camera on a diagonal high enough to read city depth and
+  /// far enough back that neither the widest row nor the tallest wick is
+  /// clipped, looking at the vertical mid-point of the price range.
+  ///
+  /// Approximate on purpose — this is a fixed establishing shot, not a tight
+  /// bounding-box fit; session 7's orbit/zoom is what a user actually frames
+  /// the city with.
+  Future<void> _frameScene(FrameScene command) async {
+    final camera = await _viewer.getActiveCamera();
+
+    final width = _scene.isEmpty ? 1.0 : _scene.width;
+    final height = _scene.isEmpty ? _scene.layout.sceneHeight : _scene.topExtent;
+    final span = (width > height ? width : height) * (1 + command.paddingRatio);
+    final distance = span * 0.9 + 4.0;
+
+    await camera.lookAt(
+      Vector3(distance * 0.5, height * 0.55 + distance * 0.28, distance * 0.85),
+      focus: Vector3(0, height / 2, 0),
+    );
   }
 
   @override
   Future<void> dispose() async {
+    for (final asset in _cityAssets) {
+      await _viewer.destroyAsset(asset);
+    }
+    _cityAssets.clear();
     await _taps.close();
     _isInitialized = false;
   }

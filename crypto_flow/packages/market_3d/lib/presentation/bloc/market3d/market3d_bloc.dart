@@ -49,7 +49,7 @@ class Market3DBloc extends Bloc<Market3DEvent, Market3DState> {
           symbol: event.symbol,
           interval: event.interval,
           candles: candles,
-          blocks: scene.blocks,
+          scene: scene,
         ));
       },
     );

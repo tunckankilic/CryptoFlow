@@ -88,7 +88,7 @@ Each package owns its own `data / domain / presentation` layers and is independe
 | Notifications | `flutter_local_notifications` (local + APNs) |
 | PDF / reporting | `pdf` + `printing` |
 | Testing | `mocktail`, `bloc_test` |
-| CI/CD | Codemagic (iOS release pipeline) |
+| CI/CD | GitHub Actions (format, analyze, test, build on every PR) + Codemagic (iOS release to TestFlight) |
 
 ---
 

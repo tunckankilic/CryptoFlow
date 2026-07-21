@@ -28,6 +28,12 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   final StreamController<SceneTap> _taps =
       StreamController<SceneTap>.broadcast();
 
+  /// Fraction of a surface's own colour emitted regardless of incident light.
+  ///
+  /// Low enough that the key light still models the geometry, high enough that
+  /// a completely unlit face stays readable. Tuned by eye on device.
+  static const double _emissiveFloor = 0.22;
+
   bool _isInitialized = false;
 
   @override
@@ -59,36 +65,24 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     _isInitialized = true;
   }
 
-  /// Adds the scene's directional light rig.
+  /// Adds the scene's directional light.
   ///
-  /// Filament applies no ambient term: a surface lit by no direct light and no
-  /// image-based light renders pure black. The city is orbited freely, so every
-  /// vertical face of a candle must catch something or it goes black as the
-  /// camera swings past it.
+  /// **Filament supports exactly one directional light per scene** — see the
+  /// warning on `LightManager.h:89`: "If several directional lights are added to
+  /// the scene, the dominant one will be used." A second light added here as a
+  /// fill is therefore silently discarded, which is what left every face the key
+  /// misses (`-x` and `-z`) rendering pure black while orbiting. Adding more
+  /// directions cannot fix that; the missing ambient term is supplied per
+  /// material instead, see [_emissiveFloor].
   ///
-  /// An IBL would be the physically correct answer but costs a KTX asset, so
-  /// the cheap equivalent is used instead: a key and a fill aimed from opposing
-  /// hemispheres. `direction` is the direction light *travels*, so a light
-  /// travelling `(-x, -y, -z)` arrives from `(+x, +y, +z)`. Between them the
-  /// two cover all four lateral faces plus the top; the key stays dominant so
-  /// blocks still read as solid rather than flat.
+  /// `direction` is the direction light *travels*, so a light travelling
+  /// `(-x, -y, -z)` arrives from `(+x, +y, +z)` — here, the upper front-right.
   Future<void> _addLightRig() async {
-    // Key: arrives from the upper front-right, casts the shadows.
     await _viewer.addDirectLight(
       DirectLight.sun(
         intensity: 75000,
         direction: Vector3(-0.4, -1.0, -0.5)..normalize(),
         castShadows: true,
-      ),
-    );
-
-    // Fill: arrives from the opposing upper back-left. Strong enough to keep
-    // the faces the key misses legible, weak enough to preserve modelling.
-    await _viewer.addDirectLight(
-      DirectLight.sun(
-        intensity: 35000,
-        direction: Vector3(0.6, -0.5, 0.55)..normalize(),
-        castShadows: false,
       ),
     );
   }
@@ -109,6 +103,18 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     await material.setBaseColorFactor(color.r, color.g, color.b, color.a);
     await material.setMetallicFactor(0.0);
     await material.setRoughnessFactor(0.65);
+
+    // Stands in for the ambient term Filament will not provide (no IBL loaded,
+    // and only one directional light is honoured — see [_addLightRig]). Tinting
+    // the emissive with the surface's own colour rather than grey means an
+    // unlit face reads as a dark green or dark red instead of black, so a
+    // candle keeps its direction at every orbit angle.
+    await material.setEmissiveFactor(
+      color.r * _emissiveFloor,
+      color.g * _emissiveFloor,
+      color.b * _emissiveFloor,
+      1.0,
+    );
 
     final asset = await _viewer.createGeometry(
       GeometryUtils.cube(),

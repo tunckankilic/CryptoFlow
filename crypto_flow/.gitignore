@@ -48,3 +48,6 @@ app.*.map.json
 *.ipa
 *.dSYM.zip
 
+# Local Dart & Flutter DevTools settings
+devtools_options.yaml
+

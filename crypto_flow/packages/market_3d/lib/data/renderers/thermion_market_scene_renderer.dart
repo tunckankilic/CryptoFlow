@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:thermion_flutter/thermion_flutter.dart';
 
+import '../../domain/hit_test/scene_hit_tester.dart';
+import '../../domain/hit_test/scene_projector.dart';
 import '../../domain/models/camera_command.dart';
 import '../../domain/models/candle_block.dart';
 import '../../domain/models/depth_surface.dart';
@@ -60,6 +62,13 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   /// already on screen, so a newly opened candle is placed with the same
   /// frozen offset and the city recentres only on the next full [setScene].
   double _seriesOffsetX = 0;
+
+  /// Index of the highlighted block, or `null` when nothing is selected.
+  int? _selectedIndex;
+
+  /// Resolves taps to blocks. Stateless and cheap, kept as a field only so a
+  /// caller could hand in a different touch slop without touching this class.
+  final SceneHitTester _hitTester = const SceneHitTester();
 
   /// The camera's current orbit state, established by the last
   /// [_frameScene] call. `null` until the first one runs, which `setScene`
@@ -178,8 +187,16 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   /// [offsetX] shifts the placement along x without touching the mesh — it is
   /// how [setScene] applies [MarketScene.seriesCenterOffsetX] to centre the
   /// whole city while keeping each block's vertices in series-local space.
-  Future<ThermionAsset> addCandle(CandleBlock block, {double offsetX = 0}) async {
-    final material = await _createMaterial(block.bodyColor);
+  ///
+  /// [color] overrides the block's own body colour, which is how a selected
+  /// candle is highlighted: the block itself never changes, only the material
+  /// it is drawn with.
+  Future<ThermionAsset> addCandle(
+    CandleBlock block, {
+    double offsetX = 0,
+    SceneColor? color,
+  }) async {
+    final material = await _createMaterial(color ?? block.bodyColor);
     final geometry = CandleMesh.build(block);
 
     try {
@@ -218,8 +235,24 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     _cityAssets.clear();
 
     _seriesOffsetX = scene.seriesCenterOffsetX;
+
+    // A rescale rebuilds the city under a selection the user hasn't dismissed,
+    // so the highlight is reapplied here rather than being silently dropped.
+    // A shorter series (never happens today, but the scene contract allows it)
+    // clears a selection that no longer exists.
+    final selected = _selectedIndex;
+    if (selected != null && selected >= scene.blocks.length) {
+      _selectedIndex = null;
+    }
+
     for (final block in scene.blocks) {
-      _cityAssets.add(await addCandle(block, offsetX: _seriesOffsetX));
+      _cityAssets.add(
+        await addCandle(
+          block,
+          offsetX: _seriesOffsetX,
+          color: _colorFor(block, scene),
+        ),
+      );
     }
 
     _scene = scene;
@@ -244,7 +277,11 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
       throw RangeError.index(block.index, _cityAssets, 'block.index');
     }
 
-    final asset = await addCandle(block, offsetX: _seriesOffsetX);
+    final asset = await addCandle(
+      block,
+      offsetX: _seriesOffsetX,
+      color: _colorFor(block, _scene),
+    );
 
     if (block.index == _cityAssets.length) {
       _cityAssets.add(asset);
@@ -257,24 +294,98 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     _scene = _scene.withBlock(block);
   }
 
+  /// Highlights the block at [index] by redrawing it in the palette's
+  /// selection colour, and restores whichever block was highlighted before.
+  ///
+  /// An out-of-range index clears the selection instead of throwing: a tap
+  /// resolved against a scene the engine has since replaced is a stale
+  /// request, not a programming error.
   @override
-  Future<void> setSelectedBlock(int? index) {
-    throw UnimplementedError(
-      'setSelectedBlock lands in session 5 (tap to inspect)',
+  Future<void> setSelectedBlock(int? index) async {
+    final requested =
+        (index != null && index >= 0 && index < _cityAssets.length)
+            ? index
+            : null;
+    if (requested == _selectedIndex) return;
+
+    final previous = _selectedIndex;
+    _selectedIndex = requested;
+
+    if (previous != null) await _redrawBlock(previous);
+    if (requested != null) await _redrawBlock(requested);
+  }
+
+  /// Rebuilds the asset at [index] with whatever colour its current selection
+  /// status calls for, create-before-destroy so the candle never blinks out.
+  Future<void> _redrawBlock(int index) async {
+    final block = _scene.blockAt(index);
+    if (block == null || index >= _cityAssets.length) return;
+
+    final asset = await addCandle(
+      block,
+      offsetX: _seriesOffsetX,
+      color: _colorFor(block, _scene),
     );
+    final previous = _cityAssets[index];
+    _cityAssets[index] = asset;
+    await _viewer.destroyAsset(previous);
+  }
+
+  /// The colour [block] should currently be drawn in: the selection highlight
+  /// when it is the selected block, its own body colour otherwise.
+  SceneColor? _colorFor(CandleBlock block, MarketScene scene) =>
+      block.index == _selectedIndex ? scene.layout.palette.selection : null;
+
+  /// Resolves a tap at viewport position ([x], [y]) and publishes the result
+  /// on [taps], including misses so the UI can dismiss its overlay.
+  ///
+  /// The camera's live view and projection matrices are read straight from the
+  /// engine, so the hit test uses exactly the transform the frame was drawn
+  /// with — no assumption about field of view or aspect ratio survives in
+  /// [SceneProjector], which is what lets the projection maths live in the
+  /// engine-agnostic domain layer.
+  Future<void> handleTap({
+    required double x,
+    required double y,
+    required double viewportWidth,
+    required double viewportHeight,
+  }) async {
+    if (_taps.isClosed) return;
+    if (_scene.isEmpty || viewportWidth <= 0 || viewportHeight <= 0) {
+      _taps.add(const SceneTap.miss());
+      return;
+    }
+
+    final camera = await _viewer.getActiveCamera();
+    final view = await camera.getViewMatrix();
+    final projection = await camera.getProjectionMatrix();
+
+    final tap = _hitTester.hitTest(
+      scene: _scene,
+      projector: SceneProjector(
+        viewProjection: projection.multiplied(view),
+        viewportWidth: viewportWidth,
+        viewportHeight: viewportHeight,
+        seriesOffsetX: _seriesOffsetX,
+      ),
+      tapX: x,
+      tapY: y,
+    );
+
+    if (!_taps.isClosed) _taps.add(tap);
   }
 
   @override
   Future<void> setDepthSurface(DepthSurface surface) {
     throw UnimplementedError(
-      'setDepthSurface lands in session 9 (depth terrain)',
+      'setDepthSurface lands in session 10 (depth terrain)',
     );
   }
 
   @override
   Future<void> clearDepthSurface() {
     throw UnimplementedError(
-      'clearDepthSurface lands in session 9 (depth terrain)',
+      'clearDepthSurface lands in session 10 (depth terrain)',
     );
   }
 

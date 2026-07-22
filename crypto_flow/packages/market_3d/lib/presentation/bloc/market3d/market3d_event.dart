@@ -54,6 +54,22 @@ class Market3DCandleReceived extends Market3DEvent {
   List<Object?> get props => [candle];
 }
 
+/// A block was tapped in the 3D scene, or empty space was tapped.
+///
+/// Selection lives in bloc state rather than in the viewport so the OHLC
+/// overlay and the highlighted geometry are driven by the same source: the
+/// panel reads `Market3DLoaded.selectedCandle`, the renderer is told the same
+/// index, and a live tick can't leave the two disagreeing.
+class Market3DBlockSelected extends Market3DEvent {
+  /// Index of the tapped block, or `null` when the tap missed every candle.
+  final int? index;
+
+  const Market3DBlockSelected(this.index);
+
+  @override
+  List<Object?> get props => [index];
+}
+
 /// Internal: the WebSocket stream reported an error.
 class Market3DStreamError extends Market3DEvent {
   final String message;

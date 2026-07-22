@@ -21,6 +21,10 @@ export 'domain/models/scene_layout.dart';
 export 'domain/models/scene_tap.dart';
 export 'domain/models/vec3.dart';
 
+// Domain layer - Hit testing
+export 'domain/hit_test/scene_hit_tester.dart';
+export 'domain/hit_test/scene_projector.dart';
+
 // Domain layer - Renderer contract
 export 'domain/renderer/market_scene_renderer.dart';
 
@@ -38,3 +42,6 @@ export 'presentation/bloc/market3d/market3d_state.dart';
 
 // Presentation layer - Pages
 export 'presentation/pages/market3d_page.dart';
+
+// Presentation layer - Widgets
+export 'presentation/widgets/candle_inspect_panel.dart';

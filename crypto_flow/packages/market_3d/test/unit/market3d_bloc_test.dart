@@ -274,6 +274,35 @@ void main() {
     );
 
     blocTest<Market3DBloc, Market3DState>(
+      'keeps the selected block across a live tick',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(
+          const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'),
+        );
+        await Future.delayed(Duration.zero);
+        bloc.add(
+          const SubscribeToMarket3DStream(symbol: 'BTCUSDT', interval: '1m'),
+        );
+        await Future.delayed(Duration.zero);
+        bloc.add(const Market3DBlockSelected(0));
+        await Future.delayed(Duration.zero);
+        candleStreamController.add(
+          Right(candleAt(2, open: 110, high: 119, low: 108, close: 115)),
+        );
+      },
+      skip: 4, // Loading, Loaded, Loaded(live), Loaded(selected)
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.selectedBlockIndex, 'selection survives', 0)
+            .having((s) => s.candles.last.close, 'tick applied', 115),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
       'drops isLive without discarding the rendered city on a stream error',
       build: () {
         mockCandlesSuccess(threeCandles());
@@ -296,6 +325,82 @@ void main() {
             .having((s) => s.isLive, 'isLive', false)
             .having((s) => s.blockCount, 'block count', 3),
       ],
+    );
+  });
+
+  group('Market3DBlockSelected', () {
+    Future<void> loadThen(
+      Market3DBloc bloc,
+      List<Market3DEvent> events,
+    ) async {
+      bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+      await Future.delayed(Duration.zero);
+      for (final event in events) {
+        bloc.add(event);
+        await Future.delayed(Duration.zero);
+      }
+    }
+
+    blocTest<Market3DBloc, Market3DState>(
+      'selects the tapped block and exposes its candle',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        return buildBloc();
+      },
+      act: (bloc) => loadThen(bloc, [const Market3DBlockSelected(1)]),
+      skip: 2,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.selectedBlockIndex, 'selected index', 1)
+            .having((s) => s.selectedCandle?.close, 'selected close', 110),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'clears the selection when the tap misses every candle',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        return buildBloc();
+      },
+      act: (bloc) => loadThen(bloc, [
+        const Market3DBlockSelected(1),
+        const Market3DBlockSelected(null),
+      ]),
+      skip: 3,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.selectedBlockIndex, 'selection cleared', null)
+            .having((s) => s.selectedCandle, 'no candle', null),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'tapping the selected block again dismisses it',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        return buildBloc();
+      },
+      act: (bloc) => loadThen(bloc, [
+        const Market3DBlockSelected(2),
+        const Market3DBlockSelected(2),
+      ]),
+      skip: 3,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.selectedBlockIndex, 'selection cleared', null),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'ignores an index the loaded series does not contain',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        return buildBloc();
+      },
+      act: (bloc) => loadThen(bloc, [const Market3DBlockSelected(9)]),
+      skip: 2,
+      // No emit at all: a stale index with nothing selected changes nothing.
+      expect: () => <Market3DState>[],
     );
   });
 }

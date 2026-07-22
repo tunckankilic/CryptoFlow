@@ -5,6 +5,7 @@ import '../../data/widgets/market3d_viewport.dart';
 import '../bloc/market3d/market3d_bloc.dart';
 import '../bloc/market3d/market3d_event.dart';
 import '../bloc/market3d/market3d_state.dart';
+import '../widgets/candle_inspect_panel.dart';
 
 /// The "3D Market" tab.
 ///
@@ -42,9 +43,36 @@ class _Market3DPageState extends State<Market3DPage> {
       body: BlocBuilder<Market3DBloc, Market3DState>(
         builder: (context, state) {
           if (state is Market3DLoaded && !state.scene.isEmpty) {
+            final selected = state.selectedCandle;
             return Stack(
               children: [
-                Positioned.fill(child: Market3DViewport(scene: state.scene)),
+                Positioned.fill(
+                  child: Market3DViewport(
+                    scene: state.scene,
+                    selectedBlockIndex: state.selectedBlockIndex,
+                    onBlockTapped: (index) => context
+                        .read<Market3DBloc>()
+                        .add(Market3DBlockSelected(index)),
+                  ),
+                ),
+                if (selected != null)
+                  Positioned(
+                    left: 12,
+                    right: 12,
+                    bottom: 44,
+                    child: CandleInspectPanel(
+                      symbol: state.symbol,
+                      interval: state.interval,
+                      candle: selected,
+                      // The newest candle is the one still taking ticks, and
+                      // only while the stream is actually connected.
+                      isLive: state.isLive &&
+                          state.selectedBlockIndex == state.candles.length - 1,
+                      onDismiss: () => context
+                          .read<Market3DBloc>()
+                          .add(const Market3DBlockSelected(null)),
+                    ),
+                  ),
                 Positioned(
                   right: 12,
                   top: 12,

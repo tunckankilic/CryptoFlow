@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:thermion_flutter/thermion_flutter.dart';
 
 import '../../domain/models/camera_command.dart';
 import '../../domain/models/market_scene.dart';
+import '../../domain/models/scene_tap.dart';
 import '../renderers/thermion_market_scene_renderer.dart';
 
 /// Hosts the thermion viewport for the "3D Market" tab.
@@ -22,13 +25,27 @@ import '../renderers/thermion_market_scene_renderer.dart';
 /// touch. Routing gestures through [CameraCommand] instead keeps the actual
 /// clamping in [ThermionMarketSceneRenderer], scene-aware and testable.
 class Market3DViewport extends StatefulWidget {
-  const Market3DViewport({super.key, required this.scene});
+  const Market3DViewport({
+    super.key,
+    required this.scene,
+    this.selectedBlockIndex,
+    this.onBlockTapped,
+  });
 
   /// The city to render. [Market3DPage] rebuilds this widget with a new
   /// `scene` on every live tick (it's the same `BlocBuilder` that decides
   /// whether to mount it at all); [didUpdateWidget] below is what turns that
   /// into engine calls.
   final MarketScene scene;
+
+  /// Block to highlight, or `null` for no highlight. Owned by the bloc, not
+  /// by this widget: the same index drives the OHLC panel, so the geometry
+  /// and the overlay can never disagree about what is selected.
+  final int? selectedBlockIndex;
+
+  /// Called with the tapped block's index, or `null` when the tap hit empty
+  /// space — which is what dismisses the panel.
+  final ValueChanged<int?>? onBlockTapped;
 
   @override
   State<Market3DViewport> createState() => _Market3DViewportState();
@@ -59,11 +76,18 @@ class _Market3DViewportState extends State<Market3DViewport> {
   /// can derive the incremental factor `ZoomBy` expects.
   double _gestureScale = 1.0;
 
+  /// Tap results coming back from the renderer's hit test.
+  StreamSubscription<SceneTap>? _tapSubscription;
+
   Future<void> _onViewerAvailable(ThermionViewer viewer) async {
     try {
       final renderer = ThermionMarketSceneRenderer(viewer);
       await renderer.initialize();
+      _tapSubscription = renderer.taps.listen(_onSceneTap);
       await renderer.setScene(widget.scene);
+      if (widget.selectedBlockIndex != null) {
+        await renderer.setSelectedBlock(widget.selectedBlockIndex);
+      }
 
       if (!mounted) return;
       setState(() {
@@ -83,12 +107,34 @@ class _Market3DViewportState extends State<Market3DViewport> {
   void didUpdateWidget(covariant Market3DViewport oldWidget) {
     super.didUpdateWidget(oldWidget);
     final renderer = _renderer;
-    if (renderer == null || identical(oldWidget.scene, widget.scene)) return;
-    final previous = oldWidget.scene;
-    final next = widget.scene;
-    _engineQueue = _engineQueue.then(
-      (_) => _applySceneUpdate(renderer, previous, next),
-    );
+    if (renderer == null) return;
+
+    if (!identical(oldWidget.scene, widget.scene)) {
+      final previous = oldWidget.scene;
+      final next = widget.scene;
+      _engineQueue = _engineQueue.then(
+        (_) => _applySceneUpdate(renderer, previous, next),
+      );
+    }
+
+    // Queued behind the scene update above on purpose: when a live tick and a
+    // selection change arrive in the same rebuild, the highlight must be
+    // applied to the block the scene update just rebuilt, not to the one it
+    // is about to replace.
+    if (oldWidget.selectedBlockIndex != widget.selectedBlockIndex) {
+      final index = widget.selectedBlockIndex;
+      _engineQueue = _engineQueue.then((_) async {
+        try {
+          await renderer.setSelectedBlock(index);
+        } catch (e) {
+          if (!mounted) return;
+          setState(() {
+            _error = e;
+            _status = 'selection failed';
+          });
+        }
+      });
+    }
   }
 
   /// Applies a scene change to the engine without re-rendering the whole
@@ -162,6 +208,48 @@ class _Market3DViewportState extends State<Market3DViewport> {
 
   void _onDoubleTap() => _applyCamera(const ResetCamera());
 
+  /// Asks the renderer to hit-test the tapped point.
+  ///
+  /// `onTapUp` coexists with the orbit/pinch `onScale*` callbacks because
+  /// `ScaleGestureRecognizer` rejects a pointer that never moved, leaving the
+  /// tap recognisers to win the arena — the same interaction that already
+  /// lets `onDoubleTap` work alongside the drag. The cost is that a single
+  /// tap resolves only once the double-tap window closes, which is Flutter's
+  /// standard behaviour whenever both are registered on one detector.
+  ///
+  /// The result comes back asynchronously on the renderer's `taps` stream
+  /// rather than from this call: hit-testing needs the camera matrices, which
+  /// are an async engine round-trip, and the stream is the contract the
+  /// renderer interface already declares.
+  void _onTapUp(TapUpDetails details) {
+    final renderer = _renderer;
+    if (renderer == null) return;
+
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final size = box.size;
+    final position = details.localPosition;
+
+    _engineQueue = _engineQueue.then((_) async {
+      try {
+        await renderer.handleTap(
+          x: position.dx,
+          y: position.dy,
+          viewportWidth: size.width,
+          viewportHeight: size.height,
+        );
+      } catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _error = e;
+          _status = 'hit test failed';
+        });
+      }
+    });
+  }
+
+  void _onSceneTap(SceneTap tap) => widget.onBlockTapped?.call(tap.blockIndex);
+
   /// Queues a camera command onto [_engineQueue], same serialisation and
   /// same swallow-and-surface error handling as [_applySceneUpdate] — a
   /// failed camera call must not leave [_engineQueue] rejected, or every
@@ -184,6 +272,7 @@ class _Market3DViewportState extends State<Market3DViewport> {
 
   @override
   void dispose() {
+    _tapSubscription?.cancel();
     _renderer?.dispose();
     super.dispose();
   }
@@ -196,6 +285,7 @@ class _Market3DViewportState extends State<Market3DViewport> {
           child: GestureDetector(
             onScaleStart: _onScaleStart,
             onScaleUpdate: _onScaleUpdate,
+            onTapUp: _onTapUp,
             onDoubleTap: _onDoubleTap,
             child: ViewerWidget(
               initialCameraPosition: Vector3(6, 4, 7),

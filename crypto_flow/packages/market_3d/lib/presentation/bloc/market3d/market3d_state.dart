@@ -51,18 +51,41 @@ class Market3DLoaded extends Market3DState {
   /// visible without tearing down the rendered city.
   final bool isLive;
 
+  /// Index of the candle the user tapped, or `null` when nothing is selected.
+  ///
+  /// Indices are shared by [candles] and `scene.blocks` — the bloc keeps the
+  /// two lists in lockstep — so one index addresses both the geometry to
+  /// highlight and the OHLC data to show.
+  final int? selectedBlockIndex;
+
   const Market3DLoaded({
     required this.symbol,
     required this.interval,
     required this.candles,
     required this.scene,
     this.isLive = false,
+    this.selectedBlockIndex,
   });
 
+  /// The candle behind the current selection, or `null` when nothing is
+  /// selected (or the index no longer addresses a loaded candle).
+  Candle? get selectedCandle {
+    final index = selectedBlockIndex;
+    if (index == null || index < 0 || index >= candles.length) return null;
+    return candles[index];
+  }
+
+  /// Creates a copy with the given fields replaced.
+  ///
+  /// [clearSelection] exists because `null` is a meaningful selection value:
+  /// passing `selectedBlockIndex: null` means "leave it alone" like every
+  /// other field here, so dismissing needs its own flag.
   Market3DLoaded copyWith({
     List<Candle>? candles,
     MarketScene? scene,
     bool? isLive,
+    int? selectedBlockIndex,
+    bool clearSelection = false,
   }) {
     return Market3DLoaded(
       symbol: symbol,
@@ -70,11 +93,21 @@ class Market3DLoaded extends Market3DState {
       candles: candles ?? this.candles,
       scene: scene ?? this.scene,
       isLive: isLive ?? this.isLive,
+      selectedBlockIndex: clearSelection
+          ? null
+          : selectedBlockIndex ?? this.selectedBlockIndex,
     );
   }
 
   @override
-  List<Object?> get props => [symbol, interval, candles, scene, isLive];
+  List<Object?> get props => [
+        symbol,
+        interval,
+        candles,
+        scene,
+        isLive,
+        selectedBlockIndex,
+      ];
 }
 
 /// History fetch failed.

@@ -44,6 +44,7 @@ class Market3DBloc extends Bloc<Market3DEvent, Market3DState> {
     on<SubscribeToMarket3DStream>(_onSubscribe);
     on<Market3DCandleReceived>(_onCandleReceived);
     on<Market3DStreamError>(_onStreamError);
+    on<Market3DBlockSelected>(_onBlockSelected);
   }
 
   Future<void> _onLoadCandles(
@@ -140,6 +141,33 @@ class Market3DBloc extends Bloc<Market3DEvent, Market3DState> {
         : _adapter.applyLiveCandle(loaded.scene, candle);
 
     emit(loaded.copyWith(candles: candles, scene: scene));
+  }
+
+  /// Selects the tapped block, or clears the selection when the tap missed.
+  ///
+  /// Tapping the already-selected candle dismisses it, so the panel can be
+  /// closed by tapping the same candle again as well as by tapping empty
+  /// space. An index outside the loaded series is treated as a miss rather
+  /// than stored: the renderer resolved it against the scene it last drew,
+  /// which a rescale may have replaced since.
+  void _onBlockSelected(
+    Market3DBlockSelected event,
+    Emitter<Market3DState> emit,
+  ) {
+    if (state is! Market3DLoaded) return;
+    final loaded = state as Market3DLoaded;
+
+    final index = event.index;
+    final isValid =
+        index != null && index >= 0 && index < loaded.candles.length;
+
+    if (!isValid || index == loaded.selectedBlockIndex) {
+      if (loaded.selectedBlockIndex == null) return;
+      emit(loaded.copyWith(clearSelection: true));
+      return;
+    }
+
+    emit(loaded.copyWith(selectedBlockIndex: index));
   }
 
   /// Handle WebSocket stream errors — keep the rendered city visible.

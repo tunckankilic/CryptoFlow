@@ -50,7 +50,8 @@ class CandleInspectPanel extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFFFD666), width: 1.2),
         boxShadow: const [
-          BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 6)),
+          BoxShadow(
+              color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 6)),
         ],
       ),
       child: Padding(
@@ -121,7 +122,8 @@ class CandleInspectPanel extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                Expanded(child: _Metric('Volume', _formatVolume(candle.volume))),
+                Expanded(
+                    child: _Metric('Volume', _formatVolume(candle.volume))),
                 Expanded(
                   child: _Metric(
                     'Change',

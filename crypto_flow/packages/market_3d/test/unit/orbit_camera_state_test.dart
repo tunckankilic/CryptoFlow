@@ -32,7 +32,8 @@ void main() {
       );
 
       expect(state.radius, 2);
-      expect(state.elevation, greaterThanOrEqualTo(OrbitCameraState.minElevation));
+      expect(
+          state.elevation, greaterThanOrEqualTo(OrbitCameraState.minElevation));
       expect(state.elevation, lessThanOrEqualTo(OrbitCameraState.maxElevation));
     });
 

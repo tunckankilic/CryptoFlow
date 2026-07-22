@@ -481,7 +481,8 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   /// manipulator can't do this through `ViewerWidget`'s public API.
   Future<void> _frameScene(FrameScene command) async {
     final width = _scene.isEmpty ? 1.0 : _scene.width;
-    final height = _scene.isEmpty ? _scene.layout.sceneHeight : _scene.topExtent;
+    final height =
+        _scene.isEmpty ? _scene.layout.sceneHeight : _scene.topExtent;
     final span = (width > height ? width : height) * (1 + command.paddingRatio);
     final distance = span * 0.9 + 4.0;
 

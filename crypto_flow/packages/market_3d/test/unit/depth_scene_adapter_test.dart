@@ -50,7 +50,8 @@ void main() {
       final surface = adapter.buildSurface(book);
 
       for (final sample in [...surface.bids, ...surface.asks]) {
-        expect(sample.position.x.abs(), greaterThanOrEqualTo(layout.spreadGap / 2));
+        expect(sample.position.x.abs(),
+            greaterThanOrEqualTo(layout.spreadGap / 2));
       }
     });
 

@@ -106,10 +106,10 @@ void main() {
             .having((s) => s.symbol, 'symbol', 'BTCUSDT')
             .having((s) => s.blockCount, 'block count', 3)
             .having(
-              (s) => s.blocks.map((b) => b.index),
-              'block indices',
-              [0, 1, 2],
-            ),
+          (s) => s.blocks.map((b) => b.index),
+          'block indices',
+          [0, 1, 2],
+        ),
       ],
     );
 
@@ -117,12 +117,13 @@ void main() {
       'emits [Loading, Error] when the use case fails',
       build: () {
         when(() => mockRepository.getCandles(
-              any(),
-              any(),
-              limit: any(named: 'limit'),
-              startTime: any(named: 'startTime'),
-              endTime: any(named: 'endTime'),
-            )).thenAnswer(
+                  any(),
+                  any(),
+                  limit: any(named: 'limit'),
+                  startTime: any(named: 'startTime'),
+                  endTime: any(named: 'endTime'),
+                ))
+            .thenAnswer(
                 (_) async => const Left(ServerFailure(message: 'boom')));
         return buildBloc();
       },

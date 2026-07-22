@@ -35,9 +35,10 @@ class DepthSceneAdapter {
         ? book.midPrice
         : (nearBids.isNotEmpty ? nearBids.first.price : nearAsks.first.price);
 
-    final maxCumulative = _cumulativeTotal(nearBids) > _cumulativeTotal(nearAsks)
-        ? _cumulativeTotal(nearBids)
-        : _cumulativeTotal(nearAsks);
+    final maxCumulative =
+        _cumulativeTotal(nearBids) > _cumulativeTotal(nearAsks)
+            ? _cumulativeTotal(nearBids)
+            : _cumulativeTotal(nearAsks);
 
     final maxOffset = _maxOffset(nearBids, nearAsks, mid);
 

@@ -112,8 +112,7 @@ void main() {
 
       for (var i = 0; i < geometry.normals.length; i += 3) {
         final n = geometry.normals;
-        final length2 =
-            n[i] * n[i] + n[i + 1] * n[i + 1] + n[i + 2] * n[i + 2];
+        final length2 = n[i] * n[i] + n[i + 1] * n[i + 1] + n[i + 2] * n[i + 2];
         expect(length2, closeTo(1.0, 1e-6));
       }
     });
@@ -142,12 +141,10 @@ void main() {
     });
 
     test('keeps the two sides on opposite sides of the mid price', () {
-      final bids = _extent(DepthMesh.buildSide(surface.bids, layout)!
-          .vertices
-          .toList(), 0);
-      final asks = _extent(DepthMesh.buildSide(surface.asks, layout)!
-          .vertices
-          .toList(), 0);
+      final bids = _extent(
+          DepthMesh.buildSide(surface.bids, layout)!.vertices.toList(), 0);
+      final asks = _extent(
+          DepthMesh.buildSide(surface.asks, layout)!.vertices.toList(), 0);
 
       expect(bids.max, lessThan(0));
       expect(asks.min, greaterThan(0));

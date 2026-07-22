@@ -96,8 +96,7 @@ void main() {
       // Face normals are axis-aligned unit vectors; a shared-corner cube would
       // average them into diagonals and round the candle's edges off.
       for (var i = 0; i < normals.length; i += 3) {
-        final length =
-            normals[i] * normals[i] +
+        final length = normals[i] * normals[i] +
             normals[i + 1] * normals[i + 1] +
             normals[i + 2] * normals[i + 2];
         expect(length, closeTo(1.0, 1e-6));

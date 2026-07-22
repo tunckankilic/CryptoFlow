@@ -103,9 +103,8 @@ class Market3DLoaded extends Market3DState {
       candles: candles ?? this.candles,
       scene: scene ?? this.scene,
       isLive: isLive ?? this.isLive,
-      selectedBlockIndex: clearSelection
-          ? null
-          : selectedBlockIndex ?? this.selectedBlockIndex,
+      selectedBlockIndex:
+          clearSelection ? null : selectedBlockIndex ?? this.selectedBlockIndex,
       depthSurface: depthSurface ?? this.depthSurface,
     );
   }

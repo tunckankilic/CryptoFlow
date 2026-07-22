@@ -126,8 +126,7 @@ abstract final class DepthMesh {
     );
   }
 
-  static double _sign(DepthSample sample) =>
-      sample.position.x < 0 ? -1.0 : 1.0;
+  static double _sign(DepthSample sample) => sample.position.x < 0 ? -1.0 : 1.0;
 
   /// Appends one quad, given its four corners in perimeter order.
   ///

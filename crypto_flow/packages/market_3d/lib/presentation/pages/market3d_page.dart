@@ -87,7 +87,9 @@ class _Market3DPageState extends State<Market3DPage> {
                       const SizedBox(height: 6),
                       _Badge(
                         state.isLive ? 'live' : 'reconnecting…',
-                        color: state.isLive ? Colors.greenAccent : Colors.orangeAccent,
+                        color: state.isLive
+                            ? Colors.greenAccent
+                            : Colors.orangeAccent,
                       ),
                     ],
                   ),

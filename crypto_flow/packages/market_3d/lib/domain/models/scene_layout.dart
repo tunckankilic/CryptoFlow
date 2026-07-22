@@ -62,7 +62,8 @@ class ScenePalette extends Equatable {
   }
 
   @override
-  List<Object?> get props => [bullish, bearish, wick, selection, liveBrightness];
+  List<Object?> get props =>
+      [bullish, bearish, wick, selection, liveBrightness];
 }
 
 /// Geometry parameters for laying out the candle city.
@@ -105,7 +106,8 @@ class SceneLayout extends Equatable {
   });
 
   /// Default layout with the standard palette.
-  factory SceneLayout.standard() => SceneLayout(palette: ScenePalette.standard());
+  factory SceneLayout.standard() =>
+      SceneLayout(palette: ScenePalette.standard());
 
   /// Distance from one candle's centre to the next.
   double get slotWidth => blockWidth + spacing;

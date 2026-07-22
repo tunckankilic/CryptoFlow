@@ -106,10 +106,8 @@ class SceneProjector {
   ScreenBounds? boundsOf(CandleBlock block) {
     final centerX = block.bodyCenter.x + seriesOffsetX;
     final centerZ = block.bodyCenter.z;
-    final halfWidth =
-        math.max(block.bodySize.x, block.wickSize.x) / 2;
-    final halfDepth =
-        math.max(block.bodySize.z, block.wickSize.z) / 2;
+    final halfWidth = math.max(block.bodySize.x, block.wickSize.x) / 2;
+    final halfDepth = math.max(block.bodySize.z, block.wickSize.z) / 2;
 
     final bodyTop = block.bodyCenter.y + block.bodySize.y / 2;
     final bodyBottom = block.bodyCenter.y - block.bodySize.y / 2;

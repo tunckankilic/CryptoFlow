@@ -19,6 +19,7 @@ void main() {
   late _MockWebSocketRepository mockWsRepository;
   late GetCandlesUseCase getCandlesUseCase;
   late GetCandleStreamUseCase getCandleStreamUseCase;
+  late GetOrderBookUseCase getOrderBookUseCase;
   late StreamController<Either<Failure, Candle>> candleStreamController;
 
   setUp(() {
@@ -26,6 +27,7 @@ void main() {
     mockWsRepository = _MockWebSocketRepository();
     getCandlesUseCase = GetCandlesUseCase(mockRepository);
     getCandleStreamUseCase = GetCandleStreamUseCase(mockWsRepository);
+    getOrderBookUseCase = GetOrderBookUseCase(mockRepository);
 
     candleStreamController = StreamController<Either<Failure, Candle>>();
     when(() => mockWsRepository.getCandleStream(any(), any()))
@@ -49,6 +51,7 @@ void main() {
   Market3DBloc buildBloc() => Market3DBloc(
         getCandlesUseCase: getCandlesUseCase,
         getCandleStreamUseCase: getCandleStreamUseCase,
+        getOrderBookUseCase: getOrderBookUseCase,
       );
 
   void mockCandlesSuccess(List<Candle> candles) {
@@ -59,6 +62,22 @@ void main() {
           startTime: any(named: 'startTime'),
           endTime: any(named: 'endTime'),
         )).thenAnswer((_) async => Right(candles));
+  }
+
+  OrderBook testBook() => orderBook(
+        bids: [
+          [99.0, 2.0],
+          [98.0, 3.0],
+        ],
+        asks: [
+          [101.0, 1.0],
+          [102.0, 4.0],
+        ],
+      );
+
+  void mockOrderBookSuccess(OrderBook book) {
+    when(() => mockRepository.getOrderBook(any(), limit: any(named: 'limit')))
+        .thenAnswer((_) async => Right(book));
   }
 
   test('initial state is Market3DInitial', () {
@@ -401,6 +420,116 @@ void main() {
       skip: 2,
       // No emit at all: a stale index with nothing selected changes nothing.
       expect: () => <Market3DState>[],
+    );
+  });
+
+  group('LoadMarket3DDepth', () {
+    blocTest<Market3DBloc, Market3DState>(
+      'attaches an adapted depth surface to the loaded state',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        mockOrderBookSuccess(testBook());
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+        await Future.delayed(Duration.zero);
+        bloc.add(const LoadMarket3DDepth(symbol: 'BTCUSDT'));
+      },
+      skip: 2,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.depthSurface?.bids.length, 'bid levels', 2)
+            .having((s) => s.depthSurface?.asks.length, 'ask levels', 2)
+            .having(
+              (s) => s.depthSurface?.maxCumulativeQuantity,
+              'deepest side',
+              5.0,
+            )
+            // The city is untouched by an order book fetch.
+            .having((s) => s.blockCount, 'block count', 3),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'carries a surface that arrived before the city into the first '
+      'loaded state',
+      // The session-6 dispatch-order trap, again: `Market3DPage.initState`
+      // fires the candle load and the depth load with no gap, and whichever
+      // REST call answers first wins. When it is the order book, there is no
+      // `Market3DLoaded` to attach the surface to — so it must be held on the
+      // bloc and picked up when the city finally loads, not dropped.
+      build: () {
+        mockOrderBookSuccess(testBook());
+        when(() => mockRepository.getCandles(
+              any(),
+              any(),
+              limit: any(named: 'limit'),
+              startTime: any(named: 'startTime'),
+              endTime: any(named: 'endTime'),
+            )).thenAnswer((_) async {
+          await Future.delayed(const Duration(milliseconds: 20));
+          return Right(threeCandles());
+        });
+        return buildBloc();
+      },
+      act: (bloc) {
+        bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+        bloc.add(const LoadMarket3DDepth(symbol: 'BTCUSDT'));
+      },
+      wait: const Duration(milliseconds: 50),
+      skip: 1,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.depthSurface, 'surface present', isNotNull)
+            .having((s) => s.blockCount, 'block count', 3),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'leaves the city standing when the order book fetch fails',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        when(() =>
+                mockRepository.getOrderBook(any(), limit: any(named: 'limit')))
+            .thenAnswer(
+                (_) async => const Left(ServerFailure(message: 'book down')));
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+        await Future.delayed(Duration.zero);
+        bloc.add(const LoadMarket3DDepth(symbol: 'BTCUSDT'));
+      },
+      skip: 2,
+      // No emit: the terrain is an addition to the city, so its failure is
+      // logged and dropped rather than turned into a Market3DError that would
+      // replace a perfectly good city with an error screen.
+      expect: () => <Market3DState>[],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'keeps the terrain across a live candle tick',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        mockOrderBookSuccess(testBook());
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+        await Future.delayed(Duration.zero);
+        bloc.add(const LoadMarket3DDepth(symbol: 'BTCUSDT'));
+        await Future.delayed(Duration.zero);
+        bloc.add(Market3DCandleReceived(
+          candleAt(2, open: 110, high: 118, low: 108, close: 117),
+        ));
+      },
+      skip: 3,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.depthSurface, 'surface survived', isNotNull)
+            .having((s) => s.candles.last.close, 'live close', 117),
+      ],
     );
   });
 }

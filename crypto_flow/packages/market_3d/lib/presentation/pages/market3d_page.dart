@@ -9,10 +9,12 @@ import '../widgets/candle_inspect_panel.dart';
 
 /// The "3D Market" tab.
 ///
-/// Dispatches [LoadMarket3DCandles] and [SubscribeToMarket3DStream] on
-/// mount, shows a loading/error placeholder until history arrives, then
-/// hands the loaded scene to [Market3DViewport] — which stays mounted and
-/// picks up every live tick as `state.scene` changes underneath it.
+/// Dispatches [LoadMarket3DCandles], [SubscribeToMarket3DStream] and
+/// [LoadMarket3DDepth] on mount, shows a loading/error placeholder until
+/// history arrives, then hands the loaded scene to [Market3DViewport] — which
+/// stays mounted and picks up every live tick as `state.scene` changes
+/// underneath it. The depth terrain arrives on its own schedule and simply
+/// appears once the order book snapshot lands.
 class Market3DPage extends StatefulWidget {
   const Market3DPage({super.key});
 
@@ -33,6 +35,7 @@ class _Market3DPageState extends State<Market3DPage> {
     context.read<Market3DBloc>().add(
           const SubscribeToMarket3DStream(symbol: _symbol, interval: _interval),
         );
+    context.read<Market3DBloc>().add(const LoadMarket3DDepth(symbol: _symbol));
   }
 
   @override
@@ -49,6 +52,7 @@ class _Market3DPageState extends State<Market3DPage> {
                 Positioned.fill(
                   child: Market3DViewport(
                     scene: state.scene,
+                    depthSurface: state.depthSurface,
                     selectedBlockIndex: state.selectedBlockIndex,
                     onBlockTapped: (index) => context
                         .read<Market3DBloc>()

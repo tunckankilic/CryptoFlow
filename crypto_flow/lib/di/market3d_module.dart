@@ -19,13 +19,36 @@ final SceneLayout _market3DCityLayout = SceneLayout(
   palette: ScenePalette.standard(),
 );
 
+/// Geometry for the order book depth terrain drawn in front of the city.
+///
+/// Tuned against the city the same way [_market3DCityLayout] is, and for the
+/// same reason: [DepthLayout.standard] is the adapter's unit-test baseline,
+/// not a composition.
+///
+/// The terrain sits several units nearer the camera than the city (see
+/// `ThermionMarketSceneRenderer`'s terrain z offset), so perspective already
+/// makes it read larger than its measurements suggest. Sized to roughly a
+/// quarter of the ~36-unit-wide, 9-unit-tall city it stands in front of: big
+/// enough to read as a second instrument, small enough not to occlude the
+/// candles behind it.
+final DepthLayout _market3DDepthLayout = DepthLayout(
+  sideWidth: 4.5,
+  sideDepth: 2.0,
+  maxHeight: 2.2,
+  spreadGap: 0.5,
+  bidColor: ScenePalette.standard().bullish,
+  askColor: ScenePalette.standard().bearish,
+);
+
 /// Register "3D Market" tab dependencies.
 Future<void> registerMarket3DModule() async {
   getIt.registerFactory<Market3DBloc>(
     () => Market3DBloc(
       getCandlesUseCase: getIt<GetCandlesUseCase>(),
       getCandleStreamUseCase: getIt<GetCandleStreamUseCase>(),
+      getOrderBookUseCase: getIt<GetOrderBookUseCase>(),
       adapter: CandleSceneAdapter(layout: _market3DCityLayout),
+      depthAdapter: DepthSceneAdapter(layout: _market3DDepthLayout),
     ),
   );
 }

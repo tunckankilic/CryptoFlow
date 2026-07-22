@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:thermion_flutter/thermion_flutter.dart';
 
 import '../../domain/models/camera_command.dart';
+import '../../domain/models/depth_surface.dart';
 import '../../domain/models/market_scene.dart';
 import '../../domain/models/scene_tap.dart';
 import '../renderers/thermion_market_scene_renderer.dart';
@@ -28,6 +29,7 @@ class Market3DViewport extends StatefulWidget {
   const Market3DViewport({
     super.key,
     required this.scene,
+    this.depthSurface,
     this.selectedBlockIndex,
     this.onBlockTapped,
   });
@@ -37,6 +39,11 @@ class Market3DViewport extends StatefulWidget {
   /// whether to mount it at all); [didUpdateWidget] below is what turns that
   /// into engine calls.
   final MarketScene scene;
+
+  /// Order book depth terrain to draw in front of the city, or `null` for no
+  /// terrain. Arrives after the city does — the order book is a separate
+  /// fetch — so this widget mounts with it null and picks it up on a rebuild.
+  final DepthSurface? depthSurface;
 
   /// Block to highlight, or `null` for no highlight. Owned by the bloc, not
   /// by this widget: the same index drives the OHLC panel, so the geometry
@@ -85,6 +92,8 @@ class _Market3DViewportState extends State<Market3DViewport> {
       await renderer.initialize();
       _tapSubscription = renderer.taps.listen(_onSceneTap);
       await renderer.setScene(widget.scene);
+      final surface = widget.depthSurface;
+      if (surface != null) await renderer.setDepthSurface(surface);
       if (widget.selectedBlockIndex != null) {
         await renderer.setSelectedBlock(widget.selectedBlockIndex);
       }
@@ -115,6 +124,28 @@ class _Market3DViewportState extends State<Market3DViewport> {
       _engineQueue = _engineQueue.then(
         (_) => _applySceneUpdate(renderer, previous, next),
       );
+    }
+
+    // Value equality, not `identical`: the bloc rebuilds the surface from
+    // scratch on every order book fetch, so an unchanged book would otherwise
+    // re-mesh both ribbons for nothing.
+    if (oldWidget.depthSurface != widget.depthSurface) {
+      final surface = widget.depthSurface;
+      _engineQueue = _engineQueue.then((_) async {
+        try {
+          if (surface == null) {
+            await renderer.clearDepthSurface();
+          } else {
+            await renderer.setDepthSurface(surface);
+          }
+        } catch (e) {
+          if (!mounted) return;
+          setState(() {
+            _error = e;
+            _status = 'depth update failed';
+          });
+        }
+      });
     }
 
     // Queued behind the scene update above on purpose: when a live tick and a

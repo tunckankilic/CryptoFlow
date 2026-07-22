@@ -28,6 +28,24 @@ class LoadMarket3DCandles extends Market3DEvent {
   List<Object?> get props => [symbol, interval, limit];
 }
 
+/// Loads a single order book snapshot for the depth terrain.
+///
+/// A one-shot REST fetch, not a subscription — the terrain is static this
+/// session; the live depth stream is session 11's job.
+class LoadMarket3DDepth extends Market3DEvent {
+  final String symbol;
+
+  /// Price levels per side. Binance accepts a fixed set of depths; 20 is the
+  /// deepest the WebSocket stream will also offer, so staying here means the
+  /// terrain's shape doesn't change when session 11 swaps REST for the stream.
+  final int limit;
+
+  const LoadMarket3DDepth({required this.symbol, this.limit = 20});
+
+  @override
+  List<Object?> get props => [symbol, limit];
+}
+
 /// Subscribes to live candle updates for the loaded series.
 ///
 /// Mirrors `CandleBloc`'s `SubscribeToCandleStream`.

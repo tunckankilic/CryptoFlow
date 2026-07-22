@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:market/market.dart';
 
 import '../../../domain/models/candle_block.dart';
+import '../../../domain/models/depth_surface.dart';
 import '../../../domain/models/market_scene.dart';
 
 /// States for [Market3DBloc].
@@ -58,6 +59,13 @@ class Market3DLoaded extends Market3DState {
   /// highlight and the OHLC data to show.
   final int? selectedBlockIndex;
 
+  /// Order book depth terrain, or `null` before the first snapshot lands.
+  ///
+  /// Independent of [scene]: the terrain comes from a different endpoint on
+  /// its own schedule, and a failed order book fetch must leave the city
+  /// standing rather than take the whole tab down with it.
+  final DepthSurface? depthSurface;
+
   const Market3DLoaded({
     required this.symbol,
     required this.interval,
@@ -65,6 +73,7 @@ class Market3DLoaded extends Market3DState {
     required this.scene,
     this.isLive = false,
     this.selectedBlockIndex,
+    this.depthSurface,
   });
 
   /// The candle behind the current selection, or `null` when nothing is
@@ -86,6 +95,7 @@ class Market3DLoaded extends Market3DState {
     bool? isLive,
     int? selectedBlockIndex,
     bool clearSelection = false,
+    DepthSurface? depthSurface,
   }) {
     return Market3DLoaded(
       symbol: symbol,
@@ -96,6 +106,7 @@ class Market3DLoaded extends Market3DState {
       selectedBlockIndex: clearSelection
           ? null
           : selectedBlockIndex ?? this.selectedBlockIndex,
+      depthSurface: depthSurface ?? this.depthSurface,
     );
   }
 
@@ -107,6 +118,7 @@ class Market3DLoaded extends Market3DState {
         scene,
         isLive,
         selectedBlockIndex,
+        depthSurface,
       ];
 }
 

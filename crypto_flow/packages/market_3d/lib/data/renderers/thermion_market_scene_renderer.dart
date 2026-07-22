@@ -14,6 +14,7 @@ import '../../domain/models/scene_tap.dart';
 import '../../domain/models/vec3.dart';
 import '../../domain/renderer/market_scene_renderer.dart';
 import 'candle_mesh.dart';
+import 'depth_mesh.dart';
 
 /// Thermion (Filament) implementation of [MarketSceneRenderer].
 ///
@@ -65,6 +66,19 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
 
   /// Index of the highlighted block, or `null` when nothing is selected.
   int? _selectedIndex;
+
+  /// Assets for the depth terrain: at most one ribbon per side of the book.
+  final List<ThermionAsset> _depthAssets = [];
+
+  /// Where the terrain sits along z, in front of the city.
+  ///
+  /// The city occupies a shallow slab around `z = 0` (one block deep), so any
+  /// clearance beyond that reads as a separate object. Camera-side rather
+  /// than behind, because [_frameScene] puts the camera high on the `+z`
+  /// diagonal: at that elevation a terrain a third of the city's height
+  /// occludes nothing, and being nearer the lens is what makes it legible.
+  /// Comfortably inside the 40x40 ground plane [initialize] lays down.
+  static const double _depthTerrainZ = 7.0;
 
   /// Resolves taps to blocks. Stateless and cheap, kept as a field only so a
   /// caller could hand in a different touch slop without touching this class.
@@ -375,18 +389,61 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     if (!_taps.isClosed) _taps.add(tap);
   }
 
+  /// Replaces the depth terrain with [surface]: one merged ribbon asset per
+  /// side, placed in front of the city on the ground plane.
+  ///
+  /// **Re-mesh, not mutable vertices.** Thermion 0.4.1 exposes no way to
+  /// rewrite an existing asset's vertex buffer (`ThermionAsset` offers only
+  /// `setMorphTargetWeights` / `setMorphAnimationData`, both for pre-authored
+  /// morph targets), and every level of a depth surface moves on every book
+  /// update anyway — unlike the candle city, where a tick touches one block.
+  /// So a side is always rebuilt whole. Two assets for the entire terrain
+  /// keeps that affordable; see the package README for the measurement.
+  ///
+  /// Create-before-destroy, like [updateLiveBlock]: the new ribbons exist
+  /// before the old ones are torn down, so a live book update can never leave
+  /// a frame with no terrain in it.
   @override
-  Future<void> setDepthSurface(DepthSurface surface) {
-    throw UnimplementedError(
-      'setDepthSurface lands in session 10 (depth terrain)',
-    );
+  Future<void> setDepthSurface(DepthSurface surface) async {
+    final replacements = <ThermionAsset>[];
+
+    for (final side in [
+      (surface.bids, surface.layout.bidColor),
+      (surface.asks, surface.layout.askColor),
+    ]) {
+      final geometry = DepthMesh.buildSide(side.$1, surface.layout);
+      if (geometry == null) continue;
+
+      final material = await _createMaterial(side.$2);
+      try {
+        final asset = await _viewer.createGeometry(
+          geometry,
+          materialInstances: [material.materialInstance],
+        );
+        await asset.setTransform(
+          Matrix4.translation(Vector3(0, 0, _depthTerrainZ)),
+        );
+        replacements.add(asset);
+      } finally {
+        geometry.dispose();
+      }
+    }
+
+    final previous = List<ThermionAsset>.of(_depthAssets);
+    _depthAssets
+      ..clear()
+      ..addAll(replacements);
+    for (final asset in previous) {
+      await _viewer.destroyAsset(asset);
+    }
   }
 
   @override
-  Future<void> clearDepthSurface() {
-    throw UnimplementedError(
-      'clearDepthSurface lands in session 10 (depth terrain)',
-    );
+  Future<void> clearDepthSurface() async {
+    for (final asset in _depthAssets) {
+      await _viewer.destroyAsset(asset);
+    }
+    _depthAssets.clear();
   }
 
   /// Dispatches every [CameraCommand] except [SetAutoOrbit] (the slow demo
@@ -482,6 +539,10 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
       await _viewer.destroyAsset(asset);
     }
     _cityAssets.clear();
+    for (final asset in _depthAssets) {
+      await _viewer.destroyAsset(asset);
+    }
+    _depthAssets.clear();
     await _taps.close();
     _isInitialized = false;
   }

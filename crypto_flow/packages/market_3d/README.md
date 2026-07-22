@@ -38,6 +38,70 @@ rebuilt (session 6); if editing its vertices proves awkward, the live candle
 alone can fall back to a unit-cube body scaled by transform while history
 stays merged.
 
+## Depth terrain update strategy (session 10)
+
+**Decision: rebuild both ribbons from scratch on every order book update.**
+No attempt at mutable vertices, and no per-level entities.
+
+The alternative was ruled out before it was measured. Thermion 0.4.1 exposes
+no way to rewrite an existing asset's vertex buffer: `ThermionAsset` offers
+only `setMorphTargetWeights` and `setMorphAnimationData`, both of which drive
+pre-authored morph targets, not arbitrary geometry. "Mutable vertices" is not
+an option this engine has, so the only real question was whether re-meshing is
+cheap enough — and, if it isn't, whether the terrain needs throttling.
+
+Why the terrain gets away with a strategy the candle city could not:
+
+- **Two assets, not forty.** A whole side of the book is one colour, so
+  `DepthMesh.buildSide` merges all its levels into a single vertex buffer.
+  The entire terrain is two assets — bid ribbon, ask ribbon — against the
+  city's one asset per candle. The city's ~1 ms per-candle build+destroy cost
+  (see above) is what makes a 200-candle rebuild a ~200 ms non-starter; the
+  same per-asset cost over two assets is not.
+- **Every level moves anyway.** A candle tick changes one block, which is why
+  session 6 could take an O(1) `updateLiveBlock` path. An order book update
+  shifts the cumulative curve from the mid price outward, so most of the
+  surface changes at once — a partial-update path would rebuild nearly
+  everything regardless, at the cost of a diffing pass and per-level entities.
+
+Measured on the iOS Simulator (iPhone 17 Pro, arm64, **debug** build) with the
+render loop live and the 100-candle city rendered, 60 consecutive
+whole-terrain re-mesh cycles per run (20 bid + 20 ask levels), timed around
+`setDepthSurface` end to end — build both meshes, create both assets, destroy
+the previous two:
+
+| Run | Min | Median | Mean | Max |
+|---|---|---|---|---|
+| 1 | 1.35 ms | 2.47 ms | 2.79 ms | 10.9 ms |
+| 2 | 0.87 ms | 1.48 ms | 2.00 ms | 15.2 ms |
+| 3 | 0.89 ms | 2.76 ms | 4.37 ms | 50.2 ms |
+| 4 | 1.24 ms | 2.04 ms | 2.54 ms | 17.7 ms |
+
+**Median 1.5–2.8 ms per whole-terrain rebuild**, against a 16.7 ms frame
+budget. The maxima are outliers in a debug build under an unthrottled loop
+(the 50 ms one was a single cycle in run 3, with the rest of that run's
+distribution unchanged) — they scale with allocation pressure, not with the
+mesh, and none of them repeated. Two assets rebuild at roughly the cost
+session 3 measured for two candles, which is exactly what the merged-per-side
+design predicts.
+
+Caveats, stated rather than glossed: this is the **simulator in debug mode**,
+not a `--profile` build on the phone — session 3's ~1 ms per-candle figure was
+a device measurement and is the more trustworthy of the two. Treat these
+numbers as an order-of-magnitude answer to "is re-meshing viable", which they
+settle comfortably, not as a frame-budget guarantee. The device confirmation
+is still open (see HANDOFF.md).
+
+Consequence for session 11 (live depth): **no throttling needed, and the
+assumption that it would be was wrong.** The order book stream this app
+already subscribes to is `BinanceEndpoints.depthStream`, which builds
+`/ws/<symbol>@depth20` — no `@100ms` speed suffix, so it uses Binance's
+default 1000 ms cadence, the same rate as the kline stream session 8 found
+comfortably under budget. One ~2 ms rebuild per second is not a frame-budget
+problem. If a future session ever switches to the 100 ms variant, that is
+ten rebuilds a second and the arithmetic is worth redoing — but nothing in
+the current data path pushes faster than 1 Hz.
+
 ## Performance pass (session 8): already at target, no changes made
 
 **Measured on a physical iPhone (iPhone14,5, iOS 27), `flutter run --profile`,

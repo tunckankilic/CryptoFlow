@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:market/market.dart';
 
 import '../../../domain/adapters/candle_scene_adapter.dart';
+import '../../../domain/adapters/depth_scene_adapter.dart';
+import '../../../domain/models/depth_surface.dart';
 import 'market3d_event.dart';
 import 'market3d_state.dart';
 
@@ -16,7 +18,9 @@ import 'market3d_state.dart';
 class Market3DBloc extends Bloc<Market3DEvent, Market3DState> {
   final GetCandlesUseCase _getCandlesUseCase;
   final GetCandleStreamUseCase _getCandleStreamUseCase;
+  final GetOrderBookUseCase _getOrderBookUseCase;
   final CandleSceneAdapter _adapter;
+  final DepthSceneAdapter _depthAdapter;
 
   StreamSubscription? _candleSubscription;
 
@@ -32,15 +36,28 @@ class Market3DBloc extends Bloc<Market3DEvent, Market3DState> {
   /// state instead of hard-coding `isLive: false`.
   bool _isLive = false;
 
+  /// The most recent depth terrain, held outside `Market3DState` for exactly
+  /// the reason [_isLive] is: `Market3DPage` dispatches [LoadMarket3DDepth]
+  /// alongside [LoadMarket3DCandles], and whichever REST call answers first
+  /// wins the race. If the order book lands first there is no
+  /// [Market3DLoaded] yet to attach it to, so [_onLoadCandles] reads this
+  /// when it builds the first loaded state instead of assuming `null`.
+  DepthSurface? _depthSurface;
+
   Market3DBloc({
     required GetCandlesUseCase getCandlesUseCase,
     required GetCandleStreamUseCase getCandleStreamUseCase,
+    required GetOrderBookUseCase getOrderBookUseCase,
     CandleSceneAdapter? adapter,
+    DepthSceneAdapter? depthAdapter,
   })  : _getCandlesUseCase = getCandlesUseCase,
         _getCandleStreamUseCase = getCandleStreamUseCase,
+        _getOrderBookUseCase = getOrderBookUseCase,
         _adapter = adapter ?? CandleSceneAdapter(),
+        _depthAdapter = depthAdapter ?? DepthSceneAdapter(),
         super(const Market3DInitial()) {
     on<LoadMarket3DCandles>(_onLoadCandles);
+    on<LoadMarket3DDepth>(_onLoadDepth);
     on<SubscribeToMarket3DStream>(_onSubscribe);
     on<Market3DCandleReceived>(_onCandleReceived);
     on<Market3DStreamError>(_onStreamError);
@@ -75,7 +92,35 @@ class Market3DBloc extends Bloc<Market3DEvent, Market3DState> {
           candles: candles,
           scene: scene,
           isLive: _isLive,
+          depthSurface: _depthSurface,
         ));
+      },
+    );
+  }
+
+  /// Fetches one order book snapshot and adapts it into depth terrain.
+  ///
+  /// A failure is logged and dropped rather than emitted as [Market3DError]:
+  /// the terrain is an addition to the city, not a precondition for it, and
+  /// taking the whole tab down because a secondary endpoint failed would be a
+  /// worse outcome than a city with no terrain in front of it.
+  Future<void> _onLoadDepth(
+    LoadMarket3DDepth event,
+    Emitter<Market3DState> emit,
+  ) async {
+    final result = await _getOrderBookUseCase(
+      OrderBookParams(symbol: event.symbol, limit: event.limit),
+    );
+
+    result.fold(
+      (failure) => log('Market3DBloc: order book fetch failed: '
+          '${failure.message}'),
+      (book) {
+        final surface = _depthAdapter.buildSurface(book, levels: event.limit);
+        _depthSurface = surface;
+        if (state is Market3DLoaded) {
+          emit((state as Market3DLoaded).copyWith(depthSurface: surface));
+        }
       },
     );
   }

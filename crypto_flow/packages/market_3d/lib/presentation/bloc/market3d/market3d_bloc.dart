@@ -1,0 +1,314 @@
+import 'dart:async';
+import 'dart:developer';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:market/market.dart';
+
+import '../../../domain/adapters/candle_scene_adapter.dart';
+import '../../../domain/adapters/depth_scene_adapter.dart';
+import '../../../domain/models/depth_surface.dart';
+import 'market3d_event.dart';
+import 'market3d_state.dart';
+
+/// BLoC for the "3D Market" tab.
+///
+/// Mirrors `CandleBloc`'s load + live-update pattern: fetch history via a use
+/// case, emit loading/loaded/error, then subscribe to the same kline stream
+/// `CandleBloc` uses and merge each tick into the loaded scene.
+class Market3DBloc extends Bloc<Market3DEvent, Market3DState> {
+  final GetCandlesUseCase _getCandlesUseCase;
+  final GetCandleStreamUseCase _getCandleStreamUseCase;
+  final GetOrderBookUseCase _getOrderBookUseCase;
+  final GetOrderBookStreamUseCase _getOrderBookStreamUseCase;
+  final CandleSceneAdapter _adapter;
+  final DepthSceneAdapter _depthAdapter;
+
+  StreamSubscription? _candleSubscription;
+  StreamSubscription? _depthSubscription;
+
+  /// Price levels per side the live depth subscription was started with.
+  ///
+  /// Held so [_onDepthReceived] can pass the same cap to
+  /// [DepthSceneAdapter.buildSurface] on every tick without threading it
+  /// through the internal event — mirrors how [_depthSurface] itself is kept
+  /// outside [Market3DState].
+  int _depthLevels = 20;
+
+  /// Whether the kline stream is currently subscribed.
+  ///
+  /// Tracked outside `Market3DState` because `Market3DPage` dispatches
+  /// `LoadMarket3DCandles` and `SubscribeToMarket3DStream` together in
+  /// `initState`, and the load's REST call means `SubscribeToMarket3DStream`
+  /// routinely gets handled *before* the loaded state exists — `_onSubscribe`
+  /// would otherwise have no `Market3DLoaded` state to mark live and the
+  /// stream would connect while the UI stayed stuck on "reconnecting…"
+  /// forever. `_onLoadCandles` reads this when it builds the first loaded
+  /// state instead of hard-coding `isLive: false`.
+  bool _isLive = false;
+
+  /// The most recent depth terrain, held outside `Market3DState` for exactly
+  /// the reason [_isLive] is: `Market3DPage` dispatches [LoadMarket3DDepth]
+  /// alongside [LoadMarket3DCandles], and whichever REST call answers first
+  /// wins the race. If the order book lands first there is no
+  /// [Market3DLoaded] yet to attach it to, so [_onLoadCandles] reads this
+  /// when it builds the first loaded state instead of assuming `null`.
+  DepthSurface? _depthSurface;
+
+  Market3DBloc({
+    required GetCandlesUseCase getCandlesUseCase,
+    required GetCandleStreamUseCase getCandleStreamUseCase,
+    required GetOrderBookUseCase getOrderBookUseCase,
+    required GetOrderBookStreamUseCase getOrderBookStreamUseCase,
+    CandleSceneAdapter? adapter,
+    DepthSceneAdapter? depthAdapter,
+  })  : _getCandlesUseCase = getCandlesUseCase,
+        _getCandleStreamUseCase = getCandleStreamUseCase,
+        _getOrderBookUseCase = getOrderBookUseCase,
+        _getOrderBookStreamUseCase = getOrderBookStreamUseCase,
+        _adapter = adapter ?? CandleSceneAdapter(),
+        _depthAdapter = depthAdapter ?? DepthSceneAdapter(),
+        super(const Market3DInitial()) {
+    on<LoadMarket3DCandles>(_onLoadCandles);
+    on<LoadMarket3DDepth>(_onLoadDepth);
+    on<SubscribeToMarket3DStream>(_onSubscribe);
+    on<Market3DCandleReceived>(_onCandleReceived);
+    on<Market3DStreamError>(_onStreamError);
+    on<Market3DBlockSelected>(_onBlockSelected);
+    on<SubscribeToMarket3DDepthStream>(_onSubscribeDepth);
+    on<Market3DDepthReceived>(_onDepthReceived);
+    on<ToggleMarket3DDepthTerrain>(_onToggleDepthTerrain);
+  }
+
+  Future<void> _onLoadCandles(
+    LoadMarket3DCandles event,
+    Emitter<Market3DState> emit,
+  ) async {
+    emit(const Market3DLoading());
+
+    final result = await _getCandlesUseCase(
+      CandlesParams(
+        symbol: event.symbol,
+        interval: event.interval,
+        limit: event.limit,
+      ),
+    );
+
+    result.fold(
+      (failure) => emit(Market3DError(failure.message)),
+      (candles) {
+        final scene = _adapter.buildScene(
+          symbol: event.symbol,
+          interval: event.interval,
+          candles: candles,
+        );
+        emit(Market3DLoaded(
+          symbol: event.symbol,
+          interval: event.interval,
+          candles: candles,
+          scene: scene,
+          isLive: _isLive,
+          depthSurface: _depthSurface,
+        ));
+      },
+    );
+  }
+
+  /// Fetches one order book snapshot and adapts it into depth terrain.
+  ///
+  /// A failure is logged and dropped rather than emitted as [Market3DError]:
+  /// the terrain is an addition to the city, not a precondition for it, and
+  /// taking the whole tab down because a secondary endpoint failed would be a
+  /// worse outcome than a city with no terrain in front of it.
+  Future<void> _onLoadDepth(
+    LoadMarket3DDepth event,
+    Emitter<Market3DState> emit,
+  ) async {
+    final result = await _getOrderBookUseCase(
+      OrderBookParams(symbol: event.symbol, limit: event.limit),
+    );
+
+    result.fold(
+      (failure) => log('Market3DBloc: order book fetch failed: '
+          '${failure.message}'),
+      (book) {
+        final surface = _depthAdapter.buildSurface(book, levels: event.limit);
+        _depthSurface = surface;
+        if (state is Market3DLoaded) {
+          emit((state as Market3DLoaded).copyWith(depthSurface: surface));
+        }
+      },
+    );
+  }
+
+  /// Subscribes to live candle updates for the loaded series.
+  Future<void> _onSubscribe(
+    SubscribeToMarket3DStream event,
+    Emitter<Market3DState> emit,
+  ) async {
+    await _candleSubscription?.cancel();
+
+    _candleSubscription = _getCandleStreamUseCase(
+      CandleStreamParams(symbol: event.symbol, interval: event.interval),
+    ).listen((either) => either.fold(
+          (failure) {
+            log('Market3DBloc: WebSocket stream error: ${failure.message}');
+            if (!isClosed) add(Market3DStreamError(failure.message));
+          },
+          (candle) {
+            if (!isClosed) add(Market3DCandleReceived(candle));
+          },
+        ));
+
+    _isLive = true;
+    if (state is Market3DLoaded) {
+      emit((state as Market3DLoaded).copyWith(isLive: true));
+    }
+  }
+
+  /// Merges a live candle into the current scene.
+  ///
+  /// Reuses the existing [PriceScale] via [CandleSceneAdapter.applyLiveCandle]
+  /// whenever the candle is still inside it (the common, cheap case); rebuilds
+  /// the whole scene only when [MarketScene.needsRescaleFor] reports the
+  /// candle has escaped the range. The raw candle list is kept in lockstep
+  /// with `scene.blocks` (same length, same order) rather than capped like
+  /// `CandleBloc`'s 500-candle window — the block-index-based scene has no
+  /// primitive for evicting the oldest block, so trimming one list without the
+  /// other would desync them.
+  void _onCandleReceived(
+    Market3DCandleReceived event,
+    Emitter<Market3DState> emit,
+  ) {
+    if (state is! Market3DLoaded) return;
+
+    final loaded = state as Market3DLoaded;
+    final candle = event.candle;
+
+    final candles = List<Candle>.from(loaded.candles);
+    final index = candles.indexWhere((c) => c.openTime == candle.openTime);
+    if (index >= 0) {
+      candles[index] = candle;
+    } else {
+      candles.add(candle);
+    }
+
+    final scene = loaded.scene.needsRescaleFor(candle)
+        ? _adapter.buildScene(
+            symbol: loaded.symbol,
+            interval: loaded.interval,
+            candles: candles,
+          )
+        : _adapter.applyLiveCandle(loaded.scene, candle);
+
+    emit(loaded.copyWith(candles: candles, scene: scene));
+  }
+
+  /// Selects the tapped block, or clears the selection when the tap missed.
+  ///
+  /// Tapping the already-selected candle dismisses it, so the panel can be
+  /// closed by tapping the same candle again as well as by tapping empty
+  /// space. An index outside the loaded series is treated as a miss rather
+  /// than stored: the renderer resolved it against the scene it last drew,
+  /// which a rescale may have replaced since.
+  void _onBlockSelected(
+    Market3DBlockSelected event,
+    Emitter<Market3DState> emit,
+  ) {
+    if (state is! Market3DLoaded) return;
+    final loaded = state as Market3DLoaded;
+
+    final index = event.index;
+    final isValid =
+        index != null && index >= 0 && index < loaded.candles.length;
+
+    if (!isValid || index == loaded.selectedBlockIndex) {
+      if (loaded.selectedBlockIndex == null) return;
+      emit(loaded.copyWith(clearSelection: true));
+      return;
+    }
+
+    emit(loaded.copyWith(selectedBlockIndex: index));
+  }
+
+  /// Subscribes to live order book updates for the depth terrain.
+  ///
+  /// Mirrors [_onSubscribe]. Unlike the candle stream, a failure here is
+  /// logged and dropped rather than surfaced through `isLive` or
+  /// [Market3DError] — same reasoning as [_onLoadDepth]: the terrain is an
+  /// addition to the city, not a precondition for it, so losing the depth
+  /// stream should not touch the candle-stream liveness the badge shows.
+  Future<void> _onSubscribeDepth(
+    SubscribeToMarket3DDepthStream event,
+    Emitter<Market3DState> emit,
+  ) async {
+    await _depthSubscription?.cancel();
+    _depthLevels = event.limit;
+
+    _depthSubscription = _getOrderBookStreamUseCase(
+      OrderBookStreamParams(symbol: event.symbol, depth: event.limit),
+    ).listen((either) => either.fold(
+          (failure) => log(
+            'Market3DBloc: order book stream error: ${failure.message}',
+          ),
+          (book) {
+            if (!isClosed) add(Market3DDepthReceived(book));
+          },
+        ));
+  }
+
+  /// Rebuilds the depth terrain from a live order book update.
+  ///
+  /// S10's own strategy: `setDepthSurface` re-meshes both ribbons cheaply
+  /// enough (median 1.5-2.8ms measured in session 10) that there is no
+  /// in-place update to write, unlike [_onCandleReceived]'s live-block path.
+  /// This just rebuilds the surface; `Market3DViewport`'s value-equality
+  /// check on `depthSurface` (it's `Equatable`) is what decides whether the
+  /// engine actually has anything to do.
+  void _onDepthReceived(
+    Market3DDepthReceived event,
+    Emitter<Market3DState> emit,
+  ) {
+    final surface =
+        _depthAdapter.buildSurface(event.book, levels: _depthLevels);
+    _depthSurface = surface;
+    if (state is Market3DLoaded) {
+      emit((state as Market3DLoaded).copyWith(depthSurface: surface));
+    }
+  }
+
+  /// Shows or hides the rendered terrain without touching its subscription.
+  ///
+  /// The order book stream and [_depthSurface] keep updating underneath even
+  /// while hidden, so turning the terrain back on doesn't need a fresh
+  /// snapshot — [Market3DPage] passes `null` to the viewport while
+  /// `depthTerrainVisible` is `false` and the held surface again once it's
+  /// `true`.
+  void _onToggleDepthTerrain(
+    ToggleMarket3DDepthTerrain event,
+    Emitter<Market3DState> emit,
+  ) {
+    if (state is! Market3DLoaded) return;
+    final loaded = state as Market3DLoaded;
+    emit(loaded.copyWith(depthTerrainVisible: !loaded.depthTerrainVisible));
+  }
+
+  /// Handle WebSocket stream errors — keep the rendered city visible.
+  void _onStreamError(
+    Market3DStreamError event,
+    Emitter<Market3DState> emit,
+  ) {
+    _isLive = false;
+    if (state is Market3DLoaded) {
+      emit((state as Market3DLoaded).copyWith(isLive: false));
+    } else {
+      emit(Market3DError('Stream error: ${event.message}'));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _candleSubscription?.cancel();
+    _depthSubscription?.cancel();
+    return super.close();
+  }
+}

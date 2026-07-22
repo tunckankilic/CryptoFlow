@@ -48,5 +48,22 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Run package tests
+        # `flutter test` above only covers crypto_flow/test — 48 tests. The
+        # local packages carry 247 more between them (auth, market_3d,
+        # notifications, portfolio) and none of them were reached by any CI
+        # until now, which made a green run mean less than it looked like.
+        #
+        # Each package needs its own `pub get`: the root one resolves
+        # crypto_flow's package_config.json, not the packages' own.
+        run: |
+          for package in packages/*/; do
+            if [ -d "${package}test" ]; then
+              echo "::group::${package}"
+              (cd "$package" && flutter pub get && flutter test)
+              echo "::endgroup::"
+            fi
+          done
+
       - name: Build iOS (no codesign)
         run: flutter build ios --release --no-codesign

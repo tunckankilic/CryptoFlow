@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Pages
 import 'package:market/market.dart';
+import 'package:market_3d/market_3d.dart';
 import 'package:portfolio/portfolio.dart';
 import 'package:alerts/alerts.dart';
 import 'package:watchlist/watchlist.dart';
@@ -126,6 +127,16 @@ GoRouter createAppRouter(
             name: 'settings',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: SettingsPage(),
+            ),
+          ),
+          GoRoute(
+            path: '/market3d',
+            name: 'market3d',
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: BlocProvider(
+                create: (_) => getIt<Market3DBloc>(),
+                child: const Market3DPage(),
+              ),
             ),
           ),
         ],

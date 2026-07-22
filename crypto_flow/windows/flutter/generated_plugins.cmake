@@ -11,6 +11,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   printing
   share_plus
   sqlite3_flutter_libs
+  thermion_flutter
   url_launcher_windows
 )
 

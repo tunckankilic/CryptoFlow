@@ -12,6 +12,7 @@ import 'package:settings/settings.dart';
 // DI modules
 import 'core_module.dart';
 import 'market_module.dart';
+import 'market3d_module.dart';
 import 'portfolio_module.dart';
 import 'alerts_module.dart';
 import 'watchlist_module.dart';
@@ -48,6 +49,7 @@ Future<void> configureDependencies() async {
   // Register modules
   await registerCoreModule();
   await registerMarketModule();
+  await registerMarket3DModule();
   await registerPortfolioModule();
   await registerAlertsModule();
   await registerWatchlistModule();

@@ -12,11 +12,16 @@ PODS:
     - Flutter
   - home_widget (0.0.1):
     - Flutter
+  - objective_c (0.0.1):
+    - Flutter
   - printing (1.0.0):
     - Flutter
   - ReachabilitySwift (5.2.4)
   - sign_in_with_apple (0.0.1):
     - Flutter
+  - thermion_flutter (0.0.1):
+    - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - amplify_auth_cognito (from `.symlinks/plugins/amplify_auth_cognito/darwin`)
@@ -25,8 +30,10 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - home_widget (from `.symlinks/plugins/home_widget/ios`)
+  - objective_c (from `.symlinks/plugins/objective_c/ios`)
   - printing (from `.symlinks/plugins/printing/ios`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+  - thermion_flutter (from `.symlinks/plugins/thermion_flutter/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -45,10 +52,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   home_widget:
     :path: ".symlinks/plugins/home_widget/ios"
+  objective_c:
+    :path: ".symlinks/plugins/objective_c/ios"
   printing:
     :path: ".symlinks/plugins/printing/ios"
   sign_in_with_apple:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
+  thermion_flutter:
+    :path: ".symlinks/plugins/thermion_flutter/darwin"
 
 SPEC CHECKSUMS:
   amplify_auth_cognito: a5d9cb77abfbe05e3501ad0c45dddc81503e7074
@@ -57,9 +68,11 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
   home_widget: f169fc41fd807b4d46ab6615dc44d62adbf9f64f
+  objective_c: 89e720c30d716b036faf9c9684022048eee1eee2
   printing: 54ff03f28fe9ba3aa93358afb80a8595a071dd07
   ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
+  thermion_flutter: ba41c1b6232890a4fd49d63e82b6d1679d8c2c26
 
 PODFILE CHECKSUM: 1857a7cdb7dfafe45f2b0e9a9af44644190f7506
 

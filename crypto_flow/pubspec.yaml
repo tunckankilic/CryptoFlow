@@ -18,6 +18,8 @@ dependencies:
     path: packages/design_system
   market:
     path: packages/market
+  market_3d:
+    path: packages/market_3d
   portfolio:
     path: packages/portfolio
   alerts:

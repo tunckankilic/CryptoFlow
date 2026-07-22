@@ -14,6 +14,7 @@ export 'domain/models/camera_command.dart';
 export 'domain/models/candle_block.dart';
 export 'domain/models/depth_surface.dart';
 export 'domain/models/market_scene.dart';
+export 'domain/models/orbit_camera_state.dart';
 export 'domain/models/price_scale.dart';
 export 'domain/models/scene_color.dart';
 export 'domain/models/scene_layout.dart';

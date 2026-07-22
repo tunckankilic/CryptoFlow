@@ -6,8 +6,10 @@ import '../../domain/models/camera_command.dart';
 import '../../domain/models/candle_block.dart';
 import '../../domain/models/depth_surface.dart';
 import '../../domain/models/market_scene.dart';
+import '../../domain/models/orbit_camera_state.dart';
 import '../../domain/models/scene_color.dart';
 import '../../domain/models/scene_tap.dart';
+import '../../domain/models/vec3.dart';
 import '../../domain/renderer/market_scene_renderer.dart';
 import 'candle_mesh.dart';
 
@@ -58,6 +60,13 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   /// already on screen, so a newly opened candle is placed with the same
   /// frozen offset and the city recentres only on the next full [setScene].
   double _seriesOffsetX = 0;
+
+  /// The camera's current orbit state, established by the last
+  /// [_frameScene] call. `null` until the first one runs, which `setScene`
+  /// always triggers before any gesture can reach [applyCamera] — see
+  /// [_orbit]/[_zoom]'s null guard for the race that protects against
+  /// anyway (a gesture landing in the gap before the first frame).
+  OrbitCameraState? _cameraState;
 
   @override
   bool get isInitialized => _isInitialized;
@@ -269,19 +278,27 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
     );
   }
 
-  /// Only [FrameScene] is implemented so far: a fixed shot that fits the
-  /// whole city, computed from the scene [setScene] last received. Gesture
-  /// commands (orbit/zoom/reset) land in session 7 and can call this same
-  /// path for their "reset" case instead of duplicating the framing math.
+  /// Dispatches every [CameraCommand] except [SetAutoOrbit] (the slow demo
+  /// auto-orbit, session 12's job). [FrameScene] and [ResetCamera] both go
+  /// through [_frameScene] — a reset is exactly the establishing shot,
+  /// recomputed for whatever the city looks like now. [OrbitBy] and
+  /// [ZoomBy] mutate the [OrbitCameraState] [_frameScene] last established.
   @override
   Future<void> applyCamera(CameraCommand command) async {
-    if (command is FrameScene) {
-      await _frameScene(command);
-      return;
+    switch (command) {
+      case FrameScene():
+        await _frameScene(command);
+      case ResetCamera():
+        await _frameScene(const FrameScene());
+      case OrbitBy():
+        await _orbit(command);
+      case ZoomBy():
+        await _zoom(command);
+      case SetAutoOrbit():
+        throw UnimplementedError(
+          'applyCamera($command) lands in session 12 (demo mode auto-orbit)',
+        );
     }
-    throw UnimplementedError(
-      'applyCamera($command) lands in session 7 (camera controls)',
-    );
   }
 
   /// Positions the camera on a diagonal high enough to read city depth and
@@ -289,20 +306,63 @@ class ThermionMarketSceneRenderer implements MarketSceneRenderer {
   /// clipped, looking at the vertical mid-point of the price range.
   ///
   /// Approximate on purpose — this is a fixed establishing shot, not a tight
-  /// bounding-box fit; session 7's orbit/zoom is what a user actually frames
-  /// the city with.
+  /// bounding-box fit. The zoom bounds handed to [OrbitCameraState] scale
+  /// with [distance] rather than being fixed, so [_zoom]'s clamp stays
+  /// sensible whether the city is 36 units wide or 85 — see
+  /// [OrbitCameraState]'s doc comment for why thermion's own orbit
+  /// manipulator can't do this through `ViewerWidget`'s public API.
   Future<void> _frameScene(FrameScene command) async {
-    final camera = await _viewer.getActiveCamera();
-
     final width = _scene.isEmpty ? 1.0 : _scene.width;
     final height = _scene.isEmpty ? _scene.layout.sceneHeight : _scene.topExtent;
     final span = (width > height ? width : height) * (1 + command.paddingRatio);
     final distance = span * 0.9 + 4.0;
 
-    await camera.lookAt(
-      Vector3(distance * 0.5, height * 0.55 + distance * 0.28, distance * 0.85),
-      focus: Vector3(0, height / 2, 0),
+    final focus = Vec3(0, height / 2, 0);
+    final position = Vec3(
+      distance * 0.5,
+      height * 0.55 + distance * 0.28,
+      distance * 0.85,
     );
+
+    await _applyOrbitState(
+      OrbitCameraState.fromPosition(
+        position: position,
+        focus: focus,
+        minRadius: distance * 0.3,
+        maxRadius: distance * 3.0,
+      ),
+    );
+  }
+
+  /// Rotates the camera by [command]'s deltas around the last framed focus
+  /// point. A no-op if no [_frameScene] has run yet (nothing to orbit
+  /// around) — can't happen in practice since [setScene] always frames the
+  /// city before the viewport becomes interactive, but a gesture racing that
+  /// first frame is cheap to guard against.
+  Future<void> _orbit(OrbitBy command) async {
+    final state = _cameraState;
+    if (state == null) return;
+    await _applyOrbitState(
+      state.orbitBy(yawDelta: command.yawDelta, pitchDelta: command.pitchDelta),
+    );
+  }
+
+  /// Scales the camera's distance from the focus point by [ZoomBy.factor].
+  Future<void> _zoom(ZoomBy command) async {
+    final state = _cameraState;
+    if (state == null) return;
+    await _applyOrbitState(state.zoomBy(command.factor));
+  }
+
+  /// Applies [state] to the engine camera and records it as [_cameraState]
+  /// so the next gesture starts from here.
+  Future<void> _applyOrbitState(OrbitCameraState state) async {
+    final camera = await _viewer.getActiveCamera();
+    await camera.lookAt(
+      Vector3(state.position.x, state.position.y, state.position.z),
+      focus: Vector3(state.focus.x, state.focus.y, state.focus.z),
+    );
+    _cameraState = state;
   }
 
   @override

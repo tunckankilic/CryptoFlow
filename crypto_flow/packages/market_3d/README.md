@@ -37,3 +37,43 @@ market tick. The live block therefore has to be updated in place rather than
 rebuilt (session 6); if editing its vertices proves awkward, the live candle
 alone can fall back to a unit-cube body scaled by transform while history
 stays merged.
+
+## Performance pass (session 8): already at target, no changes made
+
+**Measured on a physical iPhone (iPhone14,5, iOS 27), `flutter run --profile`,
+DevTools Performance page, ~100–102 real BTCUSDT 1m candles, live kline stream
+running throughout, camera actively orbiting/pinching/resetting during capture:**
+
+| | Build (UI) | Raster | Total | Budget (60fps) |
+|---|---|---|---|---|
+| Sample 1 | 0.4 ms | 1.5 ms | 1.9 ms | 16.7 ms |
+| Sample 2 | 1.4 ms | 0.8 ms | 2.2 ms | 16.7 ms |
+| Sample 3 (spans a candle rollover) | 0.9 ms | 1.1 ms | 2.0 ms | 16.7 ms |
+
+DevTools reported "No suggestions for this frame - no jank detected" on every
+inspected frame across two separate ~20–55s capture windows, average FPS held
+at 57–60 throughout, no red (jank) bars in either window. No before/after
+delta to report — **the checklist in PLAN.md (material/entity reuse,
+zero-allocation frames, WS throttling, candle cap) turned out to already be
+satisfied by the session 1–7 design, not something this session needed to
+apply:**
+
+- Binance's own kline WebSocket only pushes an update roughly once per
+  second — far below the 60Hz frame budget — so "throttle WS-driven scene
+  updates to display refresh" was never actually a live risk; there was
+  nothing to throttle down to.
+- The common-case live tick already takes the O(1)-per-tick
+  `CandleSceneAdapter.applyLiveCandle` path (session 6), touching exactly one
+  asset. A full rescale (`buildScene`, the ~100ms-for-100-candles path) only
+  fires when a live price escapes the current `PriceScale`, which is rare and
+  was not observed during this session's capture windows.
+- Materials are already one `UbershaderMaterialInstance` per candle, created
+  once at `addCandle`/`updateLiveBlock` time, not recreated per frame; camera
+  gestures only call `camera.lookAt` (session 7), never touch geometry or
+  materials.
+
+Conclusion: **60fps target met on this device without any code change.** If a
+future session adds heavier per-frame work (e.g. depth terrain, session
+10–11), re-run this same DevTools capture before assuming the budget still
+holds — this number is a snapshot of the candlestick-city-only scene, not a
+permanent guarantee.

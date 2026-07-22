@@ -72,6 +72,46 @@ class Market3DCandleReceived extends Market3DEvent {
   List<Object?> get props => [candle];
 }
 
+/// Subscribes to live order book updates for the depth terrain.
+///
+/// Mirrors [SubscribeToMarket3DStream]. Renamed for the same reason `market`'s
+/// own `LoadCandles`/`SubscribeToOrderBook` were avoided in S4/S10 — this
+/// package's barrel and `market`'s barrel (which already declares
+/// `SubscribeToOrderBook` on `OrderBookBloc`) get imported together.
+class SubscribeToMarket3DDepthStream extends Market3DEvent {
+  final String symbol;
+
+  /// Price levels per side. Matches [LoadMarket3DDepth]'s default so the
+  /// terrain's shape doesn't change when the stream takes over from REST.
+  final int limit;
+
+  const SubscribeToMarket3DDepthStream({
+    required this.symbol,
+    this.limit = 20,
+  });
+
+  @override
+  List<Object?> get props => [symbol, limit];
+}
+
+/// Internal: an order book update arrived from the WebSocket stream.
+class Market3DDepthReceived extends Market3DEvent {
+  final OrderBook book;
+
+  const Market3DDepthReceived(this.book);
+
+  @override
+  List<Object?> get props => [book];
+}
+
+/// Shows or hides the rendered depth terrain.
+///
+/// Display-only: the order book subscription and the held surface are left
+/// running, so re-enabling the terrain doesn't need a fresh snapshot.
+class ToggleMarket3DDepthTerrain extends Market3DEvent {
+  const ToggleMarket3DDepthTerrain();
+}
+
 /// A block was tapped in the 3D scene, or empty space was tapped.
 ///
 /// Selection lives in bloc state rather than in the viewport so the OHLC

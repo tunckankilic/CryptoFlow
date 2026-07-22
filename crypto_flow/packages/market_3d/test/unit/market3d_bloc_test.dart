@@ -20,7 +20,9 @@ void main() {
   late GetCandlesUseCase getCandlesUseCase;
   late GetCandleStreamUseCase getCandleStreamUseCase;
   late GetOrderBookUseCase getOrderBookUseCase;
+  late GetOrderBookStreamUseCase getOrderBookStreamUseCase;
   late StreamController<Either<Failure, Candle>> candleStreamController;
+  late StreamController<Either<Failure, OrderBook>> depthStreamController;
 
   setUp(() {
     mockRepository = _MockMarketRepository();
@@ -28,10 +30,16 @@ void main() {
     getCandlesUseCase = GetCandlesUseCase(mockRepository);
     getCandleStreamUseCase = GetCandleStreamUseCase(mockWsRepository);
     getOrderBookUseCase = GetOrderBookUseCase(mockRepository);
+    getOrderBookStreamUseCase = GetOrderBookStreamUseCase(mockWsRepository);
 
     candleStreamController = StreamController<Either<Failure, Candle>>();
     when(() => mockWsRepository.getCandleStream(any(), any()))
         .thenAnswer((_) => candleStreamController.stream);
+
+    depthStreamController = StreamController<Either<Failure, OrderBook>>();
+    when(() => mockWsRepository.getOrderBookStream(any(),
+            depth: any(named: 'depth')))
+        .thenAnswer((_) => depthStreamController.stream);
   });
 
   tearDown(() {
@@ -40,6 +48,7 @@ void main() {
     // that never subscribe (e.g. the plain load/error cases) never do —
     // awaiting it here would hang every test until the 30s timeout.
     candleStreamController.close();
+    depthStreamController.close();
   });
 
   List<Candle> threeCandles() => [
@@ -52,6 +61,7 @@ void main() {
         getCandlesUseCase: getCandlesUseCase,
         getCandleStreamUseCase: getCandleStreamUseCase,
         getOrderBookUseCase: getOrderBookUseCase,
+        getOrderBookStreamUseCase: getOrderBookStreamUseCase,
       );
 
   void mockCandlesSuccess(List<Candle> candles) {
@@ -530,6 +540,129 @@ void main() {
         isA<Market3DLoaded>()
             .having((s) => s.depthSurface, 'surface survived', isNotNull)
             .having((s) => s.candles.last.close, 'live close', 117),
+      ],
+    );
+  });
+
+  group('SubscribeToMarket3DDepthStream', () {
+    blocTest<Market3DBloc, Market3DState>(
+      'attaches a surface built from a live order book tick',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+        await Future.delayed(Duration.zero);
+        bloc.add(const SubscribeToMarket3DDepthStream(symbol: 'BTCUSDT'));
+        await Future.delayed(Duration.zero);
+        depthStreamController.add(Right(testBook()));
+      },
+      skip: 2,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.depthSurface?.bids.length, 'bid levels', 2)
+            .having((s) => s.depthSurface?.asks.length, 'ask levels', 2)
+            // The city is untouched by a depth-only tick.
+            .having((s) => s.blockCount, 'block count', 3),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'holds a surface that arrives before the city, same as the REST path',
+      build: () {
+        depthStreamController = StreamController<Either<Failure, OrderBook>>();
+        when(() => mockWsRepository.getOrderBookStream(any(),
+                depth: any(named: 'depth')))
+            .thenAnswer((_) => depthStreamController.stream);
+        when(() => mockRepository.getCandles(
+              any(),
+              any(),
+              limit: any(named: 'limit'),
+              startTime: any(named: 'startTime'),
+              endTime: any(named: 'endTime'),
+            )).thenAnswer((_) async {
+          await Future.delayed(const Duration(milliseconds: 20));
+          return Right(threeCandles());
+        });
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+        bloc.add(const SubscribeToMarket3DDepthStream(symbol: 'BTCUSDT'));
+        await Future.delayed(Duration.zero);
+        depthStreamController.add(Right(testBook()));
+      },
+      wait: const Duration(milliseconds: 50),
+      skip: 1,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.depthSurface, 'surface present', isNotNull)
+            .having((s) => s.blockCount, 'block count', 3),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'leaves the city and the previous surface standing on a stream error',
+      // Same reasoning as `LoadMarket3DDepth`'s failure case: the terrain is
+      // an addition to the city, so a dropped connection is logged, not
+      // turned into a `Market3DError` or a change to candle-stream liveness.
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+        await Future.delayed(Duration.zero);
+        bloc.add(const SubscribeToMarket3DDepthStream(symbol: 'BTCUSDT'));
+        await Future.delayed(Duration.zero);
+        depthStreamController.add(const Left(NetworkFailure()));
+      },
+      skip: 2,
+      expect: () => <Market3DState>[],
+    );
+  });
+
+  group('ToggleMarket3DDepthTerrain', () {
+    blocTest<Market3DBloc, Market3DState>(
+      'defaults to visible once loaded',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        return buildBloc();
+      },
+      act: (bloc) => bloc
+          .add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m')),
+      skip: 1,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.depthTerrainVisible, 'visible', true),
+      ],
+    );
+
+    blocTest<Market3DBloc, Market3DState>(
+      'flips visibility without touching the held surface',
+      build: () {
+        mockCandlesSuccess(threeCandles());
+        mockOrderBookSuccess(testBook());
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const LoadMarket3DCandles(symbol: 'BTCUSDT', interval: '1m'));
+        await Future.delayed(Duration.zero);
+        bloc.add(const LoadMarket3DDepth(symbol: 'BTCUSDT'));
+        await Future.delayed(Duration.zero);
+        bloc.add(const ToggleMarket3DDepthTerrain());
+        await Future.delayed(Duration.zero);
+        bloc.add(const ToggleMarket3DDepthTerrain());
+      },
+      skip: 3,
+      expect: () => [
+        isA<Market3DLoaded>()
+            .having((s) => s.depthTerrainVisible, 'hidden', false)
+            .having((s) => s.depthSurface, 'surface kept', isNotNull),
+        isA<Market3DLoaded>()
+            .having((s) => s.depthTerrainVisible, 'visible again', true)
+            .having((s) => s.depthSurface, 'surface kept', isNotNull),
       ],
     );
   });

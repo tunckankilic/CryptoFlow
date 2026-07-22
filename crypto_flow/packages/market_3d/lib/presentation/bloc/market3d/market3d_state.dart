@@ -66,6 +66,14 @@ class Market3DLoaded extends Market3DState {
   /// standing rather than take the whole tab down with it.
   final DepthSurface? depthSurface;
 
+  /// Whether the terrain is drawn on top of the city.
+  ///
+  /// A pure display flag — [depthSurface] and its subscription keep updating
+  /// underneath even when this is `false`, so switching it back on doesn't
+  /// need a fresh snapshot. Defaults to `true`: S8's fps headroom is large
+  /// enough that the combined view is the default, not an opt-in.
+  final bool depthTerrainVisible;
+
   const Market3DLoaded({
     required this.symbol,
     required this.interval,
@@ -74,6 +82,7 @@ class Market3DLoaded extends Market3DState {
     this.isLive = false,
     this.selectedBlockIndex,
     this.depthSurface,
+    this.depthTerrainVisible = true,
   });
 
   /// The candle behind the current selection, or `null` when nothing is
@@ -96,6 +105,7 @@ class Market3DLoaded extends Market3DState {
     int? selectedBlockIndex,
     bool clearSelection = false,
     DepthSurface? depthSurface,
+    bool? depthTerrainVisible,
   }) {
     return Market3DLoaded(
       symbol: symbol,
@@ -106,6 +116,7 @@ class Market3DLoaded extends Market3DState {
       selectedBlockIndex:
           clearSelection ? null : selectedBlockIndex ?? this.selectedBlockIndex,
       depthSurface: depthSurface ?? this.depthSurface,
+      depthTerrainVisible: depthTerrainVisible ?? this.depthTerrainVisible,
     );
   }
 
@@ -118,6 +129,7 @@ class Market3DLoaded extends Market3DState {
         isLive,
         selectedBlockIndex,
         depthSurface,
+        depthTerrainVisible,
       ];
 }
 

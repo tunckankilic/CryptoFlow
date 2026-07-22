@@ -47,6 +47,7 @@ Future<void> registerMarket3DModule() async {
       getCandlesUseCase: getIt<GetCandlesUseCase>(),
       getCandleStreamUseCase: getIt<GetCandleStreamUseCase>(),
       getOrderBookUseCase: getIt<GetOrderBookUseCase>(),
+      getOrderBookStreamUseCase: getIt<GetOrderBookStreamUseCase>(),
       adapter: CandleSceneAdapter(layout: _market3DCityLayout),
       depthAdapter: DepthSceneAdapter(layout: _market3DDepthLayout),
     ),

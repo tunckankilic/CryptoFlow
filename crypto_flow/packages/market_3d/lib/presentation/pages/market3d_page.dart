@@ -9,12 +9,15 @@ import '../widgets/candle_inspect_panel.dart';
 
 /// The "3D Market" tab.
 ///
-/// Dispatches [LoadMarket3DCandles], [SubscribeToMarket3DStream] and
-/// [LoadMarket3DDepth] on mount, shows a loading/error placeholder until
-/// history arrives, then hands the loaded scene to [Market3DViewport] — which
-/// stays mounted and picks up every live tick as `state.scene` changes
-/// underneath it. The depth terrain arrives on its own schedule and simply
-/// appears once the order book snapshot lands.
+/// Dispatches [LoadMarket3DCandles], [SubscribeToMarket3DStream],
+/// [LoadMarket3DDepth] and [SubscribeToMarket3DDepthStream] on mount, shows a
+/// loading/error placeholder until history arrives, then hands the loaded
+/// scene to [Market3DViewport] — which stays mounted and picks up every live
+/// tick as `state.scene` changes underneath it. The depth terrain arrives on
+/// its own schedule and simply appears once the order book snapshot lands,
+/// then keeps re-meshing as the live stream ticks. An `AppBar` action toggles
+/// [Market3DLoaded.depthTerrainVisible] without touching the subscription —
+/// hiding the terrain just stops passing it to the viewport.
 class Market3DPage extends StatefulWidget {
   const Market3DPage({super.key});
 
@@ -36,12 +39,32 @@ class _Market3DPageState extends State<Market3DPage> {
           const SubscribeToMarket3DStream(symbol: _symbol, interval: _interval),
         );
     context.read<Market3DBloc>().add(const LoadMarket3DDepth(symbol: _symbol));
+    context.read<Market3DBloc>().add(
+          const SubscribeToMarket3DDepthStream(symbol: _symbol),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('3D Market')),
+      appBar: AppBar(
+        title: const Text('3D Market'),
+        actions: [
+          BlocBuilder<Market3DBloc, Market3DState>(
+            builder: (context, state) {
+              if (state is! Market3DLoaded) return const SizedBox.shrink();
+              final visible = state.depthTerrainVisible;
+              return IconButton(
+                icon: Icon(visible ? Icons.terrain : Icons.terrain_outlined),
+                tooltip: visible ? 'Hide depth terrain' : 'Show depth terrain',
+                onPressed: () => context
+                    .read<Market3DBloc>()
+                    .add(const ToggleMarket3DDepthTerrain()),
+              );
+            },
+          ),
+        ],
+      ),
       backgroundColor: const Color(0xFF0B0D12),
       body: BlocBuilder<Market3DBloc, Market3DState>(
         builder: (context, state) {
@@ -52,7 +75,8 @@ class _Market3DPageState extends State<Market3DPage> {
                 Positioned.fill(
                   child: Market3DViewport(
                     scene: state.scene,
-                    depthSurface: state.depthSurface,
+                    depthSurface:
+                        state.depthTerrainVisible ? state.depthSurface : null,
                     selectedBlockIndex: state.selectedBlockIndex,
                     onBlockTapped: (index) => context
                         .read<Market3DBloc>()

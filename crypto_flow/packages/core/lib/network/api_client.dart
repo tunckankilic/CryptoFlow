@@ -227,6 +227,7 @@ class _ErrorInterceptor extends Interceptor {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         exception = TimeoutException(
           message: 'Request timeout. Please try again.',
           duration: err.requestOptions.receiveTimeout,
